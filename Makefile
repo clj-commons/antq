@@ -39,7 +39,7 @@ docker-test: ## Run test in a docker container
 
 .PHONY: coverage
 coverage: ## Check coverage
-	clojure -M:coverage:dev:nop --src-ns-path=src --test-ns-path=test --codecov
+	clojure -M:test:coverage:dev:nop --src-ns-path=src --test-ns-path=test --codecov
 
 .PHONY: clean
 clean:

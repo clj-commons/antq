@@ -9,6 +9,7 @@
   (:gen-class)
   (:require
    [antq.changelog :as changelog]
+   [antq.cli]
    [antq.dep.babashka :as dep.bb]
    [antq.dep.boot :as dep.boot]
    [antq.dep.circle-ci :as dep.circle-ci]
@@ -51,31 +52,9 @@
    [antq.ver.github-tag]
    [antq.ver.java]
    [clojure.string :as str]
-   [clojure.tools.cli :as cli]
    [version-clj.core :as version])
   (:import
    clojure.lang.ExceptionInfo))
-
-(defn- concat-assoc-fn
-  [opt k v]
-  (update opt k concat (str/split v #":")))
-
-(def ^:private supported-reporter
-  (->> (methods report/reporter)
-       (keys)
-       (filter string?)
-       (set)))
-
-(def ^:private skippable
-  #{"boot"
-    "circle-ci"
-    "clojure-cli"
-    "github-action"
-    "gradle"
-    "pom"
-    "shadow-cljs"
-    "leiningen"
-    "babashka"})
 
 (def ^:private disallowed-unverified-deps-map
   {"antq/antq" "com.github.liquidz/antq"
@@ -84,26 +63,6 @@
 
 (def ^:private only-newest-version-dep-names
   #{"org.clojure/clojure"})
-
-(def cli-options
-  [[nil "--exclude=EXCLUDE" :default [] :assoc-fn concat-assoc-fn]
-   [nil "--focus=FOCUS" :default [] :assoc-fn concat-assoc-fn]
-   [nil "--skip=SKIP" :default [] :assoc-fn concat-assoc-fn
-    :validate [#(skippable %) (str "Must be one of [" (str/join ", " skippable) "]")]]
-   [nil "--error-format=ERROR_FORMAT" :default nil]
-   [nil "--reporter=REPORTER" :default "table"
-    :validate [#(supported-reporter %) (str "Must be one of [" (str/join ", " supported-reporter) "]")]]
-   ["-d" "--directory=DIRECTORY" :default ["."] :assoc-fn concat-assoc-fn]
-   [nil "--upgrade"]
-   [nil "--verbose"]
-   [nil "--force"]
-   [nil "--download"]
-   [nil "--ignore-locals"]
-   [nil "--check-clojure-tools"]
-   [nil "--no-diff"] ; deprecated (for backward compatibility)
-   [nil "--no-changes"]
-   [nil "--changes-in-table"]
-   [nil "--transitive"]])
 
 (defn- parse-artifact
   "Retrieve artifact name and version from artifact string"
@@ -332,27 +291,37 @@
       (unmark-only-newest-version-flag))))
 
 (defn main*
-  [options errors]
+  [{:keys [opts warnings errors help]}]
   (u.maven/initialize-proxy-setting!)
-  (let [options (cond-> (update options :directory u.file/distinct-directory)
-                  ;; Force "format" reporter when :error-format is specified
-                  (some? (:error-format options)) (assoc :reporter "format"))
-        deps (and (not errors)
-                  (fetch-deps options))]
+  (let [opts (cond-> (update opts :directory u.file/distinct-directory)
+               ;; Force "format" reporter when :error-format is specified
+               (some? (:error-format opts)) (assoc :reporter "format"))
+        deps (when (not (seq errors))
+               (fetch-deps opts))]
+    (doseq [w warnings]
+      ;; a bit weird to log/info but warnings only show if verbose is enabled
+      (log/info (str "WARNING: " (:msg w))))
     (cond
-      errors
+      (seq errors)
       (do (doseq [e errors]
-            (log/error e))
+            (log/error (str "ERROR: " (:msg e))))
+          (log/info "")
+          (log/info help)
           (system-exit 1))
+
+      help
+      (do
+        (log/info help)
+        (system-exit 0))
 
       (seq deps)
       (let [alog (log/start-async-logger!)
-            outdated (antq options deps)]
+            outdated (antq opts deps)]
         (try
-          (report/reporter outdated options)
+          (report/reporter outdated opts)
           (cond-> outdated
-            (:upgrade options)
-            (-> (upgrade/upgrade! options)
+            (:upgrade opts)
+            (-> (upgrade/upgrade! opts)
                 ;; get non-upgraded deps
                 (get false))
 
@@ -366,10 +335,12 @@
           (system-exit 1)))))
 
 (defn -main
+  "Entrypoint for clojure -M cli usage"
   [& args]
-  (let [{:keys [options errors]} (cli/parse-opts args cli-options)
-        options (update options :error-format #(some-> %
-                                                       (str/replace #"\\n" "\n")
-                                                       (str/replace #"\\t" "\t")))]
-    (binding [log/*verbose* (:verbose options false)]
-      (main* options errors))))
+  (let [opts-res (-> (antq.cli/parse-args args)
+                     (update :error-format #(some-> %
+                                                    (str/replace #"\\n" "\n")
+                                                    (str/replace #"\\t" "\t"))))]
+
+    (binding [log/*verbose* (:verbose (:opts opts-res) false)]
+      (main* opts-res))))
