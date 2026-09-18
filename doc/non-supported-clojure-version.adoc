@@ -1,6 +1,6 @@
 = Antq on projects that use an old version of Clojure 
 
-Antq does not support Clojure 1.10.0 or earlier.
+Antq requires a minimum of Clojure 1.11
 You can still use antq on these older projects; follow the steps below. 
 
 == Clojure CLI
@@ -8,7 +8,7 @@ You can still use antq on these older projects; follow the steps below.
 Use `:deps`, not `:extra-deps`.
 This will use the default Clojure cli version, instead of the older Clojure version on which your project depends.
 
-TIP: This assumes your installed Clojure cli version is 1.10 or later.
+TIP: This assumes your installed Clojure cli version is 1.11 or later.
 
 [source,clojure]
 ----
@@ -21,8 +21,8 @@ If you must use `:extra-deps`, add an antq supported version of Clojure explicit
 
 [source,clojure]
 ----
-{:aliases {:outdated {:extra-deps {;; Use 1.8.0 or later only for antq
-                                   org.clojure/clojure {:mvn/version "1.11.1"}
+{:aliases {:outdated {:extra-deps {;; Use 1.11 or later only for antq
+                                   org.clojure/clojure {:mvn/version "1.12.5"}
                                    com.github.liquidz/antq {:mvn/version "RELEASE"}}
                       :main-opts ["-m" "antq.core"]}}}
 ----
@@ -31,7 +31,7 @@ Then, run `clojure -M:outdated`.
 
 == Leiningen
 
-Please run antq as a plugin.
+You can run antq as a plugin.
 Running as plugin will ignore the Clojure version which your project depends.
 
 [source,clojure]

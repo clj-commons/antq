@@ -15,9 +15,9 @@ image:https://img.shields.io/badge/docker-automated-blue["GitHub Container Regis
 
 [NOTE]
 ====
-Antq requires Clojure 1.10.0 or later. +
-Basically, antq could work regardless of the Clojure version which your project depends. +
-If you have a trouble, please see link:./doc/non-supported-clojure-version.adoc[here].
+Antq requires Clojure 1.11 or later. +
+Basically, antq can work regardless of the Clojure version on which your project depends. +
+If you have trouble, please see link:./doc/non-supported-clojure-version.adoc[here].
 ====
 
 == Supported files
@@ -100,7 +100,6 @@ Or add the following alias to your project `deps.edn` or `$HOME/.clojure/deps.ed
 }
 ----
 Then, run `clojure -M:outdated`.
-(run `clojure -A:outdated` for Clojure CLI Tool 1.10.1.645 or earlier).
 
 [[usage-clojure-tool]]
 === Clojure CLI Tools (`1.11.1.1139` or later)

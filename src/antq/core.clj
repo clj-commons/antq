@@ -1,8 +1,8 @@
-;; Warn on Clojure 1.7.0 or earlier
+;; Fail on Clojure 1.11.0 or earlier
 (let [{:keys [major minor]} *clojure-version*]
-  (when-not (or (and (= major 1) (>= minor 10))
+  (when-not (or (and (= major 1) (>= minor 11))
                 (> major 1))
-    (.println ^java.io.PrintWriter *err* "antq requires Clojure 1.10.0 or later.")
+    (.println ^java.io.PrintWriter *err* "antq requires Clojure 1.11 or later.")
     (System/exit 1)))
 
 (ns ^:no-doc antq.core
