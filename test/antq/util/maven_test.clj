@@ -106,13 +106,13 @@
 
 (t/deftest get-url-test
   (let [model (sut/read-pom test-pom-path)]
-    (t/is (= "https://github.com/liquidz/antq"
+    (t/is (= "https://github.com/clj-commons/antq"
              (sut/get-model-url model)))))
 
 (t/deftest get-scm-url-test
   (let [model (sut/read-pom test-pom-path)
         scm (sut/get-model-scm model)]
-    (t/is (= "https://github.com/liquidz/antq"
+    (t/is (= "https://github.com/clj-commons/antq"
              (sut/get-scm-url scm)))))
 
 (t/deftest get-local-versions-test

@@ -54,11 +54,11 @@
                                   :version "1.2.3"}))))
   (t/testing "git-sha with git/url"
     (t/is (= {'foo/bar {:git/sha "86eddb89f2a2018fd984dffaadfec13e6735e92f"
-                        :git/url "https://github.com/liquidz/antq"}}
+                        :git/url "https://github.com/clj-commons/antq"}}
              (#'sut/dep->dep-map {:type :git-sha
                                   :name "foo/bar"
                                   :version "86eddb89f2a2018fd984dffaadfec13e6735e92f"
-                                  :extra {:url "https://github.com/liquidz/antq"}}))))
+                                  :extra {:url "https://github.com/clj-commons/antq"}}))))
   (t/testing "git-sha without git/url"
     (t/is (= {'com.github.liquidz/antq {:git/sha "86eddb89f2a2018fd984dffaadfec13e6735e92f"}}
              (#'sut/dep->dep-map {:type :git-sha
@@ -67,12 +67,12 @@
   (t/testing "git-tag-and-sha with git/url"
     (t/is (= {'foo/bar {:git/tag "1.2.3"
                         :git/sha "86eddb8"
-                        :git/url "https://github.com/liquidz/antq"}}
+                        :git/url "https://github.com/clj-commons/antq"}}
              (#'sut/dep->dep-map {:type :git-tag-and-sha
                                   :name "foo/bar"
                                   :version "1.2.3"
                                   :extra {:sha "86eddb8"
-                                          :url "https://github.com/liquidz/antq"}}))))
+                                          :url "https://github.com/clj-commons/antq"}}))))
   (t/testing "git-tag-and-sha without git/url"
     (t/is (= {'com.github.liquidz/antq {:git/tag "1.2.3"
                                         :git/sha "86eddb8"}}

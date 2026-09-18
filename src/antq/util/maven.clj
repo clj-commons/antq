@@ -147,7 +147,7 @@
 (defn read-pom
   ^Model
   [^String url]
-  (when-not (str/includes? url "s3://") ; can't do diff's on s3:// repos, https://github.com/liquidz/antq/issues/133.
+  (when-not (str/includes? url "s3://") ; can't do diff's on s3:// repos, https://github.com/clj-commons/antq/issues/133.
     (loop [i 0]
       (when (< i const/retry-limit)
         (or (try
