@@ -1,12 +1,11 @@
 (ns ^:no-doc leiningen.antq
+  "Entry point antq when used as a leiningen plugin"
   (:require
-   [antq.core]
-   [antq.dep.leiningen :as dep.lein]
-   [antq.log :as log]
-   [antq.record :as r]
-   [antq.report :as report]
-   [leiningen.core.main]))
-
+   [clojure.edn :as edn]
+   [leiningen.core.eval :as lein-eval]
+   [leiningen.core.main :as lein-main])
+  (:import [java.io File]))
+ 
 (defn antq
   ;; docstring is presented as help for plugin
   ;; lein antq --help
@@ -17,34 +16,30 @@
   For the time being it merely checks for outdated dependencies;
   it doesn't support the `:upgrade` option because it cannot always know what to fix
   (in face of eval, profiles, plugins/middleware)."
-  [{:keys [dependencies managed-dependencies plugins repositories]
-    {:keys [error-format reporter upgrade] :as antq-options} :antq}]
-  (let [repos (dep.lein/normalize-repositories repositories)
-        options (cond-> antq-options
-                  (and (not error-format)
-                       (not reporter)) (assoc :reporter "table"))
-        _ (when upgrade
-            (assert false ":upgrade option not supported under the Lein plugin."))
-        alog (log/start-async-logger!)]
-    (try
-      (let [outdated (->> dependencies
-                          (into managed-dependencies)
-                          (into plugins)
-                          (distinct)
-                          (keep (fn [[dep-name version]]
-                                  (when (dep.lein/acceptable-version? version)
-                                    (r/map->Dependency {:project :leiningen
-                                                        :type :java
-                                                        :file "project.clj"
-                                                        :name (dep.lein/normalize-name dep-name)
-                                                        :version version
-                                                        :repositories repos}))))
-                          (antq.core/antq options))]
+  [{:keys [dependencies managed-dependencies plugins repositories antq] :as project}]
+  (let [antq-plugin-version (->> plugins
+                                 (filter (fn [dep] (= (first dep) 'com.github.liquidz/antq)))
+                                 first
+                                 second)
+        deps (->> dependencies
+                  (into managed-dependencies)
+                  (into plugins)
+                  distinct)
+        isolated-project {:dependencies [['com.github.liquidz/antq antq-plugin-version]]
+                          :debug true}
+        result-file (File/createTempFile "antq-lein-plugin-result" ".edn")]
+    (.deleteOnExit result-file)
+    ;; we delegate to an isolated sub-process to avoid classpath issues with Maven deps
+    ;; coming from lein and tools.deps
+    (lein-eval/eval-in-project
+      isolated-project
+      `(do
+         (antq.impl.lein-plugin/antq ~(str result-file)
+                                     {:dependencies '~deps :repositories ~repositories}
+                                     ~antq)
+         (shutdown-agents))
+      `(require '[antq.impl.lein-plugin]))
+    (let [{:keys [exit]} (-> (slurp result-file) edn/read-string)]
+      (binding [lein-main/*exit-process?* true]
+        (lein-main/exit exit)))))
 
-        (report/reporter outdated options)
-        (binding [leiningen.core.main/*exit-process?* true]
-          (leiningen.core.main/exit (if (seq outdated)
-                                      1
-                                      0))))
-      (finally
-        (log/stop-async-logger! alog)))))

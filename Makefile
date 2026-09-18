@@ -10,8 +10,7 @@ outdated: ## Run antq to detect outdated dependencies
 test: install ## Run tests
 	clojure -M:dev:1.11:test
 	clojure -M:dev:test
-# temporarily disable testing antq as lein plugin
-# script/integration_test.sh
+	script/integration_test.sh
 
 .PHONY: lint
 lint: ## Run linters

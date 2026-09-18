@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file. This change
 === Changed 
 * General dep bumping maintenance after migrating antq to clj-commons :tada:
 * Minimum Clojure version is now 1.11
+* https://github.com/clj-commons/antq/issues/304[#304]: When run as a lein plugin, antq now runs analysis in a sub-process to avoid any classpath conflicts between lein and tools.deps 
 
 == 2.11.1276 (2025-03-15)
 // {{{
