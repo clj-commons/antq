@@ -28,7 +28,7 @@
       (get const/deps-exclude-key)
       (true?)))
 
-(defn- exclude-version-range
+(defn exclude-version-range
   [v]
   (-> (meta v)
       (get const/deps-exclude-key)

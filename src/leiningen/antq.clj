@@ -31,14 +31,15 @@
                           (into managed-dependencies)
                           (into plugins)
                           (distinct)
-                          (keep (fn [[dep-name version]]
+                          (keep (fn [[dep-name version :as dep]]
                                   (when (dep.lein/acceptable-version? version)
                                     (r/map->Dependency {:project :leiningen
                                                         :type :java
                                                         :file "project.clj"
                                                         :name (dep.lein/normalize-name dep-name)
                                                         :version version
-                                                        :repositories repos}))))
+                                                        :repositories repos
+                                                        :exclude-versions (seq (dep.lein/exclude-version-range dep))}))))
                           (antq.core/antq options))]
 
         (report/reporter outdated options)
