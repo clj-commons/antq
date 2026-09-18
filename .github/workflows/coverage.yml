@@ -1,5 +1,10 @@
 name: coverage
-on: push
+
+on:
+  push:
+    branches:
+    - main
+
 jobs:
   coverage:
     runs-on: ubuntu-latest
