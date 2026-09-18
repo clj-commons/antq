@@ -8,9 +8,10 @@
    [antq.record :as r]
    [antq.report :as report]))
 
-(defn antq [result-file
-            {:keys [dependencies repositories] :as _lein-project}
-            {:keys [error-format reporter upgrade] :as antq-options}]
+(defn antq
+  [result-file
+   {:keys [dependencies repositories] :as _lein-project}
+   {:keys [error-format reporter upgrade] :as antq-options}]
   (let [repos (dep.lein/normalize-repositories repositories)
         options (cond-> antq-options
                   (and (not error-format)

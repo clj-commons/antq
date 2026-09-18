@@ -4,8 +4,10 @@
    [clojure.edn :as edn]
    [leiningen.core.eval :as lein-eval]
    [leiningen.core.main :as lein-main])
-  (:import [java.io File]))
- 
+  (:import
+   (java.io
+    File)))
+
 (defn antq
   ;; docstring is presented as help for plugin
   ;; lein antq --help
@@ -32,14 +34,13 @@
     ;; we delegate to an isolated sub-process to avoid classpath issues with Maven deps
     ;; coming from lein and tools.deps
     (lein-eval/eval-in-project
-      isolated-project
-      `(do
-         (antq.impl.lein-plugin/antq ~(str result-file)
-                                     {:dependencies '~deps :repositories ~repositories}
-                                     ~antq)
-         (shutdown-agents))
-      `(require '[antq.impl.lein-plugin]))
+     isolated-project
+     `(do
+        (antq.impl.lein-plugin/antq ~(str result-file)
+                                    {:dependencies '~deps :repositories ~repositories}
+                                    ~antq)
+        (shutdown-agents))
+     `(require '[antq.impl.lein-plugin]))
     (let [{:keys [exit]} (-> (slurp result-file) edn/read-string)]
       (binding [lein-main/*exit-process?* true]
         (lein-main/exit exit)))))
-
