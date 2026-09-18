@@ -16,7 +16,7 @@
   For the time being it merely checks for outdated dependencies;
   it doesn't support the `:upgrade` option because it cannot always know what to fix
   (in face of eval, profiles, plugins/middleware)."
-  [{:keys [dependencies managed-dependencies plugins repositories antq] :as project}]
+  [{:keys [dependencies managed-dependencies plugins repositories antq] :as _project}]
   (let [antq-plugin-version (->> plugins
                                  (filter (fn [dep] (= (first dep) 'com.github.liquidz/antq)))
                                  first
