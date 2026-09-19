@@ -133,7 +133,7 @@
   (let [content (:content (xml/parse-str (slurp file)))
         scm (first (u.xml/get-tags :scm content))]
     {:url (some-> (u.xml/get-value :url content) str/trim not-empty)
-     :scm-url (some-> scm :content (->> (u.xml/get-value :url)) str/trim not-empty)}))
+     :scm-url (some-> (when scm (u.xml/get-value :url (:content scm))) str/trim not-empty)}))
 
 (defn- get-local-versions*
   [name]

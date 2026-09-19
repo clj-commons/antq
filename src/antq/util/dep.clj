@@ -81,13 +81,17 @@
         file (io/file base path (str artifact-id "-" version ".pom"))]
     (if (.exists file)
       file
-      (try
-        (ext/coord-deps lib coord :mvn config)
-        (when (.exists file)
-          file)
-        (catch Exception ex
-          (log/warning (str "Failed to read the POM of " lib " " version ": "
-                            (ex-message ex))))))))
+      ;; a missing artifact yields no deps rather than throwing, so check the
+      ;; file again either way
+      (let [reason (try
+                     (ext/coord-deps lib coord :mvn config)
+                     nil
+                     (catch Exception ex
+                       (->> ex (iterate ex-cause) (take-while some?) last ex-message)))]
+        (if (.exists file)
+          file
+          (log/warning (str "Failed to read the POM of " lib " " version
+                            (when reason (str ": " reason)))))))))
 
 (def ^:private pom-file-with-timeout
   (u.async/fn-with-timeout
