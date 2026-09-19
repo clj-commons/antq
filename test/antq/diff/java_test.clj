@@ -9,10 +9,6 @@
    [clojure.java.io :as io]
    [clojure.test :as t]))
 
-(defn- gen-dummy-model
-  [scm-url]
-  {:scm-url scm-url})
-
 (t/deftest get-diff-url-test
   (let [dep (r/map->Dependency {:type :java
                                 :name "foo/bar"
@@ -20,7 +16,7 @@
                                 :latest-version "2.0"})]
     (t/testing "https://github.com"
       (with-redefs [u.dep/pom-file-with-timeout (constantly (io/file "pom.xml"))
-                    u.mvn/read-pom (constantly (gen-dummy-model "https://github.com/bar/baz"))
+                    u.mvn/read-pom (constantly {:scm-url "https://github.com/bar/baz"})
                     u.git/tags-by-ls-remote (fn [url]
                                               (when (= "https://github.com/bar/baz/" url)
                                                 ["v0.0" "v1.0" "v2.0" "v3.0"]))]
@@ -29,14 +25,14 @@
 
     (t/testing "git@github.com"
       (with-redefs [u.dep/pom-file-with-timeout (constantly (io/file "pom.xml"))
-                    u.mvn/read-pom (constantly (gen-dummy-model "git@github.com:git/at"))
+                    u.mvn/read-pom (constantly {:scm-url "git@github.com:git/at"})
                     u.git/tags-by-ls-remote (fn [url]
                                               (when (= "https://github.com/git/at/" url)
                                                 ["v0.0" "v1.0" "v2.0" "v3.0"]))]
         (t/is (= "https://github.com/git/at/compare/v1.0...v2.0"
                  (diff/get-diff-url (assoc dep :name "git/at"))))))
 
-    (t/testing "Failed to fetch repository URL"
+    (t/testing "POM file not found"
       (with-redefs [u.dep/pom-file-with-timeout (constantly nil)]
         (t/is (nil? (diff/get-diff-url (assoc dep :name "fetch/repo-url"))))))
 
@@ -56,5 +52,5 @@
 
     (t/testing "not supported URL"
       (with-redefs [u.dep/pom-file-with-timeout (constantly (io/file "pom.xml"))
-                    u.mvn/read-pom (constantly (gen-dummy-model "https://not-supported.com"))]
+                    u.mvn/read-pom (constantly {:scm-url "https://not-supported.com"})]
         (t/is (nil? (diff/get-diff-url (assoc dep :name "not/supported"))))))))

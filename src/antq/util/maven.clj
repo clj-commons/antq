@@ -130,11 +130,10 @@
 (defn read-pom
   "Returns the url and scm url of a POM file as a map."
   [^java.io.File file]
-  (let [root (first (filter map? (xml-seq (xml/parse-str (slurp file)))))
-        content (:content root)
+  (let [content (:content (xml/parse-str (slurp file)))
         scm (first (u.xml/get-tags :scm content))]
-    {:url (u.xml/get-value :url content)
-     :scm-url (u.xml/get-value :url (:content scm))}))
+    {:url (some-> (u.xml/get-value :url content) str/trim not-empty)
+     :scm-url (some-> scm :content (->> (u.xml/get-value :url)) str/trim not-empty)}))
 
 (defn- get-local-versions*
   [name]

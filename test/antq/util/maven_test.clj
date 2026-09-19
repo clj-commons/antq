@@ -1,5 +1,6 @@
 (ns antq.util.maven-test
   (:require
+   [antq.test-helper :as h]
    [antq.util.env :as u.env]
    [antq.util.leiningen :as u.lein]
    [antq.util.maven :as sut]
@@ -104,7 +105,12 @@
 (t/deftest read-pom-test
   (t/is (= {:url "https://github.com/clj-commons/antq"
             :scm-url "https://github.com/clj-commons/antq"}
-           (sut/read-pom test-pom-file))))
+           (sut/read-pom test-pom-file)))
+
+  (t/testing "surrounding whitespace is trimmed"
+    (h/with-temp-file [f "<project><url>\n  https://example.com\n</url></project>"]
+                      (t/is (= {:url "https://example.com" :scm-url nil}
+                               (sut/read-pom f))))))
 
 (t/deftest get-local-versions-test
   (let [dummy-file (io/file (io/resource "util/maven/maven-metadata-local.xml"))

@@ -4,7 +4,6 @@
 
 (def retry-limit
   "Retry count for
-   - antq.util.maven/read-pom
    - antq.util.git/ls-remote*"
   5)
 
@@ -36,7 +35,7 @@
 
 (def pom-timeout-msec
   "Timeout msec for
-   - antq.util.maven/read-pom*"
+   - antq.util.dep/pom-file*"
   (u.env/getlong "ANTQ_POM_TIMEOUT" default-timeout-msec))
 
 (def transitive-max-depth

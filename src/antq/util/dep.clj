@@ -74,15 +74,20 @@
   (let [lib (symbol (:name dep))
         version (:version dep)
         coord {:mvn/version version}
+        ;; credentials from a project file will go here as :mvn/settings
         config {:mvn/repos (:repositories (repository-opts dep))}
         {:keys [base path]} (deps/lib-location lib coord config)
         artifact-id (first (str/split (name lib) #"\$"))
         file (io/file base path (str artifact-id "-" version ".pom"))]
-    (when-not (.exists file)
-      (ext/coord-deps lib coord :mvn config))
     (if (.exists file)
       file
-      (log/warning (str "No POM in the local repository for " lib " " version)))))
+      (try
+        (ext/coord-deps lib coord :mvn config)
+        (when (.exists file)
+          file)
+        (catch Exception ex
+          (log/warning (str "Failed to read the POM of " lib " " version ": "
+                            (ex-message ex))))))))
 
 (def ^:private pom-file-with-timeout
   (u.async/fn-with-timeout

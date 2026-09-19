@@ -5,7 +5,8 @@ All notable changes to this project will be documented in this file. This change
 === Changed 
 * General dep bumping maintenance after migrating antq to clj-commons :tada:
 * Minimum Clojure version is now 1.11
-* https://github.com/clj-commons/antq/issues/304[#304]: When run as a lein plugin, antq now runs analysis in a sub-process to avoid any classpath conflicts between lein and tools.deps 
+* https://github.com/clj-commons/antq/issues/304[#304]: When run as a lein plugin, antq now runs analysis in a sub-process to avoid any classpath conflicts between lein and tools.deps
+* Read an artifact's POM from the local Maven repository through tools.deps instead of resolving its repository with Aether and fetching the POM over HTTP. Artifacts in an s3 repository are no longer skipped, and a POM that is not cached yet prints a `Downloading:` line. 
 
 == 2.11.1276 (2025-03-15)
 // {{{
