@@ -33,6 +33,7 @@ jobs:
           path: ~/.m2
           key: test-m2-${{ hashFiles('deps.edn') }}-v1
 
+      # outputs.version is written by build.edn's update-documents fn
       - id: tag
         run: |
           clojure -T:build update-documents
