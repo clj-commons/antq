@@ -1,8 +1,6 @@
 (ns ^:no-doc antq.util.maven
   (:require
-   [antq.constant :as const]
    [antq.log :as log]
-   [antq.util.async :as u.async]
    [antq.util.env :as u.env]
    [antq.util.leiningen :as u.lein]
    [antq.util.xml :as u.xml]
@@ -16,10 +14,6 @@
    (java.net
     Authenticator
     PasswordAuthentication)
-   (org.apache.maven.model
-    Model
-    Scm)
-   org.apache.maven.model.io.xpp3.MavenXpp3Reader
    (org.apache.maven.settings
     Server
     Settings)
@@ -133,51 +127,14 @@
      :artifact artifact
      :remote-repos remote-repos}))
 
-(defn- read-pom*
-  ^Model
-  [^String url]
-  (with-open [reader (io/reader url)]
-    (.read (MavenXpp3Reader.) reader)))
-
-(def ^:private read-pom*-with-timeout
-  (u.async/fn-with-timeout
-   read-pom*
-   const/pom-timeout-msec))
-
 (defn read-pom
-  ^Model
-  [^String url]
-  (when-not (str/includes? url "s3://") ; can't do diff's on s3:// repos, https://github.com/liquidz/antq/issues/133.
-    (loop [i 0]
-      (when (< i const/retry-limit)
-        (or (try
-              (read-pom*-with-timeout url)
-              (catch java.net.ConnectException e
-                (if (= "Operation timed out" (.getMessage e))
-                  (log/warning (str "Fetching pom from " url " failed because it timed out, retrying"))
-                  (throw e)))
-              (catch java.io.IOException e
-                (log/warning (str "Fetching pom from " url " failed because of the following error: " (.getMessage e))))
-              (catch org.codehaus.plexus.util.xml.pull.XmlPullParserException e
-                ;; e.g. This exception is thrown by reading the following pom.xml
-                ;;      https://repo1.maven.org/maven2/jakarta/mail/jakarta.mail-api/2.0.1/jakarta.mail-api-2.0.1.pom
-                (log/warning (str "Fetching pom from " url " failed because of the following error: " (.getMessage e)))))
-            (recur (inc i)))))))
-
-(defn get-model-url
-  ^String
-  [^Model model]
-  (.getUrl model))
-
-(defn get-model-scm
-  ^Scm
-  [^Model model]
-  (.getScm model))
-
-(defn get-scm-url
-  ^String
-  [^Scm scm]
-  (.getUrl scm))
+  "Returns the url and scm url of a POM file as a map."
+  [^java.io.File file]
+  (let [root (first (filter map? (xml-seq (xml/parse-str (slurp file)))))
+        content (:content root)
+        scm (first (u.xml/get-tags :scm content))]
+    {:url (u.xml/get-value :url content)
+     :scm-url (u.xml/get-value :url (:content scm))}))
 
 (defn- get-local-versions*
   [name]

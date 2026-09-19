@@ -45,8 +45,8 @@
   {"LEIN_PASSWORD" "lein-pass"
    "FOUR" "env-four"})
 
-(def ^:private test-pom-path
-  (.getAbsolutePath (io/file (io/resource "util/maven/pom.xml"))))
+(def ^:private test-pom-file
+  (io/file (io/resource "util/maven/pom.xml")))
 
 (t/deftest normalize-repo-url-test
   (t/are [expected in] (= expected (sut/normalize-repo-url in))
@@ -101,19 +101,10 @@
                  {:id "serv5" :username "gpg-user" :password "gpg-pass"}}
                (set servers))))))
 
-(t/deftest read-pom-s3-repos-test
-  (t/is (nil? (sut/read-pom "s3://foo"))))
-
-(t/deftest get-url-test
-  (let [model (sut/read-pom test-pom-path)]
-    (t/is (= "https://github.com/liquidz/antq"
-             (sut/get-model-url model)))))
-
-(t/deftest get-scm-url-test
-  (let [model (sut/read-pom test-pom-path)
-        scm (sut/get-model-scm model)]
-    (t/is (= "https://github.com/liquidz/antq"
-             (sut/get-scm-url scm)))))
+(t/deftest read-pom-test
+  (t/is (= {:url "https://github.com/liquidz/antq"
+            :scm-url "https://github.com/liquidz/antq"}
+           (sut/read-pom test-pom-file))))
 
 (t/deftest get-local-versions-test
   (let [dummy-file (io/file (io/resource "util/maven/maven-metadata-local.xml"))
