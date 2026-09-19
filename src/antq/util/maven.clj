@@ -1,8 +1,6 @@
-(ns antq.util.maven
+(ns ^:no-doc antq.util.maven
   (:require
-   [antq.constant :as const]
    [antq.log :as log]
-   [antq.util.async :as u.async]
    [antq.util.env :as u.env]
    [antq.util.leiningen :as u.lein]
    [antq.util.xml :as u.xml]
@@ -12,13 +10,10 @@
    [clojure.tools.deps.util.maven :as deps.util.maven]
    [clojure.tools.deps.util.session :as deps.util.session])
   (:import
+   eu.maveniverse.maven.mima.context.Context
    (java.net
     Authenticator
     PasswordAuthentication)
-   (org.apache.maven.model
-    Model
-    Scm)
-   org.apache.maven.model.io.xpp3.MavenXpp3Reader
    (org.apache.maven.settings
     Server
     Settings)
@@ -68,20 +63,36 @@
     (.setUsername (ensure-username-or-password username))
     (.setPassword (ensure-username-or-password password))))
 
+(defn- get-auth-info
+  [repository]
+  (let [[id {:keys [url username password creds]}] repository]
+    (cond
+      (and username password)
+      {:id id
+       :username username
+       :password password}
+
+      (= :gpg creds)
+      (let [credential-info (u.lein/get-credential url)]
+        {:id id
+         :username (:username credential-info)
+         :password (:password credential-info)}))))
+
 (defn get-maven-settings
   ^Settings
   [opts]
   (let [settings ^Settings (deps.util.maven/get-settings)
-        server-ids (set (map #(.getId %) (.getServers settings)))]
+        server-ids (set (map #(.getId ^Server %) (.getServers settings)))]
     ;; NOTE
-    ;; In Leiningen, authentication information is defined in project.clj instead of ~/.m2/settings.xml,
+    ;; In Leiningen, authentication information is defined in project.clj or profiles.clj instead of ~/.m2/settings.xml,
     ;; so if there is authentication information in `:repositories`, apply to `settings`
-    (doseq [[id {:keys [username password]}] (:repositories opts)]
-      (when (and username
-                 password
-                 (not (contains? server-ids id)))
-        (.addServer settings
-                    (new-repository-server {:id id :username username :password password}))))
+    (doseq [repo (:repositories opts)]
+      (let [{:keys [id username password]} (get-auth-info repo)]
+        (when (and username
+                   password
+                   (not (contains? server-ids id)))
+          (.addServer settings
+                      (new-repository-server {:id id :username username :password password})))))
     settings))
 
 (def ^TransferListener custom-transfer-listener
@@ -104,62 +115,25 @@
         local-repo @deps.util.maven/cached-local-repo
         system ^RepositorySystem (deps.util.session/retrieve :mvn/system #(deps.util.maven/make-system))
         settings ^Settings (get-maven-settings opts)
-        session ^DefaultRepositorySystemSession (deps.util.maven/make-session system settings local-repo)
+        context ^Context (deps.util.maven/make-context :local-repo local-repo :settings settings)
+        session ^DefaultRepositorySystemSession (deps.util.maven/make-system-session context)
         ;; Overwrite TransferListener not to show "Downloading" messages
         _ (.setTransferListener session custom-transfer-listener)
         ;; c.f. https://stackoverflow.com/questions/35488167/how-can-you-find-the-latest-version-of-a-maven-artifact-from-java-using-aether
         artifact (deps.util.maven/coord->artifact lib {:mvn/version version})
-        remote-repos (deps.util.maven/remote-repos (:repositories opts) settings)]
+        remote-repos (deps.util.maven/remote-repos system session (:repositories opts))]
     {:system system
      :session session
      :artifact artifact
      :remote-repos remote-repos}))
 
-(defn- read-pom*
-  ^Model
-  [^String url]
-  (with-open [reader (io/reader url)]
-    (.read (MavenXpp3Reader.) reader)))
-
-(def ^:private read-pom*-with-timeout
-  (u.async/fn-with-timeout
-   read-pom*
-   const/pom-timeout-msec))
-
 (defn read-pom
-  ^Model
-  [^String url]
-  (when-not (str/includes? url "s3://") ; can't do diff's on s3:// repos, https://github.com/liquidz/antq/issues/133.
-    (loop [i 0]
-      (when (< i const/retry-limit)
-        (or (try
-              (read-pom*-with-timeout url)
-              (catch java.net.ConnectException e
-                (if (= "Operation timed out" (.getMessage e))
-                  (log/warning (str "Fetching pom from " url " failed because it timed out, retrying"))
-                  (throw e)))
-              (catch java.io.IOException e
-                (log/warning (str "Fetching pom from " url " failed because of the following error: " (.getMessage e))))
-              (catch org.codehaus.plexus.util.xml.pull.XmlPullParserException e
-                ;; e.g. This exception is thrown by reading the following pom.xml
-                ;;      https://repo1.maven.org/maven2/jakarta/mail/jakarta.mail-api/2.0.1/jakarta.mail-api-2.0.1.pom
-                (log/warning (str "Fetching pom from " url " failed because of the following error: " (.getMessage e)))))
-            (recur (inc i)))))))
-
-(defn get-model-url
-  ^String
-  [^Model model]
-  (.getUrl model))
-
-(defn get-model-scm
-  ^Scm
-  [^Model model]
-  (.getScm model))
-
-(defn get-scm-url
-  ^String
-  [^Scm scm]
-  (.getUrl scm))
+  "Returns the url and scm url of a POM file as a map."
+  [^java.io.File file]
+  (let [content (:content (xml/parse-str (slurp file)))
+        scm (first (u.xml/get-tags :scm content))]
+    {:url (some-> (u.xml/get-value :url content) str/trim not-empty)
+     :scm-url (some-> (when scm (u.xml/get-value :url (:content scm))) str/trim not-empty)}))
 
 (defn- get-local-versions*
   [name]

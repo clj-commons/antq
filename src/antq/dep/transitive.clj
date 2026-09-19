@@ -1,4 +1,4 @@
-(ns antq.dep.transitive
+(ns ^:no-doc antq.dep.transitive
   (:require
    [antq.constant :as const]
    [antq.record :as r]

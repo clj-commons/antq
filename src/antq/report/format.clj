@@ -1,9 +1,9 @@
-(ns antq.report.format
+(ns ^:no-doc antq.report.format
   (:require
    [antq.report :as report]
    [antq.util.dep :as u.dep]
    [antq.util.ver :as u.ver]
-   [clojure.string :as str]))
+   [pogonos.core :as pg]))
 
 (def ^:private default-outdated-message-format
   "{{name}} {{version}} is outdated. Latest version is {{latest-version}}. {{changes-url}}")
@@ -21,10 +21,7 @@
                        ;; NOTE Add diff-url for backward compatibility
                        :diff-url (:changes-url dep))
                 (select-keys [:file :name :version :latest-version :message :diff-url :changes-url :latest-name]))]
-    (reduce-kv (fn [s k v]
-                 (str/replace s (str "{{" (name k) "}}") (or v "")))
-               format-string
-               dep)))
+    (pg/render-string format-string dep)))
 
 (defmethod report/reporter "format"
   [deps options]

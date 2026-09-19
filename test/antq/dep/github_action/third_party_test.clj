@@ -19,36 +19,71 @@
 
 (t/deftest detect-setup-clojure-test
   (t/testing "Clojure Tools"
-    (t/is (= [(git-tag-dependency {:name "clojure/brew-install"
+    (t/is (= [(git-tag-dependency {:name const.gh-action/setup-clojure-name
                                    :version "1.0.0"
                                    :extra {const.gh-action/type-key "DeLaGuardo/setup-clojure"}})]
              (sut/detect {:uses "DeLaGuardo/setup-clojure@main"
                           :with {:tools-deps "1.0.0"}})))
-    (t/is (= [(git-tag-dependency {:name "clojure/brew-install"
+    (t/is (= [(git-tag-dependency {:name const.gh-action/setup-clojure-name
                                    :version "2.0.0"
                                    :extra {const.gh-action/type-key "DeLaGuardo/setup-clojure"}})]
              (sut/detect {:uses "DeLaGuardo/setup-clojure@main"
                           :with {:cli "2.0.0"}}))))
 
   (t/testing "Leiningen"
-    (t/is (= [(git-tag-dependency {:name "technomancy/leiningen"
+    (t/is (= [(git-tag-dependency {:name const.gh-action/setup-leiningen-name
                                    :version "3.0.0"
                                    :extra {const.gh-action/type-key "DeLaGuardo/setup-clojure"}})]
              (sut/detect {:uses "DeLaGuardo/setup-clojure@main"
                           :with {:lein "3.0.0"}}))))
 
   (t/testing "Boot"
-    (t/is (= [(git-tag-dependency {:name "boot-clj/boot"
+    (t/is (= [(git-tag-dependency {:name const.gh-action/setup-boot-name
                                    :version "4.0.0"
                                    :extra {const.gh-action/type-key "DeLaGuardo/setup-clojure"}})]
              (sut/detect {:uses "DeLaGuardo/setup-clojure@main"
                           :with {:boot "4.0.0"}}))))
 
+  (t/testing "Babashka"
+    (t/is (= [(java-dependency {:name const.gh-action/setup-babashka-name
+                                :version "4.0.0"
+                                :extra {const.gh-action/type-key "DeLaGuardo/setup-clojure"}})]
+             (sut/detect {:uses "DeLaGuardo/setup-clojure@main"
+                          :with {:bb "4.0.0"}}))))
+
+  (t/testing "clj-kondo"
+    (t/is (= [(java-dependency {:name const.gh-action/setup-clj-kondo-name
+                                :version "4.0.0"
+                                :extra {const.gh-action/type-key "DeLaGuardo/setup-clojure"}})]
+             (sut/detect {:uses "DeLaGuardo/setup-clojure@main"
+                          :with {:clj-kondo "4.0.0"}}))))
+
+  (t/testing "cljfmt"
+    (t/is (= [(git-tag-dependency {:name const.gh-action/setup-cljfmt-name
+                                   :version "4.0.0"
+                                   :extra {const.gh-action/type-key "DeLaGuardo/setup-clojure"}})]
+             (sut/detect {:uses "DeLaGuardo/setup-clojure@main"
+                          :with {:cljfmt "4.0.0"}}))))
+
+  (t/testing "cljstyle"
+    (t/is (= [(git-tag-dependency {:name const.gh-action/setup-cljstyle-name
+                                   :version "4.0.0"
+                                   :extra {const.gh-action/type-key "DeLaGuardo/setup-clojure"}})]
+             (sut/detect {:uses "DeLaGuardo/setup-clojure@main"
+                          :with {:cljstyle "4.0.0"}}))))
+
+  (t/testing "zprint"
+    (t/is (= [(java-dependency {:name const.gh-action/setup-zprint-name
+                                :version "4.0.0"
+                                :extra {const.gh-action/type-key "DeLaGuardo/setup-clojure"}})]
+             (sut/detect {:uses "DeLaGuardo/setup-clojure@main"
+                          :with {:zprint "4.0.0"}}))))
+
   (t/testing "Multiple"
-    (t/is (= [(git-tag-dependency {:name "clojure/brew-install"
+    (t/is (= [(git-tag-dependency {:name const.gh-action/setup-clojure-name
                                    :version "5.0.0"
                                    :extra {const.gh-action/type-key "DeLaGuardo/setup-clojure"}})
-              (git-tag-dependency {:name "technomancy/leiningen"
+              (git-tag-dependency {:name const.gh-action/setup-leiningen-name
                                    :version "6.0.0"
                                    :extra {const.gh-action/type-key "DeLaGuardo/setup-clojure"}})]
              (sut/detect {:uses "DeLaGuardo/setup-clojure@main"

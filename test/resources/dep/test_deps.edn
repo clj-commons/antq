@@ -24,6 +24,13 @@
         short-meta ^:foo/bar {:mvn/version "2.5.8"}
         full-meta ^{:foo/bar true} {:mvn/version "2.6.9"}
 
+        ;; namespaced map
+        namespaced/mvn #:mvn{:version "1.0.0"}
+        namespaced/sha #:git{:url "https://github.com/example/git-sha.git"
+                             :sha "1234567890abcdefghijklmnopqrstuvwxyz1234"}
+        namespaced/tag-and-sha #:git{:url "https://github.com/example/tag-short.git"
+                                     :tag "v1.2.3" :sha "123abcd"}
+
         ;; should be ignored
         local-repo/non-existing {:local/root "/path/to/non-existing-local/repo"}
         meta-ignore ^:antq/exclude {:mvn/version "3.5.8"}

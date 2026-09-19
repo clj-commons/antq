@@ -1,21 +1,17 @@
-(ns antq.util.dep
+(ns ^:no-doc antq.util.dep
   (:require
+   [antq.constant :as const]
+   [antq.log :as log]
+   [antq.util.async :as u.async]
    [antq.util.function :as u.fn]
    [antq.util.maven :as u.mvn]
    [antq.util.url :as u.url]
    [clojure.java.io :as io]
-   [clojure.string :as str])
+   [clojure.string :as str]
+   [clojure.tools.deps :as deps]
+   [clojure.tools.deps.extensions :as ext])
   (:import
-   java.io.File
-   (org.eclipse.aether
-    DefaultRepositorySystemSession
-    RepositorySystem)
-   (org.eclipse.aether.artifact
-    Artifact)
-   (org.eclipse.aether.repository
-    RemoteRepository)
-   (org.eclipse.aether.resolution
-    ArtifactRequest)))
+   java.io.File))
 
 (defn compare-deps
   [x y]
@@ -69,55 +65,42 @@
       (catch Exception _
         (.getCanonicalPath file)))))
 
-(defn- get-repository-url*
-  [{:keys [name version] :as dep}]
-  (try
-    (let [opts (repository-opts dep)
-          {:keys [^RepositorySystem system
-                  ^DefaultRepositorySystemSession  session
-                  ^Artifact artifact
-                  remote-repos]} (u.mvn/repository-system name version opts)
-          req (doto (ArtifactRequest.)
-                (.setArtifact artifact)
-                (.setRepositories remote-repos))
-          repo (some-> (.resolveArtifact system session req)
-                       (.getRepository))]
-      ;; repo may be org.eclipse.aether.repository.LocalRepository
-      (when (instance? RemoteRepository repo)
-        (.getUrl ^RemoteRepository repo)))
-    ;; Skip showing diff URL when fetching repository URL is failed
-    (catch Exception _ nil)))
-(def get-repository-url (u.fn/memoize-by get-repository-url* :name))
-
-(defn- dep->pom-url
+(defn- pom-file*
+  "Returns the POM of dep in the local repository, or nil when it cannot be
+  read. Reading a Maven coordinate's dependencies caches its POM there, which
+  is the only route tools.deps offers to the POM itself."
+  ^File
   [dep]
-  (let [{:keys [version]} dep
-        [group-id artifact-id] (str/split (:name dep) #"/" 2)
-        repo-url (get-repository-url dep)]
-    (when repo-url
-      (format "%s%s/%s/%s/%s-%s.pom"
-              (u.url/ensure-tail-slash repo-url)
-              (str/replace group-id "." "/")
-              artifact-id
-              version
-              artifact-id
-              version))))
+  (let [lib (symbol (:name dep))
+        version (:version dep)
+        coord {:mvn/version version}
+        config {:mvn/repos (:repositories (repository-opts dep))}
+        {:keys [base path]} (deps/lib-location lib coord config)
+        artifact-id (first (str/split (name lib) #"\$"))
+        file (io/file base path (str artifact-id "-" version ".pom"))]
+    (when-not (.exists file)
+      (try
+        (ext/coord-deps lib coord :mvn config)
+        (catch Exception ex
+          (log/warning (str "Failed to read the POM of " lib " " version ": "
+                            (->> ex (iterate ex-cause) (take-while some?) last ex-message))))))
+    (when (.exists file)
+      file)))
+
+(def ^:private pom-file-with-timeout
+  (u.async/fn-with-timeout
+   pom-file*
+   const/pom-timeout-msec))
 
 (defn- get-scm-url*
   [dep]
   (try
-    (when-let [model (some-> dep
-                             (dep->pom-url)
-                             (u.mvn/read-pom))]
-      (let [scm-url (some-> model
-                            (u.mvn/get-model-scm)
-                            (u.mvn/get-scm-url))
-            project-url (u.mvn/get-model-url model)]
-        (some-> (or scm-url project-url)
-                (u.url/ensure-https)
-                (u.url/ensure-git-https-url))))
-    ;; Skip showing diff URL when POM file is not found
-    (catch java.io.FileNotFoundException _ nil)))
+    (let [{:keys [url scm-url]} (some-> (pom-file-with-timeout dep) (u.mvn/read-pom))]
+      (some-> (or scm-url url)
+              (u.url/ensure-https)
+              (u.url/ensure-git-https-url)))
+    ;; Skip showing the diff URL when the POM cannot be read
+    (catch Exception _ nil)))
 (def get-scm-url (u.fn/memoize-by get-scm-url* :name))
 
 (defn ensure-version-list

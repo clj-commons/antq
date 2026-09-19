@@ -57,4 +57,3 @@
                       (slurp))
         upgraded (upgrade/upgrader dummy-excluded-dep)]
     (t/is (= original upgraded))))
-

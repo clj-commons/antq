@@ -1,11 +1,11 @@
-= Run behind proxy
+= Running behind a proxy
 
-antq uses the proxy setting defined in `~/.m2/setting.xml`.
+Antq uses the proxy setting defined in `~/.m2/setting.xml`.
 
 So if you'd like to run antq behind proxy, please add a proxy setting like below.
 
 E.g.
-[source,setting.xml]
+[source,xml]
 ----
 <settings>
   <proxies>

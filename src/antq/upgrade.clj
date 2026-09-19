@@ -1,4 +1,4 @@
-(ns antq.upgrade
+(ns ^:no-doc antq.upgrade
   (:require
    [antq.dep.github-action :as dep.gh-action]
    [antq.download :as download]

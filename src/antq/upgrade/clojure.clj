@@ -1,4 +1,4 @@
-(ns antq.upgrade.clojure
+(ns ^:no-doc antq.upgrade.clojure
   (:require
    [antq.constant :as const]
    [antq.upgrade :as upgrade]
@@ -7,10 +7,22 @@
    [antq.util.zip :as u.zip]
    [rewrite-clj.zip :as z]))
 
+(defn- in-namespaced-map?
+  [loc]
+  (boolean
+   (some-> loc
+           z/up
+           z/leftmost
+           z/up
+           z/namespaced-map?)))
+
 (defn- in-deps?
   [loc]
-  (->> loc z/up z/left z/sexpr
-       (contains? const/clojure-deps-keys)))
+  (if (in-namespaced-map? loc)
+    (->> loc z/up z/leftmost z/up z/left z/sexpr
+         (contains? const/clojure-deps-keys))
+    (->> loc z/up z/left z/sexpr
+         (contains? const/clojure-deps-keys))))
 
 (defn- skip-meta
   [loc]
@@ -30,6 +42,16 @@
   [loc]
   (and (in-deps? loc)
        (not (ignoring-meta? (z/right loc)))))
+
+(defn- down-considering-namespaced-map
+  "cf. https://github.com/clj-commons/rewrite-clj/blob/main/doc/01-user-guide.adoc#impact-of-namespaced-map-context-on-keywords-and-symbols"
+  [loc]
+  (if (z/namespaced-map? loc)
+    (-> loc
+        (z/down)
+        (z/rightmost)
+        (z/down))
+    (z/down loc)))
 
 (defmulti replace-versions
   (fn [_loc version-checked-dep]
@@ -87,7 +109,7 @@
                              (z/right)
                              ;; TODO check antq/ignore
                              (skip-meta)
-                             (z/down)
+                             (down-considering-namespaced-map)
                              (replace-versions version-checked-dep))
                      (z/next loc))
                  (z/next loc)))

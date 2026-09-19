@@ -1,5 +1,6 @@
-(ns antq.upgrade.github-action
+(ns ^:no-doc antq.upgrade.github-action
   (:require
+   [antq.constant.github-action :as const.gh-action]
    [antq.dep.github-action :as dep.gh-action]
    [antq.log :as log]
    [antq.upgrade :as upgrade]
@@ -18,8 +19,12 @@
                  (str "$1" new-value "$2"))))
 
 (defn- action?
-  [action-name]
-  (let [re (re-pattern (str "uses\\s*:\\s*" action-name))]
+  [action-name & [version]]
+  (let [version' (some-> version
+                         (str/replace "." "\\."))
+        re (re-pattern (if version'
+                         (str "uses\\s*:\\s*" action-name "@" version')
+                         (str "uses\\s*:\\s*" action-name)))]
     #(some? (re-seq re %))))
 
 (defmulti upgrade-dep
@@ -34,7 +39,8 @@
 (defmethod upgrade-dep "uses"
   [loc version-checked-dep]
   (loop [loc loc]
-    (if-let [loc (ri.zip/find-next-string loc (action? (:name version-checked-dep)))]
+    (if-let [loc (ri.zip/find-next-string loc (action? (:name version-checked-dep)
+                                                       (:version version-checked-dep)))]
       (recur (cond-> loc
                (some? (ri.zip/find-ancestor-string loc #(= "steps:" %)))
                (ri.zip/update (update-action-version (:latest-version version-checked-dep)))
@@ -45,10 +51,15 @@
 
 (defmethod upgrade-dep "DeLaGuardo/setup-clojure"
   [loc version-checked-dep]
-  (let [target-re (case (:name version-checked-dep)
-                    "clojure/brew-install" #"cli\s*:"
-                    "technomancy/leiningen" #"lein\s*:"
-                    "boot-clj/boot" #"boot\s*:"
+  (let [target-re (condp = (:name version-checked-dep)
+                    const.gh-action/setup-clojure-name #"cli\s*:"
+                    const.gh-action/setup-leiningen-name #"lein\s*:"
+                    const.gh-action/setup-boot-name #"boot\s*:"
+                    const.gh-action/setup-babashka-name #"bb\s*:"
+                    const.gh-action/setup-clj-kondo-name #"clj-kondo\s*:"
+                    const.gh-action/setup-cljfmt-name #"cljfmt\s*:"
+                    const.gh-action/setup-cljstyle-name #"cljstyle\s*:"
+                    const.gh-action/setup-zprint-name #"zprint\s*:"
                     nil)]
     (if-not target-re
       (log/error (format "%s: Unexpected name for setup-clojure"

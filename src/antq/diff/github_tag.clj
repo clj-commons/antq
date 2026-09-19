@@ -1,4 +1,4 @@
-(ns antq.diff.github-tag
+(ns ^:no-doc antq.diff.github-tag
   (:require
    [antq.diff :as diff]
    [antq.util.git :as u.git]

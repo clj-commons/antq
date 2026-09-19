@@ -1,4 +1,4 @@
-(ns antq.upgrade.shadow
+(ns ^:no-doc antq.upgrade.shadow
   (:require
    [antq.constant :as const]
    [antq.upgrade :as upgrade]

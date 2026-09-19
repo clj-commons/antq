@@ -1,6 +1,6 @@
-= Avoid SLF4J warnings
+= Quiet SLF4J logger warnings
 
-antq does not load `org.slf4j.impl.StaticLoggerBinder` by default, so you may get following messages depending on the project.
+It is not antq's place to specify a logger, so depending our your project, you may see the following messages when antq is run:
 
 [source,text]
 ----
@@ -9,9 +9,28 @@ SLF4J: Defaulting to no-operation (NOP) logger implementation
 SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
 ----
 
-To avoid this message, add the following to your dependency.
+You can avoid these message by specifying a logger.
 
+Add the nop logger to suppress all logging output:
 [source,clojure]
 ----
 org.slf4j/slf4j-nop {:mvn/version "RELEASE"}
+----
+
+Or add the simple logger that will log to stdout:
+[source,clojure]
+----
+org.slf4j/slf4j-simple {:mvn/version "RELEASE"}
+----
+
+This logger dependency should be added under the context which antq runs, for example for link:../README.adoc#usage-clojure-cli[`deps.edn`] this would look like:
+
+[source,clojure]
+----
+{
+ :aliases
+ {:outdated {:deps {org.slf4j/slf4j-simple {:mvn/version "RELEASE"}
+                    com.github.liquidz/antq {:mvn/version "RELEASE"}}
+             :main-opts ["-m" "antq.core"]}}
+}
 ----

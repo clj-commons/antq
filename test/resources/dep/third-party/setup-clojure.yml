@@ -1,0 +1,28 @@
+name: dummy
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: DeLaGuardo/setup-clojure@master
+        with:
+          cli: 1
+          lein: 2
+          boot: 3
+          bb: 4
+          clj-kondo: 5
+          cljfmt: 6
+          cljstyle: 7
+          zprint: 8
+
+      - name: with name
+        uses: DeLaGuardo/setup-clojure@master
+        with:
+          cli: -1
+          lein: -2
+          boot: -3
+          bb: -4
+          clj-kondo: -5
+          cljfmt: -6
+          cljstyle: -7
+          zprint: -8

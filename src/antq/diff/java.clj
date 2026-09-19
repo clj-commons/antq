@@ -1,4 +1,4 @@
-(ns antq.diff.java
+(ns ^:no-doc antq.diff.java
   (:require
    [antq.diff :as diff]
    [antq.log :as log]

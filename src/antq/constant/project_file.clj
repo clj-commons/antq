@@ -1,4 +1,4 @@
-(ns antq.constant.project-file)
+(ns ^:no-doc antq.constant.project-file)
 
 (def babashka "bb.edn")
 (def boot "build.boot")

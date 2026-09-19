@@ -1,4 +1,4 @@
-(ns antq.dep.github-action.third-party
+(ns ^:no-doc antq.dep.github-action.third-party
   (:require
    [antq.constant.github-action :as const.gh-action]
    [antq.record :as r]
@@ -18,12 +18,48 @@
   (->> (:with form)
        (keep (fn [[k v]]
                (case k
-                 (:tools-deps :cli) {:name "clojure/brew-install" :version v}
-                 :lein {:name "technomancy/leiningen" :version v}
-                 :boot {:name "boot-clj/boot" :version v}
+                 (:tools-deps :cli)
+                 {:type :github-tag
+                  :name const.gh-action/setup-clojure-name
+                  :version v}
+
+                 :lein
+                 {:type :github-tag
+                  :name const.gh-action/setup-leiningen-name
+                  :version v}
+
+                 :boot
+                 {:type :github-tag
+                  :name const.gh-action/setup-boot-name
+                  :version v}
+
+                 :bb
+                 {:type :java
+                  :name const.gh-action/setup-babashka-name
+                  :version v}
+
+                 :clj-kondo
+                 {:type :java
+                  :name const.gh-action/setup-clj-kondo-name
+                  :version v}
+
+                 :cljfmt
+                 {:type :github-tag
+                  :name const.gh-action/setup-cljfmt-name
+                  :version v}
+
+                 :cljstyle
+                 {:type :github-tag
+                  :name const.gh-action/setup-cljstyle-name
+                  :version v}
+
+                 :zprint
+                 {:type :java
+                  :name const.gh-action/setup-zprint-name
+                  :version v}
+
                  nil)))
        (map #(-> %
-                 (assoc :type :github-tag)
                  (assoc-in [:extra const.gh-action/type-key] "DeLaGuardo/setup-clojure")
                  (r/map->Dependency)))))
 

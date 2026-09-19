@@ -1,4 +1,4 @@
-(ns antq.ver.java
+(ns ^:no-doc antq.ver.java
   (:require
    [antq.constant :as const]
    [antq.util.async :as u.async]

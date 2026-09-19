@@ -1,4 +1,4 @@
-(ns antq.dep.github-action.matrix
+(ns ^:no-doc antq.dep.github-action.matrix
   (:require
    [antq.util.dep :as u.dep]))
 

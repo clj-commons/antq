@@ -4,8 +4,10 @@
 
 (def ^:private config
   {:lib 'com.github.liquidz/antq
-   :version "2.5.{{git/commit-count}}"
+   :version "2.11.{{git/commit-count}}"
    :description "Point out your outdated dependencies"
+   :licenses [{:name "Eclipse Public License - v 2.0"
+               :url "https://www.eclipse.org/legal/epl-2.0/"}]
    :main 'antq.core
    :documents [{:file "CHANGELOG.adoc"
                 :match "Unreleased"

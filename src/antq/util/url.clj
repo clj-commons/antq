@@ -1,4 +1,4 @@
-(ns antq.util.url
+(ns ^:no-doc antq.util.url
   (:require
    [clojure.string :as str]))
 

@@ -112,6 +112,14 @@
       false "foo"
       true "foo/bar"))
 
+  (t/testing "focus works with specified version `@`"
+    (t/are [expected in] (= expected (sut/skip-artifacts? (r/map->Dependency {:name in})
+                                                          {:focus ["org.clojure/clojure" "foo@2.0.0"]}))
+      false "org.clojure/clojure"
+      true "org.clojure/foo"
+      true "foo/clojure"
+      false "foo"
+      true "foo/bar"))
   (t/testing "`focus` shoud be prefer than `exclude`"
     (t/is (false? (sut/skip-artifacts? (r/map->Dependency {:name "org.clojure/clojure"})
                                        {:exclude ["org.clojure/clojure"]
@@ -184,7 +192,13 @@
     (t/testing "alice@3.0.0 should be excluded"
       (t/is (= [(test-dep {:name "alice" :version "1.0.0" :latest-version "2.0.0"})
                 (test-dep {:name "bob" :version "2.0.0" :latest-version "3.0.0"})]
-               (sut/outdated-deps deps {:exclude ["alice@3.0.0"]}))))))
+               (sut/outdated-deps deps {:exclude ["alice@3.0.0"]}))))
+    (t/testing "alice is focused so only this dep should be kept"
+      (t/is (= [(test-dep {:name "alice" :version "1.0.0" :latest-version "3.0.0"})]
+               (sut/outdated-deps deps {:focus ["alice"]}))))
+    (t/testing "focus containing specific version, should force it (0.5.0) even when newer exists (3.0.0)"
+      (t/is (= [(test-dep {:name "alice" :version "1.0.0" :latest-version "0.5.0" :forced-version "0.5.0"})]
+               (sut/outdated-deps deps {:focus ["alice@0.5.0"]}))))))
 
 (t/deftest assoc-changes-url-test
   (let [dummy-dep {:type :java :name "foo/bar" :version "1" :latest-version "2"}]
@@ -309,3 +323,11 @@
            (str/trim
             (with-out-str
               (sut/latest {:type :test :name 'foo/bar}))))))
+
+(t/deftest forced-artifacts-test
+  (t/testing "default"
+    (t/is (= {} (sut/forced-artifact-version-map {:focus ["foo"]})))
+    (t/is (= {"foo" "2.0.0"} (sut/forced-artifact-version-map {:focus ["foo@2.0.0"]})))
+    (t/is (= {"foo" "2.0.0"
+              "foo/zbar2" "2"}
+             (sut/forced-artifact-version-map {:focus ["foo@2.0.0" "foo" "foo/bar" "foo/zbar2@2"]})))))

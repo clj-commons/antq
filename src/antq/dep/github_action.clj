@@ -1,4 +1,4 @@
-(ns antq.dep.github-action
+(ns ^:no-doc antq.dep.github-action
   (:require
    [antq.constant.github-action :as const.gh-action]
    [antq.dep.github-action.matrix :as d.gha.matrix]

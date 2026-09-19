@@ -30,4 +30,3 @@
                      (sut/warning "WARNING")
                      (str sw))]
       (t/is (= "WARNING\n" warn-str)))))
-

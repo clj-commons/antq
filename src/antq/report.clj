@@ -1,4 +1,4 @@
-(ns antq.report
+(ns ^:no-doc antq.report
   (:require
    [antq.log :as log]))
 

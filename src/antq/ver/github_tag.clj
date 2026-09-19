@@ -1,4 +1,4 @@
-(ns antq.ver.github-tag
+(ns ^:no-doc antq.ver.github-tag
   (:require
    [antq.constant :as const]
    [antq.log :as log]

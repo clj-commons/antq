@@ -1,4 +1,4 @@
-(ns antq.download
+(ns ^:no-doc antq.download
   (:require
    [antq.util.git :as u.git]
    [clojure.tools.deps :as deps]

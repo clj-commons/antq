@@ -1,4 +1,4 @@
-(ns antq.util.zip
+(ns ^:no-doc antq.util.zip
   (:require
    [clojure.zip :as zip]
    [rewrite-clj.zip :as z]))

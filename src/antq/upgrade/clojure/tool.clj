@@ -1,4 +1,4 @@
-(ns antq.upgrade.clojure.tool
+(ns ^:no-doc antq.upgrade.clojure.tool
   (:require
    [antq.upgrade :as upgrade]
    [antq.util.git :as u.git]

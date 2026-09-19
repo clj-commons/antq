@@ -1,18 +1,33 @@
 name: coverage
-on: push
+
+on:
+  push:
+    branches:
+    - main
+
 jobs:
   coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - uses: DeLaGuardo/setup-clojure@master
         with:
           cli: latest
-      - uses: actions/cache@v3
+      # The runner image comes with a later version gradle that does not work with antq unit tests yet
+      - name: Install Gradle for antq
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.14.3'
+      - uses: actions/cache@v6
         with:
           path: ~/.m2
           key: coverage-m2-${{ hashFiles('deps.edn') }}-v1
       - name: Run cloverage
         run: make coverage
       - name: Upload reports
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v7
+        with:
+          fail_ci_if_error: true # optional (default = false)
+          files: ./target/coverage/codecov.json
+          token: ${{ secrets.CODECOV_TOKEN }} # required
+          verbose: true # optional (default = false)

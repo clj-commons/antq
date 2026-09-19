@@ -1,9 +1,10 @@
-(ns antq.dep.leiningen
+(ns ^:no-doc antq.dep.leiningen
   (:require
    [antq.constant :as const]
    [antq.constant.project-file :as const.project-file]
    [antq.record :as r]
    [antq.util.dep :as u.dep]
+   [antq.util.leiningen :as u.lein]
    [clojure.java.io :as io]
    [clojure.walk :as walk]))
 
@@ -33,6 +34,13 @@
       (get const/deps-exclude-key)
       (u.dep/ensure-version-list)))
 
+(defn- user-deps-repository
+  []
+  (let [file (io/file (u.lein/lein-home) "profiles.clj")]
+    (when (.exists file)
+      (-> file slurp read-string
+          (get-in [:user :repositories])))))
+
 (defn extract-deps
   {:malli/schema [:=>
                   [:cat 'string? 'string?]
@@ -41,7 +49,8 @@
   (let [dep-form? (atom false)
         repos-form? (atom false)
         deps (atom [])
-        repos (atom [])]
+        repos (atom [])
+        cross-project-repositories (user-deps-repository)]
     (walk/prewalk (fn [form]
                     (cond
                       (keyword? form)
@@ -70,7 +79,8 @@
                             :file file-path
                             :name (normalize-name dep-name)
                             :version version
-                            :repositories repositories
+                            :repositories (merge repositories
+                                                 (into {} cross-project-repositories))
                             :exclude-versions (seq (exclude-version-range dep))})))))
 
 (defn load-deps

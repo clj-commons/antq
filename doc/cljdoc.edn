@@ -1,0 +1,13 @@
+{:cljdoc.doc/tree
+ [["Readme" {:file "README.adoc"}]
+  ["Changelog" {:file "CHANGELOG.adoc"}]
+  ["Tips" {}
+   ["Maven S3 repos" {:file "doc/maven-s3-repos.adoc"}]
+   ["Quiet SLF4J logger warnings" {:file "doc/avoid-slf4j-warnings.adoc"}]
+   ["Find the latest version of a library" {:file "doc/latest-version-of-a-specific-library.adoc"}]
+   ["Antq on projects that use an old version of Clojure" {:file "doc/non-supported-clojure-version.adoc"}]
+   ["Working with Gradle" {:file "doc/gradle.adoc"}]
+   ["Running behind a proxy" {:file "doc/proxy.adoc"}]
+   ["Timeouts" {:file "doc/timeout.adoc"}]
+   ["Excluding dependencies" {:file "doc/exclusions.adoc"}]
+   ["Using antq as a library" {:file "doc/use-as-library.adoc"}]]]}

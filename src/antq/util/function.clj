@@ -1,4 +1,4 @@
-(ns antq.util.function)
+(ns ^:no-doc antq.util.function)
 
 (defn memoize-by
   [f key-fn]

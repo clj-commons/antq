@@ -1,4 +1,4 @@
-(ns antq.util.env)
+(ns ^:no-doc antq.util.env)
 
 (defn getenv
   [x]

@@ -1,6 +1,8 @@
 (ns antq.util.maven-test
   (:require
+   [antq.test-helper :as h]
    [antq.util.env :as u.env]
+   [antq.util.leiningen :as u.lein]
    [antq.util.maven :as sut]
    [clojure.data.xml :as xml]
    [clojure.java.io :as io]
@@ -31,9 +33,12 @@
             :username "three-user"
             :password "three-pass"}
    ;; new to appear
-   "serv4" {:url "https://three.example.com"
+   "serv4" {:url "https://four.example.com"
             :username :env
             :password :env/four}
+   ;; new to appear
+   "serv5" {:url "https://five.example.com"
+            :creds :gpg}
    ;; should not be added because of missing username and password
    "dummy" {:url "https://dummy.example.com"}})
 
@@ -41,8 +46,8 @@
   {"LEIN_PASSWORD" "lein-pass"
    "FOUR" "env-four"})
 
-(def ^:private test-pom-path
-  (.getAbsolutePath (io/file (io/resource "util/maven/pom.xml"))))
+(def ^:private test-pom-file
+  (io/file (io/resource "util/maven/pom.xml")))
 
 (t/deftest normalize-repo-url-test
   (t/are [expected in] (= expected (sut/normalize-repo-url in))
@@ -75,14 +80,16 @@
 
 (t/deftest get-maven-settings-test
   (with-redefs [deps.util.maven/get-settings (constantly dummy-settings)
-                u.env/getenv #(get dummy-env %)]
+                u.env/getenv #(get dummy-env %)
+                u.lein/get-credential (constantly {:username "gpg-user"
+                                                   :password "gpg-pass"})]
     (let [settings (sut/get-maven-settings {:repositories dummy-repos})
           servers (map #(hash-map
-                         :id (.getId %)
+                         :id (.getId ^Server %)
                          :username (.getUsername %)
                          :password (.getPassword %))
                        (.getServers settings))]
-      (t/is (= 4 (count servers)))
+      (t/is (= 5 (count servers)))
 
       (t/is (= #{{:id "serv1" :username nil :password nil}
                  ;; from settings.xml
@@ -90,22 +97,20 @@
                  ;; from project.clj
                  {:id "serv3" :username "three-user" :password "three-pass"}
                  ;; from project.clj with environmental variable
-                 {:id "serv4" :username "lein-pass" :password "env-four"}}
+                 {:id "serv4" :username "lein-pass" :password "env-four"}
+                 ;; from profiles.clj with gpg
+                 {:id "serv5" :username "gpg-user" :password "gpg-pass"}}
                (set servers))))))
 
-(t/deftest read-pom-s3-repos-test
-  (t/is (nil? (sut/read-pom "s3://foo"))))
+(t/deftest read-pom-test
+  (t/is (= {:url "https://github.com/clj-commons/antq"
+            :scm-url "https://github.com/clj-commons/antq"}
+           (sut/read-pom test-pom-file)))
 
-(t/deftest get-url-test
-  (let [model (sut/read-pom test-pom-path)]
-    (t/is (= "https://github.com/liquidz/antq"
-             (sut/get-model-url model)))))
-
-(t/deftest get-scm-url-test
-  (let [model (sut/read-pom test-pom-path)
-        scm (sut/get-model-scm model)]
-    (t/is (= "https://github.com/liquidz/antq"
-             (sut/get-scm-url scm)))))
+  (t/testing "surrounding whitespace is trimmed"
+    (h/with-temp-file [f "<project><url>\n  https://example.com\n</url></project>"]
+                      (t/is (= {:url "https://example.com" :scm-url nil}
+                               (sut/read-pom f))))))
 
 (t/deftest get-local-versions-test
   (let [dummy-file (io/file (io/resource "util/maven/maven-metadata-local.xml"))

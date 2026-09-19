@@ -1,76 +1,97 @@
 = Antq
+:project-src-coords: clj-commons/antq
+:project-mvn-coords: com.github.liquidz/antq 
+:workflow-url: https://github.com/{project-src-coords}/actions/workflows
+:sym-yes: ✅
+:sym-no: ❌
 
 Point out your outdated dependencies.
 
-image:https://github.com/liquidz/antq/workflows/test/badge.svg["GitHub Actions for test workflow", link="https://github.com/liquidz/antq/actions?query=workflow%3Atest"]
-image:https://github.com/liquidz/antq/workflows/lint/badge.svg["GitHub Actions for lint workflow", link="https://github.com/liquidz/antq/actions?query=workflow%3Alint"]
-image:https://github.com/liquidz/antq/workflows/dependencies/badge.svg["GitHub Actions for dependencies workflow", link="https://github.com/liquidz/antq/actions?query=workflow%3Adependencies"]
-image:https://codecov.io/gh/liquidz/antq/branch/master/graph/badge.svg["codecov", link="https://codecov.io/gh/liquidz/antq"]
-
-image:https://img.shields.io/clojars/v/com.github.liquidz/antq["Clojars Project", link="https://clojars.org/com.github.liquidz/antq"]
-image:https://img.shields.io/badge/docker-automated-blue["GitHub Container Registry", link="https://github.com/users/liquidz/packages/container/package/antq"]
+{workflow-url}/test.yml[image:{workflow-url}/test.yml/badge.svg[GitHub Actions for test workflow]]
+{workflow-url}/lint.yml[image:{workflow-url}/lint.yml/badge.svg[GitHub Actions for lint workflow]]
+{workflow-url}/dependencies.yml[image:{workflow-url}/dependencies.yml/badge.svg[GitHub Actions for dependencies workflow]]
+https://codecov.io/gh/{project-src-coords}[image:https://codecov.io/gh/{project-src-coords}/branch/main/graph/badge.svg[Code Coverage]]
+https://cljdoc.org/d/{project-mvn-coords}/CURRENT[image:https://cljdoc.org/badge/{project-mvn-coords}[cljdoc]]
+https://clojars.org/{project-mvn-coords}[image:https://img.shields.io/clojars/v/{project-mvn-coords}.svg[Clojars Project]]
+https://github.com/users/clj-commons/packages/container/package/antq[image:https://img.shields.io/badge/docker-automated-blue["GitHub Container Registry"]]
 
 [NOTE]
 ====
-Antq requires Clojure 1.10.0 or later. +
-Basically, antq could work regardless of the Clojure version which your project depends. +
-If you have a trouble, please see link:./doc/non-supported-clojure-version.adoc[here].
+Antq requires Clojure 1.11 or later. +
+Basically, antq can work regardless of the Clojure version on which your project depends. +
+If you have trouble, please see link:./doc/non-supported-clojure-version.adoc[here].
 ====
 
 == Supported files
 
 |===
-| File | Tool/Service | Note
+| File | Tool/Service | Supports Upgrade? | Note
 
 | deps.edn
 | https://clojure.org/guides/deps_and_cli[Clojure CLI]
+| {sym-yes}
 |
 
 | shadow-cljs.edn
-| http://shadow-cljs.org[Shadow-cljs]
+| https://github.com/thheller/shadow-cljs[Shadow-cljs]
+| {sym-yes}
 |
-
 | project.clj
 | https://leiningen.org[Leiningen]
-| Provides 2 ways of program and plug-in.
+| {sym-yes}
+| Can specify as <<usage-lein-as-program, program>> or <<usage-lein-as-plugin, plugin>>.
 
 | build.boot
-| https://boot-clj.com[Boot]
+| https://github.com/boot-clj/boot[Boot]
+| {sym-yes}
 |
 
 | pom.xml
 | https://maven.apache.org[Maven]
+| {sym-yes}
+|
+
+| .circleci/config.yml
+| https://circleci.com/[CircleCI]
+| {sym-yes}
 |
 
 | .github/workflows/*.yml
 | https://github.com/features/actions[GitHub Actions]
+| {sym-yes}
 |
 
 | bb.edn
 | https://book.babashka.org/index.html#_bb_edn[Babashka]
+| {sym-yes}
 |
 
 | build.gradle
 | https://gradle.org[Gradle]
+| {sym-no}
 | Experimental. `gradle` command must be installed.
 
 | ~/.clojure/tools
-| https://clojure.org/reference/deps_and_cli#tool_install[Clojure CLI Tools]
-| Disabled by default. See `--check-clojure-tools` option.
+| https://clojure.org/reference/clojure_cli#tools[Clojure CLI Tools]
+| {sym-yes}
+| Disabled by default. +
+See <<opt-check-clojure-tools>> option.
 
 |===
 
 == Usage
 
+[[usage-clojure-cli]]
 === Clojure CLI (deps.edn)
 
-Run the following command for trial.
+Run the following command to quickly try antq:
 [source,sh]
 ----
-clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}}' -M -m antq.core
+clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}}' \
+  -M -m antq.core
 ----
 
-Or add the following alias to your `$HOME/.clojure/deps.edn`.
+Or add the following alias to your project `deps.edn` or `$HOME/.clojure/deps.edn`.
 [source,clojure]
 ----
 {
@@ -78,14 +99,14 @@ Or add the following alias to your `$HOME/.clojure/deps.edn`.
  {:outdated {;; Note that it is `:deps`, not `:extra-deps`
              :deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}
              :main-opts ["-m" "antq.core"]}}
- }
+}
 ----
 Then, run `clojure -M:outdated`.
-(run `clojure -A:outdated` for Clojure CLI Tool 1.10.1.645 or earlier).
 
+[[usage-clojure-tool]]
 === Clojure CLI Tools (`1.11.1.1139` or later)
 
-From Clojure CLI ver `1.11.1.1139`, https://clojure.org/reference/deps_and_cli#tool_install[tool] installation is supported.
+If you are using Clojure CLI ver `1.11.1.1139` or later, you can install `antq` as a https://clojure.org/reference/clojure_cli#tools[tool].
 
 [source,sh]
 ----
@@ -106,9 +127,10 @@ clojure -A:deps -Tantq help/doc
 clojure -Tantq outdated :check-clojure-tools true :upgrade true
 ----
 
+[[usage-lein-as-program]]
 === Leiningen (as a `main` program)
 
-Add the following dependency and alias to your `$HOME/.lein/profiles.clj`.
+Add the following dependency and alias to your `project.clj` or `$HOME/.lein/profiles.clj`.
 [source,clojure]
 ----
 {
@@ -120,10 +142,11 @@ Add the following dependency and alias to your `$HOME/.lein/profiles.clj`.
 ----
 Then, run `lein outdated`.
 
+[[usage-lein-as-plugin]]
 === Leiningen (as a plugin)
 
 The Leiningen plugin is a newer offering. It tends to be more accurate (since it won't parse your project.clj, having it evaluated by Leiningen instead).
-However the `:upgrade` option will not be supported (since the plugin cannot always know if a given dependency came from a specific profile, middleware, etc).
+However it does not check any other sources (deps.edn, etc), and the `:upgrade` option will not be supported (since the plugin cannot always know if a given dependency came from a specific profile, middleware, etc).
 
 In order to use it, add the following plugin to your `project.clj` (or `$HOME/.lein/profiles.clj`):
 [source,clojure]
@@ -140,41 +163,64 @@ Then, run `lein antq`.
 Antq can work with https://github.com/features/actions[GitHub Actions].
 See antq's workflow for concrete example.
 
-* https://github.com/liquidz/antq/blob/master/.github/workflows/dependencies.yml[.github/workflows/dependencies.yml]
+* link:.github/workflows/dependencies.yml[.github/workflows/dependencies.yml]
 * To show errors as annotations, please set this option: `--error-format="::error file={{file}}::{{message}}"`
 
-In another way, you can use the following action.
+Or if you prefer, you can use our ready-made GitHub action:
 
 * https://github.com/liquidz/antq-action
 
 === Gradle
 
 Antq experimentally supports https://gradle.org[Gradle].
-See link:./doc/gradle.adoc[here] for details.
+See link:./doc/gradle.adoc[our Gradle docs] for details.
 
 === Timeouts
 
 Antq has timeouts for acquiring various information.
-See link:./doc/timeout.adoc[here] for details.
+See link:./doc/timeout.adoc[Timeouts] for details.
 
+[[options]]
 == Options
+
+[TIP]
+====
+**Repeatable Options:**
+Options documented with `...` at the end of their names can be specified multiple times.
+For example, to <<opt-exclude>> artifact `a` and `b`: +
+`--exclude=a --exclude=b`.
+====
+
+[NOTE]
+====
+**Option Syntaxes:**
+We describe options here as they would be specified for <<usage-clojure-cli, clojure cli usage>>.
+Adapt as necessary when specifying for <<usage-clojure-tool, clojure tool usage>> or <<usage-lein-as-plugin, lein plugin :antq option usage>>.
+For examples:
+
+* <<opt-upgrade>> is specified as `:upgrade true` for both clojure tool and antq option usage
+* <<opt-exclude,--exclude=ARTIFACT1 --exclude ARTIFACT2>> is specified as
+** `:exclude '["ARTIFACT1" "ARTFACT2"]'` for clojure tool usage
+** `:exclude ["ARTIFACT1" "ARTIFACT2"]` as a lein plugin `:antq` option
+====
+
+[[opt-upgrade]]
 === --upgrade
 Upgrade outdated versions interactively.
-You can use `--force` option for upgrading without confirmation, and `--download` option for downloading upgraded dependencies on the fly.
-
+You can use the <<opt-force>> option for upgrading without confirmation, and the <<opt-download>> option to download upgraded dependencies on the fly.
 [WARNING]
 ====
-For now, `--upgrade` option only supports following files.
-
-* deps.edn
-* shadow-cljs.edn
-* project.clj
-* build.boot
-* pom.xml
+The `--upgrade` option does not support gradle files at this time.
 ====
 
-=== --exclude=ARTIFACT_NAME[@VERSION]
+[[opt-force]]
+=== --force
+Use with <<opt-upgrade>> to non-interactive upgrade.
+
+[[opt-exclude]]
+=== --exclude=ARTIFACT_NAME[@VERSION] ...
 Skip version checking for specified artifacts or versions.
+Specify multiple times for multiple artifacts.
 
 E.g.
 [source,sh]
@@ -194,28 +240,37 @@ See link:./doc/exclusions.adoc[Exclusions] for more information.
 
 NOTE: You must specify `groupId/artifactId` for Java dependencies.
 
-=== --directory=DIRECTORY
+=== --directory=DIRECTORY ...
 Add search path for projects.
-Current directory(`.`) is added by default.
+The current directory (`.`) is added by default.
+Specify multiple times for multiple directories.
 
 E.g. `-d foo --directory=bar:baz` will search "foo", "baz" and "bar" directories.
 
-=== --focus=ARTIFACT_NAME
-
+=== --focus=ARTIFACT_NAME ...
 Focus version checking for specified artifacts.
+Specify multiple times for multiple artifacts.
 
 E.g. `--focus=com.github.liquidz/antq`
 
 NOTE: You must specify `groupId/artifactId` for Java dependencies.
 
-WARNING: `focus` option is prefer than `exclude` option.
+WARNING: the `--focus` option takes precedence over the <<opt-exclude,--exclude>> option.
 
-=== --skip=PROJECT_TYPE
-Skip to search specified project files.
-Must be one of `boot`, `clojure-cli`, `github-action`, `pom`, `shadow-cljs` and `leiningen`.
+If you want to focus the upgrade on specific version of dependency, you can use `--focus=ARTIFACT_NAME[@VERSION]`.
 
-E.g. `--skip=pom`
+E.g. `--focus=com.github.liquidz/antq@50.2.0`
 
+Will set antq dep to version 50.2.0, even if that version doesn't exist.
+
+=== --skip=PROJECT_TYPE ...
+Skip searching of specified project files.
+Must be one of `boot`, `clojure-cli`, `github-action`, `gradle`, `pom`, `shadow-cljs`, `leiningen` or `babashka`.
+Specify multiple times to skip multiple project files.
+
+E.g. `--skip=pom --skip=leiningen`
+
+[[opt-error-format]]
 === --error-format=ERROR_FORMAT
 Customize outputs for outdated dependencies.
 
@@ -247,8 +302,8 @@ See details: https://github.com/clojars/clojars-web/wiki/Verified-Group-Names[Cl
 | The changes URL in Version Control System. (Nullable)
 
 | `{{diff-url}}`
-| WARNING: DEPRECATED.
-Please use `changes-url` instead.
+| WARNING: DEPRECATED. +
+Please use `{{changes-url}}` instead.
 
 The diff URL for Version Control System. (Nullable)
 
@@ -258,6 +313,11 @@ The diff URL for Version Control System. (Nullable)
 
 |===
 
+Antq uses https://github.com/athos/pogonos[Pogonos] as a template engine, so you can use http://mustache.github.io/[Mustache] features.
+
+e.g. `{{name}}{{#latest-name}} -> {{.}}{{/latest-name}}`
+
+[[opt-reporter]]
 === --reporter=REPORTER
 
 |===
@@ -265,19 +325,21 @@ The diff URL for Version Control System. (Nullable)
 
 | `table` (default)
 | Report results in a table.
+See also <<opt-changes-in-table>>.
 
 | `format`
 | Report results with a custom format.
-When you use `--error-format` option, this reporter will be used automatically.
+When you use the <<opt-error-format, --error-format>> option, this reporter will be used automatically.
 
 | `json`
-| Report results as a JSON format.
+| Report results in JSON format.
 
 | `edn`
-| Report results as a EDN format.
+| Report results in EDN format.
 
 |===
 
+[[opt-download]]
 === --download
 If `download` is set and updated dependencies are found,
 download them at the same time as a convenience. The default action
@@ -285,7 +347,7 @@ is not to download anything.
 
 [WARNING]
 ====
-antq only downloads **upgraded** dependencies by `--upgrade` option.
+antq only downloads **upgraded** dependencies with the <<opt-upgrade>> option.
 
 If you upgrade manually or without the `--download` option and the version is changed to the latest,
 the new version will not be downloaded even if you specify the `--download` option later (because antq does not detect differences).
@@ -293,13 +355,15 @@ the new version will not be downloaded even if you specify the `--download` opti
 
 === --ignore-locals
 
-For java dependencies, ignore versions installed to your local Maven repository(`~/.m2/`)
+For java dependencies, ignore versions installed to your local Maven repository(`~/.m2/`). Disabled by default.
 
+[[opt-check-clojure-tools]]
 === --check-clojure-tools
 
 Detect all tools installed in `~/.clojure/tools` as dependencies.
-You can also upgrade them with `--upgrade` option.
+You can also upgrade them with <<opt-upgrade>> option.
 
+[[opt-no-changes]]
 === --no-changes
 
 Skip checking changes between deps' versions. Disabled by default.
@@ -307,9 +371,16 @@ Skip checking changes between deps' versions. Disabled by default.
 === --no-diff
 
 WARNING: DEPRECATED.
-Please use `--no-changes` instead.
+Please use <<opt-no-changes>> instead.
 
 Skip checking diff between deps' versions. Disabled by default.
+
+[[opt-changes-in-table]]
+=== --changes-in-table
+
+Show changes URLs in table.
+This option is only recognized when using <<opt-reporter,--reporter=table>>.
+Disabled by default.
 
 === --transitive
 
@@ -322,7 +393,7 @@ The default scan depth is `5`, but it is customizable by the environmental varia
 
 [WARNING]
 ====
-With this option, the number of reported dependencies tends to be very large, so it is recommended to use it with the `--no-changes` option.
+With this option, the number of reported dependencies tends to be very large, so it is recommended to use it with the <<opt-no-changes>> option.
 Otherwise, it may take a long time for the results to be reported.
 ====
 
@@ -332,19 +403,19 @@ Otherwise, it may take a long time for the results to be reported.
 
 == Tips
 
-* link:./doc/maven-s3-repos.adoc[Maven S3 reposhere].
-* link:./doc/avoid-slf4j-warnings.adoc[Avoid SLF4J warnings]
-* link:./doc/latest-version-of-a-specific-library.adoc[Latest version of a specific library]
-* link:./doc/non-supported-clojure-version.adoc[Antq with non supported Clojure version]
-* link:./doc/gradle.adoc[Work with Gradle]
-* link:./doc/proxy.adoc[Run behind proxy]
+* link:./doc/maven-s3-repos.adoc[Maven S3 repos]
+* link:./doc/avoid-slf4j-warnings.adoc[Quiet SLF4J logger warnings]
+* link:./doc/latest-version-of-a-specific-library.adoc[Find the latest version of a library]
+* link:./doc/non-supported-clojure-version.adoc[Antq on projects that use old versions of Clojure]
+* link:./doc/gradle.adoc[Working with Gradle]
+* link:./doc/proxy.adoc[Running behind a proxy]
 * link:./doc/timeout.adoc[Timeouts]
-* link:./doc/exclusions.adoc[Exclusions]
-* link:./doc/use-as-library.adoc[Use antq as a library]
+* link:./doc/exclusions.adoc[Excluding dependencies]
+* link:./doc/use-as-library.adoc[Using antq as a library]
 
 == License
 
-Copyright © 2020-2023 https://twitter.com/uochan[Masashi Iizuka]
+Copyright © 2020-2025 https://scrapbox.io/uochan/uochan[Masashi Iizuka]
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at

@@ -1,16 +1,17 @@
-;; Warn on Clojure 1.7.0 or earlier
+;; Fail on Clojure 1.11.0 or earlier
 (let [{:keys [major minor]} *clojure-version*]
-  (when-not (or (and (= major 1) (>= minor 10))
+  (when-not (or (and (= major 1) (>= minor 11))
                 (> major 1))
-    (.println ^java.io.PrintWriter *err* "antq requires Clojure 1.10.0 or later.")
+    (.println ^java.io.PrintWriter *err* "antq requires Clojure 1.11 or later.")
     (System/exit 1)))
 
-(ns antq.core
+(ns ^:no-doc antq.core
   (:gen-class)
   (:require
    [antq.changelog :as changelog]
    [antq.dep.babashka :as dep.bb]
    [antq.dep.boot :as dep.boot]
+   [antq.dep.circle-ci :as dep.circle-ci]
    [antq.dep.clojure :as dep.clj]
    [antq.dep.clojure.tool :as dep.clj.tool]
    [antq.dep.github-action :as dep.gh-action]
@@ -32,6 +33,7 @@
    [antq.report.table]
    [antq.upgrade :as upgrade]
    [antq.upgrade.boot]
+   [antq.upgrade.circle-ci]
    [antq.upgrade.clojure]
    [antq.upgrade.clojure.tool]
    [antq.upgrade.github-action]
@@ -39,9 +41,11 @@
    [antq.upgrade.pom]
    [antq.upgrade.shadow]
    [antq.util.exception :as u.ex]
+   [antq.util.file :as u.file]
    [antq.util.maven :as u.maven]
    [antq.util.ver :as u.ver]
    [antq.ver :as ver]
+   [antq.ver.circle-ci-orb]
    [antq.ver.git-sha]
    [antq.ver.git-tag-and-sha]
    [antq.ver.github-tag]
@@ -64,6 +68,7 @@
 
 (def ^:private skippable
   #{"boot"
+    "circle-ci"
     "clojure-cli"
     "github-action"
     "gradle"
@@ -97,12 +102,31 @@
    [nil "--check-clojure-tools"]
    [nil "--no-diff"] ; deprecated (for backward compatibility)
    [nil "--no-changes"]
+   [nil "--changes-in-table"]
    [nil "--transitive"]])
+
+(defn- parse-artifact
+  "Retrieve artifact name and version from artifact string"
+  [artifact]
+  (zipmap [:name :version]
+          (str/split (str artifact) #"@" 2)))
+
+(defn forced-artifact-version-map
+  "Forced artifacts are coming from focus param and contain specific version targeted with @"
+  [options]
+  (->> (:focus options)
+       (map parse-artifact)
+       (filter :version)
+       (map (juxt :name :version))
+       (into {})))
 
 (defn skip-artifacts?
   [dep options]
   (let [exclude-artifacts (set (:exclude options []))
-        focus-artifacts (set (:focus options []))]
+        focus-artifacts (->> []
+                             (:focus options)
+                             (map (comp :name parse-artifact))
+                             set)]
     (cond
       ;; `focus` is prefer than `exclude`
       (seq focus-artifacts)
@@ -115,9 +139,9 @@
   [versions dep options]
   (let [dep-name (:name dep)
         skip-vers (->> (:exclude options)
-                       (map #(str/split % #"@" 2))
-                       (filter #(= dep-name (first %)))
-                       (keep second)
+                       (map parse-artifact)
+                       (filter #(= dep-name (:name %)))
+                       (keep :version)
                        (concat (or (:exclude-versions dep) []))
                        (distinct))]
     (remove (fn [target-version]
@@ -128,9 +152,18 @@
   [dep]
   (contains? #{"RELEASE" "master" "main" "latest"} (:version dep)))
 
+(defn mark-forced-version
+  "If dependency is in focused artifacts, sets `:forced-version` information"
+  [dep forced-artifacts]
+  (if-let [forced-version (get forced-artifacts (:name dep))]
+    (assoc dep :forced-version forced-version)
+    dep))
+
 (defn- assoc-versions
   [dep options]
-  (let [res (assoc dep :_versions (ver/get-sorted-versions dep options))]
+  (let [res (if-let [forced-version (:forced-version dep)]
+              (assoc dep :_versions [forced-version])
+              (assoc dep :_versions (ver/get-sorted-versions dep options)))]
     (report/run-progress dep options)
     res))
 
@@ -164,7 +197,7 @@
 (defn distinct-deps
   [deps]
   (->> deps
-       (map #(select-keys % [:type :name :version :repositories :extra]))
+       (map #(select-keys % [:type :name :version :repositories :extra :forced-version]))
        (map #(if (ver/snapshot? (:version %))
                %
                (dissoc % :version)))
@@ -181,13 +214,16 @@
 
 (defn outdated-deps
   [deps options]
-  (let [org-deps (cond->> deps
+  (let [forced-artifacts (forced-artifact-version-map options)
+        org-deps (cond->> deps
                    (:transitive options)
                    (concat (dep.transitive/resolve-transitive-deps deps))
 
                    :always
                    (remove #(or (skip-artifacts? % options)
-                                (using-release-version? %))))
+                                (using-release-version? %)))
+                   (seq forced-artifacts)
+                   (mapv #(mark-forced-version % forced-artifacts)))
         uniq-deps (distinct-deps org-deps)
         _ (report/init-progress uniq-deps options)
         uniq-deps-with-vers (doall (pmap #(assoc-versions % options) uniq-deps))
@@ -202,7 +238,8 @@
                               (keep :parent)
                               (set))]
     (->> version-checked-deps
-         (remove #(and (ver/latest? %)
+         (remove #(and (not (:forced-version %))
+                       (ver/latest? %)
                        (not (contains? parent-dep-names (:name %))))))))
 
 (defn assoc-changes-url
@@ -229,15 +266,20 @@
                   :latest-name verified-name))
         deps))
 
+(defn- system-exit
+  [n]
+  (System/exit n))
+
 (defn exit
   [outdated-deps]
-  (System/exit (if (seq outdated-deps) 1 0)))
+  (system-exit (if (seq outdated-deps) 1 0)))
 
 (defn fetch-deps
   [options]
   (let [skip (set (:skip options))]
     (mapcat #(concat
               (when-not (skip "boot") (dep.boot/load-deps %))
+              (when-not (skip "circle-ci") (dep.circle-ci/load-deps %))
               (when-not (skip "clojure-cli") (dep.clj/load-deps %))
               (when-not (skip "github-action") (dep.gh-action/load-deps %))
               (when-not (skip "pom") (dep.pom/load-deps %))
@@ -292,7 +334,7 @@
 (defn main*
   [options errors]
   (u.maven/initialize-proxy-setting!)
-  (let [options (cond-> options
+  (let [options (cond-> (update options :directory u.file/distinct-directory)
                   ;; Force "format" reporter when :error-format is specified
                   (some? (:error-format options)) (assoc :reporter "format"))
         deps (and (not errors)
@@ -301,7 +343,7 @@
       errors
       (do (doseq [e errors]
             (log/error e))
-          (System/exit 1))
+          (system-exit 1))
 
       (seq deps)
       (let [alog (log/start-async-logger!)
@@ -321,10 +363,13 @@
 
       :else
       (do (log/info "No project file")
-          (System/exit 1)))))
+          (system-exit 1)))))
 
 (defn -main
   [& args]
-  (let [{:keys [options errors]} (cli/parse-opts args cli-options)]
+  (let [{:keys [options errors]} (cli/parse-opts args cli-options)
+        options (update options :error-format #(some-> %
+                                                       (str/replace #"\\n" "\n")
+                                                       (str/replace #"\\t" "\t")))]
     (binding [log/*verbose* (:verbose options false)]
       (main* options errors))))

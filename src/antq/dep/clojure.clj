@@ -1,4 +1,4 @@
-(ns antq.dep.clojure
+(ns ^:no-doc antq.dep.clojure
   "Clojure CLI"
   (:require
    [antq.constant :as const]
@@ -8,7 +8,7 @@
    [clojure.edn :as edn]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [clojure.tools.deps :as deps]
+   [clojure.tools.deps.edn :as deps-edn]
    [clojure.tools.deps.extensions.git :as git]
    [clojure.walk :as walk]))
 
@@ -16,7 +16,7 @@
 
 (defn user-deps-repository
   []
-  (let [file (io/file (deps/user-deps-path))]
+  (let [file (io/file (deps-edn/user-deps-path))]
     (when (.exists file)
       (-> file slurp edn/read-string :mvn/repos))))
 

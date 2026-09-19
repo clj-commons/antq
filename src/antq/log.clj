@@ -1,4 +1,4 @@
-(ns antq.log
+(ns ^:no-doc antq.log
   (:require
    [clojure.core.async :as async]))
 

@@ -1,4 +1,4 @@
-(ns antq.diff.git-sha
+(ns ^:no-doc antq.diff.git-sha
   (:require
    [antq.diff :as diff]
    [antq.log :as log]

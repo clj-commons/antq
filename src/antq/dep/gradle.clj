@@ -1,4 +1,4 @@
-(ns antq.dep.gradle
+(ns ^:no-doc antq.dep.gradle
   (:require
    [antq.constant.project-file :as const.project-file]
    [antq.log :as log]

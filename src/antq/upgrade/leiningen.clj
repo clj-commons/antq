@@ -1,4 +1,4 @@
-(ns antq.upgrade.leiningen
+(ns ^:no-doc antq.upgrade.leiningen
   (:require
    [antq.constant :as const]
    [antq.upgrade :as upgrade]

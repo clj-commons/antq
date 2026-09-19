@@ -26,6 +26,8 @@
     (t/is (every? #(instance? antq.record.Dependency %) deps))
     (t/is (= #{(git-tag-dependency {:name "foo/bar" :version "v1.0.0"
                                     :extra {const.gh-action/type-key "uses"}})
+               (git-tag-dependency {:name "foo/bar" :version "v2.0.0"
+                                    :extra {const.gh-action/type-key "uses"}})
                (git-tag-dependency {:name "bar/baz" :version "master"
                                     :extra {const.gh-action/type-key "uses"}})
                (git-sha-dependency {:name "git/sha" :version "8be09192b01d78912b03852f5d6141e8c48f4179"

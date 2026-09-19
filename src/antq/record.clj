@@ -1,13 +1,13 @@
-(ns antq.record)
+(ns ^:no-doc antq.record)
 
 (def ?repository
   [:map [:url 'string?]])
 
 (def ?type
-  [:enum :git-sha :git-tag-and-sha :github-tag :java])
+  [:enum :git-sha :git-tag-and-sha :github-tag :java :circle-ci-orb])
 
 (def ?project
-  [:enum :boot :clojure :clojure-tool :github-action :gradle :leiningen :pom :shadow-cljs])
+  [:enum :boot :clojure :clojure-tool :github-action :gradle :leiningen :pom :shadow-cljs :circle-ci])
 
 (def ?dependency
   [:map
@@ -29,6 +29,7 @@
 (def ?dependencies
   [:sequential ?dependency])
 
+;; Also described in antq.api docstring, carry over any updates there
 (defrecord Dependency
   [;; Dependency type keyword
    ;; e.g. :java, :git-sha or :github-tag

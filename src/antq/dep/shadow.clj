@@ -1,4 +1,4 @@
-(ns antq.dep.shadow
+(ns ^:no-doc antq.dep.shadow
   (:require
    [antq.constant :as const]
    [antq.constant.project-file :as const.project-file]

@@ -4,6 +4,7 @@
    [antq.upgrade.clojure]
    [lambdaisland.deep-diff2 :as ddiff])
   (:import
+   java.io.File
    lambdaisland.deep_diff2.diff_impl.Mismatch))
 
 (defn test-dep
@@ -41,3 +42,12 @@
        (filter #(instance? Mismatch %))
        (map #(select-keys % [:- :+]))
        (set)))
+
+(defmacro with-temp-file
+  [[sym content] & body]
+  `(let [~sym (File/createTempFile "tmp" "tmp")]
+     (try
+       (spit ~sym ~content)
+       ~@body
+       (finally
+         (.delete ~sym)))))

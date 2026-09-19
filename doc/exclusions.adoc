@@ -1,8 +1,6 @@
-= Exclusions
+= Excluding dependencies
 
-When you'd like to exclude specific dependencies, you could `--exclude` option as you know.
-
-Otherwise, the following ways are available.
+When you'd like to exclude specific dependencies, you can use the link:../README.adoc#opt-exclude[--exclude] option, or one of the methods describe below.
 
 == Metadata in your project file
 
@@ -46,7 +44,7 @@ Otherwise, the following ways are available.
 
 == Specify a version or version range via metadata
 
-Please repalce `^:antq/exclude` as follows.
+Please, replace `^:antq/exclude` as follows.
 
 [source,clojure]
 ----
@@ -61,11 +59,16 @@ Please repalce `^:antq/exclude` as follows.
 
 === Supported version ranges
 
-[cols="50a,50a"]
+[cols="10a,40a,50a"]
 |===
-| Range | Description
+| Range | Example | Description
 
+| `.x`
 | `1.2.x`
 | Matches to `1.2.0`, `1.2.1`, etc.
+
+| `*`
+| `1.2.0-alpha*`
+| Matches to `1.2.0-alpha1`, `1.2.0-alpha2`, etc.
 
 |===

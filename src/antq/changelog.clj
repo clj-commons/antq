@@ -1,4 +1,4 @@
-(ns antq.changelog
+(ns ^:no-doc antq.changelog
   (:require
    [antq.log :as log]
    [antq.util.dep :as u.dep]

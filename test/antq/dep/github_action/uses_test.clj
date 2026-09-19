@@ -37,4 +37,3 @@
                                  :extra {:url "https://github.com/git/sha-short.git"
                                          const.gh-action/type-key "uses"}})]
            (sut/detect [:uses "git/sha-short@8be0919"]))))
-

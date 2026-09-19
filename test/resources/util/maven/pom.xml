@@ -6,7 +6,7 @@
   <version>9.8.7</version>
   <name>antq</name>
   <description>Point out your outdated dependencies</description>
-  <url>https://github.com/liquidz/antq</url>
+  <url>https://github.com/clj-commons/antq</url>
   <licenses>
     <license>
       <name>Eclipse Public License 2.0</name>
@@ -14,8 +14,8 @@
     </license>
   </licenses>
   <scm>
-    <url>https://github.com/liquidz/antq</url>
-    <connection>scm:git:git://github.com/liquidz/antq.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/liquidz/antq.git</developerConnection>
+    <url>https://github.com/clj-commons/antq</url>
+    <connection>scm:git:git://github.com/clj-commons/antq.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/clj-commons/antq.git</developerConnection>
   </scm>
 </project>

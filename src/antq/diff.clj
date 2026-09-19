@@ -1,4 +1,4 @@
-(ns antq.diff)
+(ns ^:no-doc antq.diff)
 
 (defmulti get-diff-url
   (fn [version-checked-dep]

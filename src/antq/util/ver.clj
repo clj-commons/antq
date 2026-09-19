@@ -1,4 +1,4 @@
-(ns antq.util.ver
+(ns ^:no-doc antq.util.ver
   (:require
    [antq.util.exception :as u.ex]
    [clojure.string :as str]))
@@ -53,11 +53,20 @@
     no-latest-version-error))
 
 (defn in-range?
-  "e.g. '1.x' matches '1.0.0', '1.1.0' and so on."
+  "e.g. '1.x' matches '1.0.0', '1.1.0' and so on.
+
+  Notations are based on package.json.
+  cf. https://docs.npmjs.com/cli/v10/configuring-npm/package-json#dependencies"
   [version-range target-version]
   (let [re (-> version-range
+               ;; escape chars
                (str/replace "." "\\.")
-               (str/replace "\\.x" "\\.+")
+               (str/replace "+" "\\+")
+               (str/replace "?" "\\?")
+               ;; .x
+               (str/replace "\\.x" "\\.\\d+")
+               ;; *
+               (str/replace "*" ".*")
                (->> (str "^"))
                (re-pattern))]
     (some? (re-seq re target-version))))

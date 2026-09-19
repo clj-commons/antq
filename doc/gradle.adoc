@@ -1,4 +1,4 @@
-= Work with Gradle
+= Working with Gradle
 
 WARNING: Gradle support is experimental
 
@@ -11,7 +11,7 @@ WARNING: Gradle support is experimental
 
 To work with gradle, you should update your `build.gradle` as following.
 
-[source,build.gradle]
+[source,groovy]
 ----
 plugins {
   id 'java-library'

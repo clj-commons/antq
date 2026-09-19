@@ -1,4 +1,4 @@
-(ns antq.tool
+(ns ^:no-doc antq.tool
   (:require
    [antq.core :as core]
    [antq.log :as log]
@@ -30,6 +30,8 @@
          (merge (select-keys options additional-keys)))))
 
 (defn outdated
+  ;; docstring is presented as part of help for tool
+  ;; clojure -A:deps -Tantq help/doc
   "Point out outdated dependencies.
 
   Options:
@@ -46,11 +48,16 @@
   - :ignore-locals       <boolean>
   - :check-clojure-tools <boolean>
   - :no-diff             <boolean>
+  - :changes-in-table    <boolean>
   - :transitive          <boolean>"
   [& [options]]
   (let [options (prepare-options options)]
     (binding [log/*verbose* (:verbose options false)]
-      (core/main* options nil))))
+      (with-redefs [core/system-exit (fn [n]
+                                       (when (not= 0 n)
+                                         (throw (ex-info "Exited" {:code n})))
+                                       n)]
+        (core/main* options nil)))))
 
 (defn help
   [& _]

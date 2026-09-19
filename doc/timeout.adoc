@@ -3,33 +3,33 @@
 Antq has timeouts for acquiring various information.
 These timeouts are customizable by following environmental variables.
 
-[cols="1,4a,5a"]
+[%autowidth]
 |===
-| Name | Default | Description
+| Name | Default | Unit | For 
 
-| ANTQ_DEFAULT_TIMEOUT
-| `10,000`
-| Unit is milli sec.
+| `ANTQ_DEFAULT_TIMEOUT`
+| `10000`
+| milliseconds
+| 
 
+| `ANTQ_LS_REMOTE_TIMEOUT`
+| `ANTQ_DEFAULT_TIMEOUT`
+| milliseconds
+| `git ls-remote`
 
-| ANTQ_LS_REMOTE_TIMEOUT
-| Same as `ANTQ_DEFAULT_TIMEOUT`.
-| Timeout for `git ls-remote`. +
-  Unit is milli sec.
+| `ANTQ_GITHUB_API_TIMEOUT`
+| `ANTQ_DEFAULT_TIMEOUT`
+| milliseconds
+| GitHub API
 
-| ANTQ_GITHUB_API_TIMEOUT
-| Same as `ANTQ_DEFAULT_TIMEOUT`.
-| Timeout for GitHub API. +
-  Unit is milli sec.
+| `ANTQ_MAVEN_TIMEOUT`
+| `ANTQ_DEFAULT_TIMEOUT`
+| milliseconds
+| Accessing Maven repositories
 
-| ANTQ_MAVEN_TIMEOUT
-| Same as `ANTQ_DEFAULT_TIMEOUT`.
-| Timeout for accessing Maven repositories. +
-  Unit is milli sec.
-
-| ANTQ_POM_TIMEOUT
-| Same as `ANTQ_DEFAULT_TIMEOUT`.
-| Timeout for reading POM. +
-  Unit is milli sec.
+| `ANTQ_POM_TIMEOUT`
+| `ANTQ_DEFAULT_TIMEOUT`
+| milliseconds
+| Reading POM
 
 |===

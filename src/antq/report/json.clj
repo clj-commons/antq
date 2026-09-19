@@ -1,4 +1,4 @@
-(ns antq.report.json
+(ns ^:no-doc antq.report.json
   (:require
    [antq.report :as report]
    [clojure.data.json :as json]))

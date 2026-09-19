@@ -1,14 +1,19 @@
-= Latest version of a specific library
+= Find the latest version of a library
 
 If you are using Clojure CLI Tools https://clojure.org/releases/tools#v1.10.1.697[v1.10.1.697] or later,
 You can use `-X` option to find out the latest version of a specific library.
 
+Try to find Java library by default:
 [source,clojure]
 ----
-;; Try to find Java library by default
-clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}}' -X antq.core/latest :name antq
+clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}}' \
+  -X antq.core/latest :name antq
+----
 
-;; You can specify library type
-clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}}' -X antq.core/latest :name actions/checkout :type :github-tag
+You can specify library type:
+[source,clojure]
+----
+clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}}' \
+  -X antq.core/latest :name actions/checkout :type :github-tag
 ----
 

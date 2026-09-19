@@ -1,4 +1,4 @@
-(ns antq.util.report
+(ns ^:no-doc antq.util.report
   (:require
    [antq.record :as r]))
 

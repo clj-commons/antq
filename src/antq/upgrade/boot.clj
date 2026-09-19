@@ -1,4 +1,4 @@
-(ns antq.upgrade.boot
+(ns ^:no-doc antq.upgrade.boot
   (:require
    [antq.constant :as const]
    [antq.upgrade :as upgrade]

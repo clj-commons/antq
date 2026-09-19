@@ -1,4 +1,4 @@
-(ns antq.dep.pom
+(ns ^:no-doc antq.dep.pom
   "Clojure CLI"
   (:require
    [antq.constant.project-file :as const.project-file]

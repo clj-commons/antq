@@ -1,4 +1,4 @@
-(ns antq.ver.git-sha
+(ns ^:no-doc antq.ver.git-sha
   (:require
    [antq.util.exception :as u.ex]
    [antq.util.git :as u.git]

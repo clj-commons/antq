@@ -1,4 +1,4 @@
-(ns antq.util.exception
+(ns ^:no-doc antq.util.exception
   (:import
    clojure.lang.ExceptionInfo))
 

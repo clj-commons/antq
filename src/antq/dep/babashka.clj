@@ -1,4 +1,4 @@
-(ns antq.dep.babashka
+(ns ^:no-doc antq.dep.babashka
   (:require
    [antq.constant.project-file :as const.project-file]
    [antq.dep.clojure :as dep.clj]

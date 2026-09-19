@@ -1,4 +1,4 @@
-(ns antq.ver
+(ns ^:no-doc antq.ver
   (:require
    [clojure.string :as str]
    [version-clj.core :as version]))

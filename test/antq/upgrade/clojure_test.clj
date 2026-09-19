@@ -68,6 +68,35 @@
                       :latest-version "9.9.9"
                       :file (io/resource "dep/test_deps.edn")}))
 
+(def ^:private dummy-namespaced-mvn-dep
+  (r/map->Dependency {:project :clojure
+                      :type :java
+                      :name "namespaced/mvn"
+                      :latest-version "9.0.0"
+                      :file (io/resource "dep/test_deps.edn")}))
+
+(def ^:private dummy-namespaced-sha-dep
+  (r/map->Dependency {:project :clojure
+                      :type :git-sha
+                      :name "namespaced/sha"
+                      :latest-version "new-sha"
+                      :file (io/resource "dep/test_deps.edn")}))
+
+(def ^:private dummy-namespaced-tag-and-sha-dep
+  (r/map->Dependency {:project :clojure
+                      :type :git-tag-and-sha
+                      :name "namespaced/tag-and-sha"
+                      :latest-version "v9.9.9"
+                      :file (io/resource "dep/test_deps.edn")
+                      :extra {:sha "123abcd"}}))
+
+(defn- select-deps
+  [name-pred file]
+  (->> (slurp file)
+       (dep.clj/extract-deps "")
+       (filter #(name-pred (:name %)))
+       (map #(assoc % :file file))))
+
 (t/deftest upgrade-dep-test
   (t/testing "java"
     (let [from-deps (->> dummy-java-dep
@@ -169,6 +198,46 @@
       (t/is (= #{{:name "full-meta/full-meta" :version {:- "2.6.9" :+ "9.0.0"}}}
                (h/diff-deps from-deps to-deps)))))
 
+  (t/testing "namespaced mvn"
+    (let [from-deps (->> dummy-namespaced-mvn-dep
+                         :file
+                         (slurp)
+                         (dep.clj/extract-deps ""))
+          to-deps (->> dummy-namespaced-mvn-dep
+                       (upgrade/upgrader)
+                       (dep.clj/extract-deps ""))]
+      (t/is (= #{{:name "namespaced/mvn" :version {:- "1.0.0" :+ "9.0.0"}}}
+               (h/diff-deps from-deps to-deps)))))
+
+  (t/testing "namespaced git-sha"
+    (let [from-deps (->> dummy-namespaced-sha-dep
+                         :file
+                         (slurp)
+                         (dep.clj/extract-deps ""))
+          to-deps (->> dummy-namespaced-sha-dep
+                       (upgrade/upgrader)
+                       (dep.clj/extract-deps ""))]
+      (t/is (= #{{:name "namespaced/sha"
+                  :url "https://github.com/example/git-sha.git"
+                  :version {:- "1234567890abcdefghijklmnopqrstuvwxyz1234"
+                            :+ "new-sha"}}}
+               (h/diff-deps from-deps to-deps)))))
+
+  (t/testing "namespaced git-tag-and-sha"
+    (with-redefs [u.git/tag-sha-by-ls-remote (constantly "9876543210abcdefghijklmnopqrstuvwxyz1234")]
+      (let [from-deps (->> dummy-namespaced-tag-and-sha-dep
+                           :file
+                           (slurp)
+                           (dep.clj/extract-deps ""))
+            to-deps (->> dummy-namespaced-tag-and-sha-dep
+                         (upgrade/upgrader)
+                         (dep.clj/extract-deps ""))]
+        (t/is (= #{{:name "namespaced/tag-and-sha"
+                    :url "https://github.com/example/tag-short.git"
+                    :version {:- "v1.2.3" :+ "v9.9.9"}
+                    :sha {:- "123abcd" :+ "9876543"}}}
+                 (h/diff-deps from-deps to-deps))))))
+
   (t/testing "no corresponding value"
     (let [from-deps (->> dummy-no-version-dep
                          :file
@@ -213,4 +282,13 @@
                      (upgrade/upgrader)
                      (dep.clj/extract-deps ""))]
     (t/is (= #{{:name "dft/dft" :version {:- "6.0.0" :+ "9.0.0"}}}
+             (h/diff-deps from-deps to-deps)))))
+
+(t/deftest upgrade-dep-namespaced-java-deps-test
+  (let [from-deps (->> (io/resource "dep/test_deps_namespaced_map.edn")
+                       (select-deps #{"foo/bar"}))
+        to-deps (->> (assoc (first from-deps) :latest-version "9.0.0")
+                     (upgrade/upgrader)
+                     (dep.clj/extract-deps ""))]
+    (t/is (= #{{:name "foo/bar" :version {:- "1.0.0" :+ "9.0.0"}}}
              (h/diff-deps from-deps to-deps)))))

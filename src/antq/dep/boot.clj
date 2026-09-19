@@ -1,4 +1,4 @@
-(ns antq.dep.boot
+(ns ^:no-doc antq.dep.boot
   (:require
    [antq.constant :as const]
    [antq.constant.project-file :as const.project-file]

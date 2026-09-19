@@ -1,4 +1,4 @@
-(ns antq.report.edn
+(ns ^:no-doc antq.report.edn
   (:require
    [antq.report :as report]))
 

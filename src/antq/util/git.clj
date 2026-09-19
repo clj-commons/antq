@@ -1,4 +1,4 @@
-(ns antq.util.git
+(ns ^:no-doc antq.util.git
   (:require
    [antq.constant :as const]
    [antq.log :as log]

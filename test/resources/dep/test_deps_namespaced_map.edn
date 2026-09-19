@@ -1,0 +1,8 @@
+{:deps #:foo{bar #:mvn{:version "1.0.0"}
+             git-sha #:git{:url "https://github.com/example/git-sha.git"
+                           :sha "dummy-git-sha"}
+             git-tag-long-sha #:git{:url "https://github.com/example/git-tag-long.git"
+                                    :tag "v2.3.4"
+                                    :sha "1234567890abcdefghijklmnopqrstuvwxyz1234"}
+
+             local-repo/local-repo #:local{:root "./local"}}}

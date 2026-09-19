@@ -5,7 +5,7 @@
    [antq.record :as r]
    [clojure.java.io :as io]
    [clojure.test :as t]
-   [clojure.tools.deps :as deps]))
+   [clojure.tools.deps.edn :as deps-edn]))
 
 (def ^:private file-path
   ;; "path/to/deps.edn"
@@ -72,7 +72,13 @@
                                    :repositories nil})
                  (java-dependency {:name "local/nested-core" :version "8.8.8"
                                    :file (.getAbsolutePath (io/file (io/resource "dep/local/nested/test_deps.edn")))
-                                   :repositories nil})}
+                                   :repositories nil})
+                 (java-dependency {:name "namespaced/mvn" :version "1.0.0"})
+                 (git-sha-dependency {:name "namespaced/sha" :version "1234567890abcdefghijklmnopqrstuvwxyz1234"
+                                      :extra {:url "https://github.com/example/git-sha.git"}})
+                 (git-tag-dependency {:name "namespaced/tag-and-sha" :version "v1.2.3"
+                                      :extra {:url "https://github.com/example/tag-short.git"
+                                              :sha "123abcd"}})}
                (set deps))))))
 
 (t/deftest extract-deps-cross-project-configuration-test
@@ -82,7 +88,7 @@
                              "cross-project"
                              "test_deps.edn"))
         content (pr-str '{:deps {foo/bar {:mvn/version "0.0.1"}}})]
-    (with-redefs [deps/user-deps-path (constantly cross-project-path)]
+    (with-redefs [deps-edn/user-deps-path (constantly cross-project-path)]
       (t/is (= [(java-dependency
                  {:name "foo/bar"
                   :version "0.0.1"

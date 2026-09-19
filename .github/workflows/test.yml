@@ -5,21 +5,26 @@ jobs:
   test:
     strategy:
       matrix:
-        java: ['8', '11', '17']
+        java: ['11', '17', '21']
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
-          distribution: 'adopt'
+          distribution: temurin
           java-version: ${{ matrix.java }}
       - run: java -version
       - uses: DeLaGuardo/setup-clojure@master
         with:
           cli: latest
           lein: latest
-      - uses: actions/cache@v3
+      # The runner image comes with a later version gradle that does not work with antq unit tests yet
+      - name: Install Gradle for antq
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.14.3'
+      - uses: actions/cache@v6
         with:
           path: ~/.m2
           key: test-m2-${{ hashFiles('deps.edn') }}-v1

@@ -8,7 +8,7 @@ outdated: ## Run antq to detect outdated dependencies
 
 .PHONY: test
 test: install ## Run tests
-	clojure -M:dev:1.10:test
+	clojure -M:dev:1.11:test
 	clojure -M:dev:test
 	script/integration_test.sh
 

@@ -1,4 +1,4 @@
-(ns antq.util.async
+(ns ^:no-doc antq.util.async
   (:require
    [antq.util.exception :as u.ex]
    [clojure.core.async :as async]))

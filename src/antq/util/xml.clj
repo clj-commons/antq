@@ -1,4 +1,4 @@
-(ns antq.util.xml)
+(ns ^:no-doc antq.util.xml)
 
 (defn xml-ns
   "expects the result of `xml-seq` as content"

@@ -1,4 +1,4 @@
-(ns antq.upgrade.pom
+(ns ^:no-doc antq.upgrade.pom
   (:require
    [antq.log :as log]
    [antq.upgrade :as upgrade]

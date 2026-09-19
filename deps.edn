@@ -1,31 +1,32 @@
 {:paths ["src"]
  :deps
- {org.clojure/clojure {:mvn/version "1.11.1"}
-  org.clojure/data.xml {:mvn/version "0.2.0-alpha8"}
-  org.clojure/data.zip {:mvn/version "1.0.0"}
-  org.clojure/tools.cli {:mvn/version "1.0.219"}
-  org.clojure/core.async {:mvn/version "1.6.681"}
-  org.clojure/tools.deps {:mvn/version "0.18.1354"}
-  org.clojure/data.json {:mvn/version "2.4.0"}
-  clj-commons/clj-yaml {:mvn/version "1.0.27"}
-  version-clj/version-clj {:mvn/version "2.0.2"}
-  rewrite-clj/rewrite-clj {:mvn/version "1.1.47"}
-  com.github.liquidz/rewrite-indented {:mvn/version "0.2.36"}}
+ {org.clojure/clojure {:mvn/version "1.12.6"}
+  org.clojure/data.xml {:mvn/version "0.2.0-alpha11"}
+  org.clojure/data.zip {:mvn/version "1.1.1"}
+  org.clojure/tools.cli {:mvn/version "1.4.256"}
+  org.clojure/core.async {:mvn/version "1.9.865"}
+  org.clojure/tools.deps {:mvn/version "0.31.1646"}
+  org.clojure/data.json {:mvn/version "2.5.2"}
+  clj-commons/clj-yaml {:mvn/version "1.0.30"}
+  version-clj/version-clj {:mvn/version "2.0.3"}
+  rewrite-clj/rewrite-clj {:mvn/version "1.2.57"}
+  com.github.liquidz/rewrite-indented {:mvn/version "0.2.44"}
+  pogonos/pogonos {:mvn/version "0.2.1"}}
 
  :tools/usage
  {:ns-default antq.tool}
 
  :aliases
- {:1.10
-  {:override-deps {org.clojure/clojure ^:antq/exclude {:mvn/version "1.10.3"}}}
+ {:1.11
+  {:override-deps {org.clojure/clojure ^:antq/exclude {:mvn/version "1.11.4"}}}
 
   :dev
   {:extra-paths ["dev"
                  "test"
                  "test/resources"]
-   :extra-deps {metosin/malli {:mvn/version "0.11.0"}
-                lambdaisland/kaocha {:mvn/version "1.85.1342"}
-                lambdaisland/deep-diff2 {:mvn/version "2.10.211"}}
+   :extra-deps {metosin/malli ^{:antq/exclude "0.17.0"} {:mvn/version "0.20.1"}
+                lambdaisland/kaocha {:mvn/version "1.91.1392"}
+                lambdaisland/deep-diff2 {:mvn/version "2.14.235"}}
    :jvm-opts ["-Dclojure.core.async.go-checking=true"]}
 
   :nop
@@ -42,7 +43,7 @@
    :main-opts ["-m" "cloverage.coverage" "--ns-exclude-regex" "leiningen.antq"]}
 
   :build
-  {:deps {com.github.liquidz/build.edn {:mvn/version "0.10.227"}}
+  {:deps {com.github.liquidz/build.edn {:mvn/version "0.11.266"}}
    :ns-default build}
 
   ;; -X
