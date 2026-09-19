@@ -1,5 +1,10 @@
 name: coverage
-on: push
+
+on:
+  push:
+    branches:
+    - main
+
 jobs:
   coverage:
     runs-on: ubuntu-latest
@@ -21,3 +26,8 @@ jobs:
         run: make coverage
       - name: Upload reports
         uses: codecov/codecov-action@v7
+        with:
+          fail_ci_if_error: true # optional (default = false)
+          files: ./target/coverage/codecov.json
+          token: ${{ secrets.CODECOV_TOKEN }} # required
+          verbose: true # optional (default = false)

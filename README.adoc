@@ -1,17 +1,19 @@
 = Antq
+:project-src-coords: clj-commons/antq
+:project-mvn-coords: com.github.liquidz/antq 
+:workflow-url: https://github.com/{project-src-coords}/actions/workflows
 :sym-yes: ✅
 :sym-no: ❌
 
 Point out your outdated dependencies.
 
-image:https://github.com/liquidz/antq/workflows/test/badge.svg["GitHub Actions for test workflow", link="https://github.com/liquidz/antq/actions?query=workflow%3Atest"]
-image:https://github.com/liquidz/antq/workflows/lint/badge.svg["GitHub Actions for lint workflow", link="https://github.com/liquidz/antq/actions?query=workflow%3Alint"]
-image:https://github.com/liquidz/antq/workflows/dependencies/badge.svg["GitHub Actions for dependencies workflow", link="https://github.com/liquidz/antq/actions?query=workflow%3Adependencies"]
-image:https://codecov.io/gh/liquidz/antq/branch/master/graph/badge.svg["codecov", link="https://codecov.io/gh/liquidz/antq"]
-
-image:https://cljdoc.org/badge/com.github.liquidz/antq["cljdoc", link="https://cljdoc.org/d/com.github.liquidz/antq"]
-image:https://img.shields.io/clojars/v/com.github.liquidz/antq["Clojars Project", link="https://clojars.org/com.github.liquidz/antq"]
-image:https://img.shields.io/badge/docker-automated-blue["GitHub Container Registry", link="https://github.com/users/liquidz/packages/container/package/antq"]
+{workflow-url}/test.yml[image:{workflow-url}/test.yml/badge.svg[GitHub Actions for test workflow]]
+{workflow-url}/lint.yml[image:{workflow-url}/lint.yml/badge.svg[GitHub Actions for lint workflow]]
+{workflow-url}/dependencies.yml[image:{workflow-url}/dependencies.yml/badge.svg[GitHub Actions for dependencies workflow]]
+https://codecov.io/gh/{project-src-coords}[image:https://codecov.io/gh/{project-src-coords}/branch/main/graph/badge.svg[Code Coverage]]
+https://cljdoc.org/d/{project-mvn-coords}/CURRENT[image:https://cljdoc.org/badge/{project-mvn-coords}[cljdoc]]
+https://clojars.org/{project-mvn-coords}[image:https://img.shields.io/clojars/v/{project-mvn-coords}.svg[Clojars Project]]
+https://github.com/users/clj-commons/packages/container/package/antq[image:https://img.shields.io/badge/docker-automated-blue["GitHub Container Registry"]]
 
 [NOTE]
 ====
@@ -161,7 +163,7 @@ Then, run `lein antq`.
 Antq can work with https://github.com/features/actions[GitHub Actions].
 See antq's workflow for concrete example.
 
-* https://github.com/liquidz/antq/blob/master/.github/workflows/dependencies.yml[.github/workflows/dependencies.yml]
+* link:.github/workflows/dependencies.yml[.github/workflows/dependencies.yml]
 * To show errors as annotations, please set this option: `--error-format="::error file={{file}}::{{message}}"`
 
 Or if you prefer, you can use our ready-made GitHub action:

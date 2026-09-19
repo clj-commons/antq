@@ -2,4 +2,4 @@
  :coord
  {:git/tag "1.5.1"
   :git/sha "bc28de64fb36b395da4267e8d7916d1a9e167bcd"
-  :git/url "https://github.com/liquidz/antq.git"}}
+  :git/url "https://github.com/clj-commons/antq.git"}}

@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file. This change
 == 2.11.1276 (2025-03-15)
 // {{{
 === Changed
-* https://github.com/liquidz/antq/pull/272[#272]: Change separator character in table reporter to generate GH markdown table.
+* https://github.com/clj-commons/antq/pull/272[#272]: Change separator character in table reporter to generate GH markdown table.
 * Bumped tools.deps to 0.23.1512.
 // }}}
 
@@ -40,13 +40,13 @@ All notable changes to this project will be documented in this file. This change
 == 2.11.1250 (2024-11-06)
 // {{{
 === Added
-* https://github.com/liquidz/antq/pull/265[#265]: Added CircleCI support.
+* https://github.com/clj-commons/antq/pull/265[#265]: Added CircleCI support.
 // }}}
 
 == 2.10.1241 (2024-09-29)
 // {{{
 === Added
-* https://github.com/liquidz/antq/pull/262[#262]: Added forced focus option.
+* https://github.com/clj-commons/antq/pull/262[#262]: Added forced focus option.
 ** See details `--focus` option section in README.
 // }}}
 
@@ -56,7 +56,7 @@ All notable changes to this project will be documented in this file. This change
 * Bumped clj-yaml to 1.0.28.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/261[#261]: Fixed to work correctly when used as a tool.
+* https://github.com/clj-commons/antq/issues/261[#261]: Fixed to work correctly when used as a tool.
 // }}}
 
 == 2.9.1227 (2024-09-07)
@@ -73,14 +73,14 @@ All notable changes to this project will be documented in this file. This change
 * Bumped version-clj to 2.0.3.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/256[#256]: Fixed false positive with comparing prefixed versions.
+* https://github.com/clj-commons/antq/issues/256[#256]: Fixed false positive with comparing prefixed versions.
 ** https://github.com/xsc/version-clj/pull/18
 // }}}
 
 == 2.9.1217 (2024-08-17)
 // {{{
 === Added
-* https://github.com/liquidz/antq/pull/255[#255]: Added `file-path` option to `antq.api/outdated-deps`.
+* https://github.com/clj-commons/antq/pull/255[#255]: Added `file-path` option to `antq.api/outdated-deps`.
 
 === Changed
 * Bumped build.edn to 0.11.266.
@@ -114,14 +114,14 @@ All notable changes to this project will be documented in this file. This change
 * Bumped kaocha to 1.88.1376.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/251[#251]: Fixed clojure upgrader to be able to upgrade deps in namespaced map.
+* https://github.com/clj-commons/antq/issues/251[#251]: Fixed clojure upgrader to be able to upgrade deps in namespaced map.
 // }}}
 
 == 2.8.1185 (2024-02-23)
 // {{{
 === Fixed
-* https://github.com/liquidz/antq/pull/248[#248]: Updated github action thrird party detection to add babashka, clj-kondo, cljfmt, cljstyle, and zprint supports.
-* https://github.com/liquidz/antq/pull/248[#248]: Fixed github action upgrader to support bb, clj-kondo, cljfmt, cljstyle, and zprint on setup-clojure action.
+* https://github.com/clj-commons/antq/pull/248[#248]: Updated github action thrird party detection to add babashka, clj-kondo, cljfmt, cljstyle, and zprint supports.
+* https://github.com/clj-commons/antq/pull/248[#248]: Fixed github action upgrader to support bb, clj-kondo, cljfmt, cljstyle, and zprint on setup-clojure action.
 
 === Changed
 * Bumped tools.cli to 1.1.230.
@@ -137,19 +137,19 @@ All notable changes to this project will be documented in this file. This change
 * Bumped rewrite-indented to 0.2.44.
 
 === Fixed
-* https://github.com/liquidz/antq/pull/246[#246]: Fixed github actions upgrader not to duplicate entries with two or more blank lines.
+* https://github.com/clj-commons/antq/pull/246[#246]: Fixed github actions upgrader not to duplicate entries with two or more blank lines.
 // }}}
 
 == 2.8.1169 (2024-01-05)
 // {{{
 === Changed
-* https://github.com/liquidz/antq/pull/245[#245]: Bumped tools.deps to 0.18.1398.
+* https://github.com/clj-commons/antq/pull/245[#245]: Bumped tools.deps to 0.18.1398.
 // }}}
 
 == 2.8.1165 (2024-01-02)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/240[#240]: Added `--changes-in-table` option.
+* https://github.com/clj-commons/antq/issues/240[#240]: Added `--changes-in-table` option.
 ** Show changes URLs in table. This option is only available for `table` reporter.
 
 === Changed
@@ -157,7 +157,7 @@ All notable changes to this project will be documented in this file. This change
 * Bumped tools.deps to 0.18.1385.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/241[#241]: Fixed upgrading process to be able to handle destructed map.
+* https://github.com/clj-commons/antq/issues/241[#241]: Fixed upgrading process to be able to handle destructed map.
 ** e.g. `#:mvn{:version "x.y.z"}`
 * Fixed `--directory` option to distinct same directories.
 // }}}
@@ -169,13 +169,13 @@ All notable changes to this project will be documented in this file. This change
 * Bumped build.edn to 0.11.241.
 
 === Fixed
-* https://github.com/liquidz/antq/pull/192[#192]: Fixed github ation upgrader to check version correctly.
+* https://github.com/clj-commons/antq/pull/192[#192]: Fixed github ation upgrader to check version correctly.
 // }}}
 
 == 2.7.1133 (2023-10-02)
 // {{{
 === Added
-* https://github.com/liquidz/antq/pull/237[#237]: Added support for accessing private repositories with GPG in Leiningen projects.
+* https://github.com/clj-commons/antq/pull/237[#237]: Added support for accessing private repositories with GPG in Leiningen projects.
 
 === Changed
 * Bumped kaocha to 1.87.1366.
@@ -185,7 +185,7 @@ All notable changes to this project will be documented in this file. This change
 == 2.6.1121 (2023-09-11)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/235[#235]: Added support for `*` version range.
+* https://github.com/clj-commons/antq/issues/235[#235]: Added support for `*` version range.
 ** See link:./doc/exclusions.adoc[Exclusions] for more information.
 
 === Changed
@@ -203,7 +203,7 @@ All notable changes to this project will be documented in this file. This change
 * Bumped core.async to 1.6.681.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/230[#230]: Fixed transitive check to support custom repositories.
+* https://github.com/clj-commons/antq/issues/230[#230]: Fixed transitive check to support custom repositories.
 // }}}
 
 == 2.5.1102 (2023-08-07)
@@ -213,7 +213,7 @@ All notable changes to this project will be documented in this file. This change
 * Bumped deep-diff2 to 2.10.211.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/228[#228]: Updated tool's help to add `traisitive` option.
+* https://github.com/clj-commons/antq/issues/228[#228]: Updated tool's help to add `traisitive` option.
 // }}}
 
 == 2.5.1095 (2023-06-17)
@@ -222,14 +222,14 @@ All notable changes to this project will be documented in this file. This change
 * Bumped rewrite-indented to 0.2.36.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/192[#192]: Fixed to be able to upgrade third party actions which containing a name attribute.
-* https://github.com/liquidz/antq/issues/225[#225]: Fixed to handle `:git/url` when scanning transitive dependencies.
+* https://github.com/clj-commons/antq/issues/192[#192]: Fixed to be able to upgrade third party actions which containing a name attribute.
+* https://github.com/clj-commons/antq/issues/225[#225]: Fixed to handle `:git/url` when scanning transitive dependencies.
 // }}}
 
 == 2.5.1089 (2023-06-16)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/204:[#204]: Added `--transitive` option to scan outdated transitive dependencies.
+* https://github.com/clj-commons/antq/issues/204:[#204]: Added `--transitive` option to scan outdated transitive dependencies.
 
 === Changed
 * Bumped tools.deps to 0.18.1354.
@@ -244,13 +244,13 @@ All notable changes to this project will be documented in this file. This change
 * Bumped build.edn to 0.9.216.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/217[#217]: Fixed pom.xml upgrader to work correctly when pom.xml contains `exclusions` tag.
+* https://github.com/clj-commons/antq/issues/217[#217]: Fixed pom.xml upgrader to work correctly when pom.xml contains `exclusions` tag.
 // }}}
 
 == 2.4.1062 (2023-05-01)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/212[#212]: Added support for exclusion by specifying version ranges.
+* https://github.com/clj-commons/antq/issues/212[#212]: Added support for exclusion by specifying version ranges.
 ** e.g.
 *** Command line: `--exclude=foo/bar@1.2.x`
 *** Meta data: `foo/bar ^{:antq/exclude "1.2.x"} {:mvn/version ...}`
@@ -264,7 +264,7 @@ All notable changes to this project will be documented in this file. This change
 == 2.3.1043 (2023-04-01)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/209[#209]: Added `antq.api` namespace for using antq as a library.
+* https://github.com/clj-commons/antq/issues/209[#209]: Added `antq.api` namespace for using antq as a library.
 
 === Changed
 * Bumped tools.deps to 0.18.1331.
@@ -281,7 +281,7 @@ All notable changes to this project will be documented in this file. This change
 * Bumped malli to 0.10.3.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/207[#207]: Fixed a bug about relative `:local/root` paths in deps.edn.
+* https://github.com/clj-commons/antq/issues/207[#207]: Fixed a bug about relative `:local/root` paths in deps.edn.
 // }}}
 
 == 2.2.1011 (2023-03-04)
@@ -308,33 +308,33 @@ All notable changes to this project will be documented in this file. This change
 * Bumped rewrite-clj to 1.1.46.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/199[#199]: Fixed upgrader to skip excluded dependencies.
+* https://github.com/clj-commons/antq/issues/199[#199]: Fixed upgrader to skip excluded dependencies.
 // }}}
 
 == 2.2.983 (2023-01-24)
 // {{{
 === Changed
-* https://github.com/liquidz/antq/issues/197[#197]: Updated to support properties in pom.xml.
+* https://github.com/clj-commons/antq/issues/197[#197]: Updated to support properties in pom.xml.
 * Bumped kaocha to 1.75.1190.
 // }}}
 
 == 2.2.970 (2022-12-13)
 // {{{
 === Changed
-* https://github.com/liquidz/antq/issues/195[#195]: Updated to use clojure/tools.deps instead of tools.deps.alpha.
+* https://github.com/clj-commons/antq/issues/195[#195]: Updated to use clojure/tools.deps instead of tools.deps.alpha.
 * Bumped deep-diff2 to 2.7.169.
 // }}}
 
 == 2.2.962 (2022-11-19)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/190[#190]: Added support for `:antq/exclude` metadata to exclude specific dependencies in your project files.
+* https://github.com/clj-commons/antq/issues/190[#190]: Added support for `:antq/exclude` metadata to exclude specific dependencies in your project files.
 
 === Changed
 * Bumped tools.deps.alpha to 0.15.1254.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/189[#189]: Fixed upgrader to work with dependencies which has metadata.
+* https://github.com/clj-commons/antq/issues/189[#189]: Fixed upgrader to work with dependencies which has metadata.
 // }}}
 
 == 2.1.946 (2022-11-11)
@@ -369,13 +369,13 @@ All notable changes to this project will be documented in this file. This change
 * Bumped kaocha to 1.70.1086.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/184[#184]: Fixed not to throw exception for checking changelogs.
+* https://github.com/clj-commons/antq/issues/184[#184]: Fixed not to throw exception for checking changelogs.
 // }}}
 
 == 2.1.920 (2022-09-18)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/84[#84]: Added support link for changelogs.
+* https://github.com/clj-commons/antq/issues/84[#84]: Added support link for changelogs.
 
 === Changed
 * Bumped data.xml to 0.2.0-alpha8.
@@ -418,42 +418,42 @@ All notable changes to this project will be documented in this file. This change
 * Bumped kaocha to 1.69.1069.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/176[#176]: Fixed not to overwrite progress bar.
+* https://github.com/clj-commons/antq/issues/176[#176]: Fixed not to overwrite progress bar.
 // }}}
 
 == 1.9.867 (2022-07-22)
 // {{{
 === Fixed
-* https://github.com/liquidz/antq/issues/174[#174]: Fixed to skip checking diff for timed out dependencies.
+* https://github.com/clj-commons/antq/issues/174[#174]: Fixed to skip checking diff for timed out dependencies.
 // }}}
 
 == 1.9.863 (2022-07-13)
 // {{{
 === Fixed
-* https://github.com/liquidz/antq/issues/172[#172]: Fixed to work with Windows.
+* https://github.com/clj-commons/antq/issues/172[#172]: Fixed to work with Windows.
 // }}}
 
 == 1.9.859 (2022-07-07)
 // {{{
 === Fixed
-* https://github.com/liquidz/antq/issues/170[#170]: Fixed not to upgrade dependencies that timed out.
+* https://github.com/clj-commons/antq/issues/170[#170]: Fixed not to upgrade dependencies that timed out.
 // }}}
 
 == 1.9.855 (2022-07-05)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/130[#130], https://github.com/liquidz/antq/pull/168[#168]: Added `--no-diff` option to skip checking diff between deps' versions.
+* https://github.com/clj-commons/antq/issues/130[#130], https://github.com/clj-commons/antq/pull/168[#168]: Added `--no-diff` option to skip checking diff between deps' versions.
 // }}}
 
 == 1.8.847 (2022-07-01)
 // {{{
 === Added
-* https://github.com/liquidz/antq/pull/157[#157]: Added progress bar to `table` reporter.
-* https://github.com/liquidz/antq/pull/158[#158]: Added environmental variables to customize timeout milli secs.
+* https://github.com/clj-commons/antq/pull/157[#157]: Added progress bar to `table` reporter.
+* https://github.com/clj-commons/antq/pull/158[#158]: Added environmental variables to customize timeout milli secs.
 ** See details link:./doc/timeout.adoc[here].
 
 === Changed
-* https://github.com/liquidz/antq/pull/158[#158]: Applied timeouts to the following operations.
+* https://github.com/clj-commons/antq/pull/158[#158]: Applied timeouts to the following operations.
 ** Fetching data from Maven repositories
 ** Fetching data from GitHub API
 ** Fetching data from git repositories
@@ -462,7 +462,7 @@ All notable changes to this project will be documented in this file. This change
 * Bumped build.edn to 0.5.116.
 
 === Fixed
-* https://github.com/liquidz/antq/pull/166[#166]: Fixed to catch `XmlPullParserExceptio`.
+* https://github.com/clj-commons/antq/pull/166[#166]: Fixed to catch `XmlPullParserExceptio`.
 // }}}
 
 == 1.7.804 (2022-06-11)
@@ -471,7 +471,7 @@ All notable changes to this project will be documented in this file. This change
 * Bumped rewrite-clj to 1.1.45.
 
 === Fixed
-* https://github.com/liquidz/antq/pull/165[#165]: Fixed to avoid adding extra whitespaces when upgrading pom.xml.
+* https://github.com/clj-commons/antq/pull/165[#165]: Fixed to avoid adding extra whitespaces when upgrading pom.xml.
 // }}}
 
 == 1.7.798 (2022-06-01)
@@ -514,7 +514,7 @@ All notable changes to this project will be documented in this file. This change
 * Bumped kaocha to 1.66.1034.
 
 === Fixed
-* https://github.com/liquidz/antq/pull/159[#159]: Fixed `check-clojure-tools` to work with `$XDG_CONFIG_HOME`.
+* https://github.com/clj-commons/antq/pull/159[#159]: Fixed `check-clojure-tools` to work with `$XDG_CONFIG_HOME`.
 // }}}
 
 == 1.6.1 (2022-04-09)
@@ -526,16 +526,16 @@ All notable changes to this project will be documented in this file. This change
 * Bumped tools.build to v0.8.1.
 
 === Fixed
-* https://github.com/liquidz/antq/pull/155[#155]: Fixed `deps.edn` extractor to handle `:default-deps` key.
-* https://github.com/liquidz/antq/pull/155[#155]: Fixed `deps.edn` upgrader to handle `:default-deps` key.
+* https://github.com/clj-commons/antq/pull/155[#155]: Fixed `deps.edn` extractor to handle `:default-deps` key.
+* https://github.com/clj-commons/antq/pull/155[#155]: Fixed `deps.edn` upgrader to handle `:default-deps` key.
 // }}}
 
 == 1.6.0 (2022-03-05)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/145[#145]: Added support for running behind proxies.
+* https://github.com/clj-commons/antq/issues/145[#145]: Added support for running behind proxies.
 ** See details: link:./doc/proxy.adoc[Run behind proxy]
-* https://github.com/liquidz/antq/issues/146[#146]: Added support for checking and upgrading https://clojure.org/reference/deps_and_cli#tool_install[Clojure CLI Tools] installed to `~/.clojure/tools`.
+* https://github.com/clj-commons/antq/issues/146[#146]: Added support for checking and upgrading https://clojure.org/reference/deps_and_cli#tool_install[Clojure CLI Tools] installed to `~/.clojure/tools`.
 ** Required `--check-clojure-tools` option to enable. (Disabled by default)
 
 === Changed
@@ -545,7 +545,7 @@ All notable changes to this project will be documented in this file. This change
 == 1.5.1 (2022-02-23)
 // {{{
 === Changed
-* https://github.com/liquidz/antq/issues/129[#129]: Changed to use tools.build.
+* https://github.com/clj-commons/antq/issues/129[#129]: Changed to use tools.build.
 * Bumped clj-yaml to 0.7.108.
 * Bumped kaocha to 1.63.998.
 // }}}
@@ -553,7 +553,7 @@ All notable changes to this project will be documented in this file. This change
 == 1.5.0 (2022-02-11)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/136[#136]: Added `--ignore-locals` option to ignore Java dependencies installed to your local Maven repository(~/.m2/).
+* https://github.com/clj-commons/antq/issues/136[#136]: Added `--ignore-locals` option to ignore Java dependencies installed to your local Maven repository(~/.m2/).
 
 === Changed
 * Bumped kaocha to 1.62.993.
@@ -562,11 +562,11 @@ All notable changes to this project will be documented in this file. This change
 == 1.4.0 (2022-01-23)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/132[#132]: Added `--download` option to allow downloading *upgraded* dependencies at the same time as a convenience.
+* https://github.com/clj-commons/antq/issues/132[#132]: Added `--download` option to allow downloading *upgraded* dependencies at the same time as a convenience.
 ** If you upgrade manually or without the `--download` option and the version is changed to the latest, the new version will not be downloaded even if you specify the `--download` option later (because antq does not detect differences).
 
 === Fixed
-* https://github.com/liquidz/antq/issues/137[#137]: Fixed to use SHA of annotated tags for specified `:git/tag`
+* https://github.com/clj-commons/antq/issues/137[#137]: Fixed to use SHA of annotated tags for specified `:git/tag`
 // }}}
 
 == 1.3.2 (2022-01-21)
@@ -576,7 +576,7 @@ All notable changes to this project will be documented in this file. This change
 * Bumped kaocha to 1.60.977.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/133[#133]: Fixed to skip diffs on s3://repos.
+* https://github.com/clj-commons/antq/issues/133[#133]: Fixed to skip diffs on s3://repos.
 // }}}
 
 == 1.3.1 (2021-12-19)
@@ -585,22 +585,22 @@ All notable changes to this project will be documented in this file. This change
 * Bumped tools.deps.alpha to 0.12.1090.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/125[#125]: Fixed to work with Windows.
+* https://github.com/clj-commons/antq/issues/125[#125]: Fixed to work with Windows.
 ** Not to throw exceptions in `antq.util.dep/normalize-path`.
-* https://github.com/liquidz/antq/issues/127[#127]: Fixed to skip non-YAML files in `.github/workflows`.
+* https://github.com/clj-commons/antq/issues/127[#127]: Fixed to skip non-YAML files in `.github/workflows`.
 // }}}
 
 == 1.3.0 (2021-11-18)
 
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/115[#115]: Added support for detecting libraries in `:local/root` dependencies.
+* https://github.com/clj-commons/antq/issues/115[#115]: Added support for detecting libraries in `:local/root` dependencies.
 
 === Changed
 * Bumped tools.deps.alpha to 0.12.1071.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/109[#109]: Fixed to correctly check versions of libraries in private repositories.
+* https://github.com/clj-commons/antq/issues/109[#109]: Fixed to correctly check versions of libraries in private repositories.
 // }}}
 
 == 1.2.0 (2021-11-06)
@@ -615,19 +615,19 @@ All notable changes to this project will be documented in this file. This change
 * Bumped rewrite-clj to 1.0.699-alpha.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/117[#117]: Fixed to fetch qualified versions correctly.
+* https://github.com/clj-commons/antq/issues/117[#117]: Fixed to fetch qualified versions correctly.
 // }}}
 
 == 1.1.0 (2021-09-19)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/93[#93]: Added support for upgrading `:tag` and `:git/tag` in deps.edn.
+* https://github.com/clj-commons/antq/issues/93[#93]: Added support for upgrading `:tag` and `:git/tag` in deps.edn.
 
 === Changed
 * Bumped tools.deps.alpha to 0.12.1048.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/113[#113]: Fixed to keep SHA length when upgrading deps.edn with `:tag` or `:git/tag`.
+* https://github.com/clj-commons/antq/issues/113[#113]: Fixed to keep SHA length when upgrading deps.edn with `:tag` or `:git/tag`.
 // }}}
 
 == 1.0.2 (2021-09-18)
@@ -637,20 +637,20 @@ All notable changes to this project will be documented in this file. This change
 * Bumped deps-deploy to the latest commit.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/111[#111]: Fixed a bug that caused an error when updating `:git/sha`.
+* https://github.com/clj-commons/antq/issues/111[#111]: Fixed a bug that caused an error when updating `:git/sha`.
 // }}}
 
 == 1.0.1 (2021-09-16)
 // {{{
 === Changed
-* https://github.com/liquidz/antq/issues/93[#93]: Updated to support `:git/sha` for deps.edn.
+* https://github.com/clj-commons/antq/issues/93[#93]: Updated to support `:git/sha` for deps.edn.
 * Bumped deps-deploy to the latest commit.
 // }}}
 
 == 1.0.0 (2021-09-04)
 // {{{
 === Changed
-* https://github.com/liquidz/antq/issues/94[#94]: Update to infer `:git/url` from library name in deps.edn.
+* https://github.com/clj-commons/antq/issues/94[#94]: Update to infer `:git/url` from library name in deps.edn.
 * Bumped tools.deps.alpha to 0.12.1019.
 * Bumped rewrite-clj to 1.0.644-alpha.
 
@@ -665,19 +665,19 @@ All notable changes to this project will be documented in this file. This change
 * Bumped tools.deps.alpha to 0.12.1019.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/104[#104]: Fixed Clojure CLI tool mode to handle `upgrade` and `force` options correctly.
+* https://github.com/clj-commons/antq/issues/104[#104]: Fixed Clojure CLI tool mode to handle `upgrade` and `force` options correctly.
 // }}}
 
 == 0.16.2 (2021-08-07)
 // {{{
 === Changed
-* https://github.com/liquidz/antq/pull/100[#100]: Bumped version-clj to 2.0.2.
-* https://github.com/liquidz/antq/pull/102[#102]: Replaceed https://github.com/dakrone/cheshire[cheshire] with https://github.com/clojure/data.json[clojure.data.json].
+* https://github.com/clj-commons/antq/pull/100[#100]: Bumped version-clj to 2.0.2.
+* https://github.com/clj-commons/antq/pull/102[#102]: Replaceed https://github.com/dakrone/cheshire[cheshire] with https://github.com/clojure/data.json[clojure.data.json].
 
 === Fixed
-* https://github.com/liquidz/antq/pull/99[#99]: Fixed to handle errors when parsing GitHub version tags.
-* https://github.com/liquidz/antq/pull/100[#100]: Fixed false positive with comparing prefixed versions.
-* https://github.com/liquidz/antq/issues/101[#101]: Fixed to work with s3-wagon-private when antq is used as a Leiningen plugin.
+* https://github.com/clj-commons/antq/pull/99[#99]: Fixed to handle errors when parsing GitHub version tags.
+* https://github.com/clj-commons/antq/pull/100[#100]: Fixed false positive with comparing prefixed versions.
+* https://github.com/clj-commons/antq/issues/101[#101]: Fixed to work with s3-wagon-private when antq is used as a Leiningen plugin.
 // }}}
 
 == 0.16.1 (2021-07-31)
@@ -693,7 +693,7 @@ All notable changes to this project will be documented in this file. This change
 == 0.16.0 (2021-07-14)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/83[#83]: Added support for https://gradle.org[Gradle] experimentally.
+* https://github.com/clj-commons/antq/issues/83[#83]: Added support for https://gradle.org[Gradle] experimentally.
 ** See details: link:./doc/gradle.adoc[Work with Gradle]
 
 === Changed
@@ -704,15 +704,15 @@ All notable changes to this project will be documented in this file. This change
 == 0.15.3 (2021-06-17)
 // {{{
 === Fixed
-* https://github.com/liquidz/antq/issues/89[#89]: Fixed to be able to skip `bb.edn` with --skip option.
-* https://github.com/liquidz/antq/issues/89[#89]: Fixed the process of Clojure CLI and Babashka not to throw Exception when some forms has unexpected structure.
+* https://github.com/clj-commons/antq/issues/89[#89]: Fixed to be able to skip `bb.edn` with --skip option.
+* https://github.com/clj-commons/antq/issues/89[#89]: Fixed the process of Clojure CLI and Babashka not to throw Exception when some forms has unexpected structure.
 * Fixed to show errors when the validation for CLI option is failed.
 // }}}
 
 == 0.15.2 (2021-06-11)
 // {{{
 === Changed
-* https://github.com/liquidz/antq/issues/81[#81]: Updated maven and git connection to retry on timeouts.
+* https://github.com/clj-commons/antq/issues/81[#81]: Updated maven and git connection to retry on timeouts.
 * Bumped tools.deps.alpha to 0.11.931.
 // }}}
 
@@ -729,7 +729,7 @@ All notable changes to this project will be documented in this file. This change
 == 0.15.0 (2021-06-03)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/79[#79]: Offer a Leiningen plugin.
+* https://github.com/clj-commons/antq/issues/79[#79]: Offer a Leiningen plugin.
 ** It tends to be more accurate (since it won't parse your project.clj, having it evaluated by Leiningen instead).
 ** However the `:upgrade` option will not be supported (since the plugin cannot always know if a given dependency came from a specific profile, middleware, etc).
 
@@ -748,7 +748,7 @@ All notable changes to this project will be documented in this file. This change
 == 0.14.0 (2021-05-12)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/75[#75]: Extended `--exclude` option to be able to exclude specific versions.
+* https://github.com/clj-commons/antq/issues/75[#75]: Extended `--exclude` option to be able to exclude specific versions.
 ** Now you can exclude specific versions as follows: `--exclude=foo/bar@1.0.0`
 
 === Changed
@@ -758,7 +758,7 @@ All notable changes to this project will be documented in this file. This change
 == 0.13.0 (2021-04-15)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/71[#71]: Added support for https://book.babashka.org/index.html#_bb_edn[bb.edn].
+* https://github.com/clj-commons/antq/issues/71[#71]: Added support for https://book.babashka.org/index.html#_bb_edn[bb.edn].
 
 === Changed
 * Bumped tools.deps.alpha to 0.11.910.
@@ -777,8 +777,8 @@ All notable changes to this project will be documented in this file. This change
 *  Bumped rewrite-clj to 1.0.594-alpha.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/70[#70]: Fixed GitHub Actions detector to support matrix variables.
-* https://github.com/liquidz/antq/issues/70[#70]: Fix https://github.com/DeLaGuardo/setup-graalvm[DeLaGuardo/setup-graalvm] detector to support v4.0.
+* https://github.com/clj-commons/antq/issues/70[#70]: Fixed GitHub Actions detector to support matrix variables.
+* https://github.com/clj-commons/antq/issues/70[#70]: Fix https://github.com/DeLaGuardo/setup-graalvm[DeLaGuardo/setup-graalvm] detector to support v4.0.
 // }}}
 
 == 0.12.2 (2021-03-19)
@@ -794,20 +794,20 @@ All notable changes to this project will be documented in this file. This change
 // {{{
 === Fixed
 
-* https://github.com/liquidz/antq/issues/67[#67]: Fixed to skip `'latest'` versions as a latest version.
+* https://github.com/clj-commons/antq/issues/67[#67]: Fixed to skip `'latest'` versions as a latest version.
 // }}}
 
 == 0.12.0 (2021-03-14)
 // {{{
 === Added
 
-* https://github.com/liquidz/antq/issues/60[#60]: Added support for detecting version on 3rd-party GitHub Actions.
+* https://github.com/clj-commons/antq/issues/60[#60]: Added support for detecting version on 3rd-party GitHub Actions.
 ** Supports following 3rd-party actions for now.
 *** https://github.com/DeLaGuardo/setup-clojure[DeLaGuardo/setup-clojure]
 *** https://github.com/DeLaGuardo/setup-graalvm[DeLaGuardo/setup-graalvm]
 *** https://github.com/DeLaGuardo/setup-clj-kondo[DeLaGuardo/setup-clj-kondo]
 *** https://github.com/0918nobita/setup-cljstyle[0918nobita/setup-cljstyle]
-* https://github.com/liquidz/antq/issues/63[#63]: Added support for detecting dependencies which has unverified group name.
+* https://github.com/clj-commons/antq/issues/63[#63]: Added support for detecting dependencies which has unverified group name.
 ** Supports following group names for now.
 *** `antq/antq` -> `com.github.liquidz/antq`
 *** `seancorfield/depstar` -> `com.github.seancorfield/depstar`
@@ -818,7 +818,7 @@ All notable changes to this project will be documented in this file. This change
 * Changed group name on clojars.org from `antq` to `com.github.liquidz/antq`.
 ** `antq/antq` will be deployed for a while.
 ** c.f.  https://github.com/clojars/clojars-web/wiki/Verified-Group-Names[Clojars Verified Group Names policy]
-* https://github.com/liquidz/antq/issues/64[#64]: Changed https://github.com/lread/rewrite-cljc-playground[lread/rewrite-cljc-playground] to https://github.com/clj-commons/rewrite-clj[clj-commons/rewrite-clj].
+* https://github.com/clj-commons/antq/issues/64[#64]: Changed https://github.com/lread/rewrite-cljc-playground[lread/rewrite-cljc-playground] to https://github.com/clj-commons/rewrite-clj[clj-commons/rewrite-clj].
 * Bumped tools.deps.alpha to 0.11.905.
 * Bumped kaocha to 1.0.829.
 * Bumped tools.cli to 1.0.206.
@@ -829,14 +829,14 @@ All notable changes to this project will be documented in this file. This change
 // {{{
 === Fixed
 
-* https://github.com/liquidz/antq/issues/61[#61]: Fixed diff URL for `:git/url` ending with ".git" to be correct
+* https://github.com/clj-commons/antq/issues/61[#61]: Fixed diff URL for `:git/url` ending with ".git" to be correct
 // }}}
 
 == 0.11.1 (2021-02-06)
 // {{{
 === Fixed
 
-* https://github.com/liquidz/antq/issues/58[#58]: Fixed to avoid NullPointerException when POM does not contains SCM.
+* https://github.com/clj-commons/antq/issues/58[#58]: Fixed to avoid NullPointerException when POM does not contains SCM.
 // }}}
 
 == 0.11.0 (2021-02-06)
@@ -869,7 +869,7 @@ All notable changes to this project will be documented in this file. This change
 * Fixed to return success status when all outdated deps are upgraded.
 * Fixed not to confirm for upgrading GitHub Actions YAML.
 ** Upgrading YAML is not supported yet.
-* https://github.com/liquidz/antq/issues/55[#55]: Fixed to check `org.clojure/clojure`.
+* https://github.com/clj-commons/antq/issues/55[#55]: Fixed to check `org.clojure/clojure`.
 ** If there are some `org.clojure/clojure` versions in the same file, only the newest version will be checked.
 * Fixed `deps.edn` extractor to handle `:override-deps` key.
 * Fixed `deps.edn` upgrader to handle `:override-deps` key.
@@ -889,8 +889,8 @@ All notable changes to this project will be documented in this file. This change
 // {{{
 === Fixed
 
-* https://github.com/liquidz/antq/issues/50[#50]: Fixed to detect older versions correctly if deps has the same name but different versions and one of them is the latest version.
-* https://github.com/liquidz/antq/issues/51[#51]: Fixed `deps.edn` upgrader to handle `:replace-deps` key.
+* https://github.com/clj-commons/antq/issues/50[#50]: Fixed to detect older versions correctly if deps has the same name but different versions and one of them is the latest version.
+* https://github.com/clj-commons/antq/issues/51[#51]: Fixed `deps.edn` upgrader to handle `:replace-deps` key.
 
 // }}}
 
@@ -917,7 +917,7 @@ All notable changes to this project will be documented in this file. This change
 
 === Fixed
 
-* https://github.com/liquidz/antq/issues/44[#44]: Add `:replace-deps` check for Clojure CLI tools.
+* https://github.com/clj-commons/antq/issues/44[#44]: Add `:replace-deps` check for Clojure CLI tools.
 
 // }}}
 
@@ -929,7 +929,7 @@ All notable changes to this project will be documented in this file. This change
 
 === Fixed
 
-* https://github.com/liquidz/antq/issues/42[#42]: Fixed upgrader to skip artifacts which cannot fetch the version.
+* https://github.com/clj-commons/antq/issues/42[#42]: Fixed upgrader to skip artifacts which cannot fetch the version.
 * Fixed `antq.ver.github-action` to fallback to use `git ls-remote` when failed to fetch tags from GitHub API.
 // }}}
 
@@ -944,13 +944,13 @@ All notable changes to this project will be documented in this file. This change
 // {{{
 === Added
 
-* https://github.com/liquidz/antq/issues/36[#36]: Added `--upgrade` option.
+* https://github.com/clj-commons/antq/issues/36[#36]: Added `--upgrade` option.
 ** Allows to upgrade versions in files by antq interactively.
 ** Files to support upgrading currently
 *** deps.edn, shadow-cljs.edn, project.clj, build.boot, pom.xml
 ** Added `--force` option.
 *** Allows to force upgrading.
-* https://github.com/liquidz/antq/issues/39[#39]: Added support for Clojure 1.8.0.
+* https://github.com/clj-commons/antq/issues/39[#39]: Added support for Clojure 1.8.0.
 
 === Changed
 
@@ -958,7 +958,7 @@ All notable changes to this project will be documented in this file. This change
 
 === Fixed
 
-* https://github.com/liquidz/antq/issues/39[#39]: Changed to warn on Clojure 1.7.0 or earlier.
+* https://github.com/clj-commons/antq/issues/39[#39]: Changed to warn on Clojure 1.7.0 or earlier.
 * Fixed to be able to handle GitHub Actions specified by SHA.
 // }}}
 
@@ -989,7 +989,7 @@ All notable changes to this project will be documented in this file. This change
 * Bumped tools.deps.alpha to `0.9.816`.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/33[#33]: Fixed to ignore Clojure CLI deps which has `local/root`.
+* https://github.com/clj-commons/antq/issues/33[#33]: Fixed to ignore Clojure CLI deps which has `local/root`.
 // }}}
 
 == 0.7.3 (2020-09-29)
@@ -1005,7 +1005,7 @@ All notable changes to this project will be documented in this file. This change
 == 0.7.2 (2020-09-06)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/29[#29]: Added a tips to avoid SLF4J warnings.
+* https://github.com/clj-commons/antq/issues/29[#29]: Added a tips to avoid SLF4J warnings.
 
 === Changed
 * Bump clj-yaml to `0.7.2`.
@@ -1015,13 +1015,13 @@ All notable changes to this project will be documented in this file. This change
 == 0.7.1 (2020-09-01)
 // {{{
 === Fixed
-* https://github.com/liquidz/antq/issues/27[#27]: Fixed docker image to check git libraries correctly.
+* https://github.com/clj-commons/antq/issues/27[#27]: Fixed docker image to check git libraries correctly.
 // }}}
 
 == 0.7.0 (2020-08-31)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/24[#24]: Added support to check git libraries for Clojure CLI.
+* https://github.com/clj-commons/antq/issues/24[#24]: Added support to check git libraries for Clojure CLI.
 ** c.f. https://clojure.org/guides/deps_and_cli#_using_git_libraries
 
 === Changed
@@ -1034,13 +1034,13 @@ All notable changes to this project will be documented in this file. This change
 * Bump tools.deps.alpha to `0.9.763`.
 
 === Fixed
-* https://github.com/liquidz/antq/issues/21[#21]: Fixed to support `shadow/env` and `env` tag for shadow-cljs.edn.
+* https://github.com/clj-commons/antq/issues/21[#21]: Fixed to support `shadow/env` and `env` tag for shadow-cljs.edn.
 // }}}
 
 == 0.6.1 (2020-08-05)
 // {{{
 === Fixed
-* https://github.com/liquidz/antq/issues/19[#19]: Fixed to exit `1` on outdated dependencies.
+* https://github.com/clj-commons/antq/issues/19[#19]: Fixed to exit `1` on outdated dependencies.
 // }}}
 
 == 0.6.0 (2020-08-05)
@@ -1055,7 +1055,7 @@ All notable changes to this project will be documented in this file. This change
 == 0.5.3 (2020-07-28)
 // {{{
 === Fixed
-* https://github.com/liquidz/antq/issues/16[#16]: Removed `unilog` from dependencies.
+* https://github.com/clj-commons/antq/issues/16[#16]: Removed `unilog` from dependencies.
 // }}}
 
 == 0.5.2 (2020-07-23)
@@ -1067,8 +1067,8 @@ All notable changes to this project will be documented in this file. This change
 == 0.5.1 (2020-07-21)
 // {{{
 === Fixed
-* https://github.com/liquidz/antq/issues/12[#12]: Fixed Maven S3 repository check to correctly work with URL like "s3p://...".
-* https://github.com/liquidz/antq/issues/13[#13]: Fixed not to show "Downloading" messages and other extra logs.
+* https://github.com/clj-commons/antq/issues/12[#12]: Fixed Maven S3 repository check to correctly work with URL like "s3p://...".
+* https://github.com/clj-commons/antq/issues/13[#13]: Fixed not to show "Downloading" messages and other extra logs.
 * Fixed to handle repository setting in project.clj correctly.
 ** The setting like `["repo" "URL"]` has been failed so far.
 // }}}
@@ -1076,7 +1076,7 @@ All notable changes to this project will be documented in this file. This change
 == 0.5.0 (2020-07-20)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/10[#10]: Added support for Maven S3 repositories.
+* https://github.com/clj-commons/antq/issues/10[#10]: Added support for Maven S3 repositories.
 
 === Changed
 * Bump kaocha.
@@ -1103,14 +1103,14 @@ All notable changes to this project will be documented in this file. This change
 == 0.4.0 (2020-06-07)
 // {{{
 === Added
-* https://github.com/liquidz/antq/issues/6[#6]: Added `--error-format` option for customizing error output.
-* https://github.com/liquidz/antq/issues/7[#7]: Added `--exclude` option.
+* https://github.com/clj-commons/antq/issues/6[#6]: Added `--error-format` option for customizing error output.
+* https://github.com/clj-commons/antq/issues/7[#7]: Added `--exclude` option.
 
 === Changed
 * Bump kaocha
 
 === Fixed
-* https://github.com/liquidz/antq/issues/8[#8]: Fixed not to check duplicated dependencies.
+* https://github.com/clj-commons/antq/issues/8[#8]: Fixed not to check duplicated dependencies.
 // }}}
 
 == 0.3.1 (2020-05-10)

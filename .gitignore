@@ -6,3 +6,5 @@
 **/.gradle
 .idea
 *.iml
+test/resources/dep/build/
+test/resources/dep/no_repo_gradle/build/

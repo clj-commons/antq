@@ -15,7 +15,7 @@
                       :name "com.github.liquidz/antq"
                       :latest-version "9.9.9"
                       :file (io/resource "dep/clojure-cli-tool/dummy.edn")
-                      :extra {:url "https://github.com/liquidz/antq.git"
+                      :extra {:url "https://github.com/clj-commons/antq.git"
                               :sha "bc28de6"}}))
 
 (t/deftest upgrade-dep-test
@@ -31,7 +31,7 @@
                        (vector))]
       (t/is (= #{{:name "com.github.liquidz/antq"
                   :version {:- "1.5.1" :+ "9.9.9"}
-                  :url "https://github.com/liquidz/antq.git"
+                  :url "https://github.com/clj-commons/antq.git"
                   :sha {:- "bc28de64fb36b395da4267e8d7916d1a9e167bcd"
                         :+ "9876543"}}}
                (h/diff-deps from-deps to-deps))))))

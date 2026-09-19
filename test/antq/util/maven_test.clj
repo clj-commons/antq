@@ -102,8 +102,8 @@
                (set servers))))))
 
 (t/deftest read-pom-test
-  (t/is (= {:url "https://github.com/liquidz/antq"
-            :scm-url "https://github.com/liquidz/antq"}
+  (t/is (= {:url "https://github.com/clj-commons/antq"
+            :scm-url "https://github.com/clj-commons/antq"}
            (sut/read-pom test-pom-file))))
 
 (t/deftest get-local-versions-test
