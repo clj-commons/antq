@@ -59,12 +59,16 @@ jobs:
   docker-push:
     runs-on: ubuntu-latest
     needs: tag-and-release
+    permissions:
+      packages: write
+      contents: read
     steps:
       - uses: actions/checkout@v7
       - name: docker login
+        # The pre-pull is to warm the cache
         run: |
-         echo ${{ secrets.CONTAINER_REGISTRY_TOKEN }} | docker login ${{ env.REGISTRY }} -u $GITHUB_ACTOR --password-stdin
-         docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+         echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u $GITHUB_ACTOR --password-stdin
+         docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest || true
       # FIXME docker build . -t ...:latest -t ...:ref
       - name: build latest
         run: |
