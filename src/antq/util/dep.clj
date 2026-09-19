@@ -74,7 +74,6 @@
   (let [lib (symbol (:name dep))
         version (:version dep)
         coord {:mvn/version version}
-        ;; credentials from a project file will go here as :mvn/settings
         config {:mvn/repos (:repositories (repository-opts dep))}
         {:keys [base path]} (deps/lib-location lib coord config)
         artifact-id (first (str/split (name lib) #"\$"))
