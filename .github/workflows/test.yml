@@ -28,5 +28,7 @@ jobs:
         with:
           path: ~/.m2
           key: test-m2-${{ hashFiles('deps.edn') }}-v1
-      - name: run test
+      - name: run unit tests
         run: make test
+      - name: run integration tests
+        run: make test-integration

@@ -24,7 +24,11 @@
   {:extra-paths ["dev"
                  "test"
                  "test/resources"]
-   :extra-deps {metosin/malli ^{:antq/exclude "0.17.0"} {:mvn/version "0.20.1"}
+   :extra-deps {babashka/fs {:mvn/version "0.5.34"}
+                babashka/process {:mvn/version "0.6.25"}
+                nubank/matcher-combinators {:mvn/version "3.11.0"}
+                org.flatland/ordered {:mvn/version "1.15.12"}
+                metosin/malli ^{:antq/exclude "0.17.0"} {:mvn/version "0.20.1"}
                 lambdaisland/kaocha {:mvn/version "1.91.1392"}
                 lambdaisland/deep-diff2 {:mvn/version "2.14.235"}}
    :jvm-opts ["-Dclojure.core.async.go-checking=true"]}

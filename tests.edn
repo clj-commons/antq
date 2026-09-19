@@ -1,4 +1,3 @@
 #kaocha/v1
 {:color? true
- :reporter [kaocha.report/documentation]}
- ;:reporter [kaocha.report/dots]}
+ :reporter [kaocha.report/documentation]}}

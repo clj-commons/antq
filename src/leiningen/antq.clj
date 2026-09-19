@@ -26,7 +26,9 @@
         deps (->> dependencies
                   (into managed-dependencies)
                   (into plugins)
-                  distinct)
+                  distinct
+                  ;; metadata does not survive the isolation boundary, so save it 
+                  (mapv (fn [d] {:dep d :mdata (meta d)})))
         isolated-project {:dependencies [['com.github.liquidz/antq antq-plugin-version]]
                           :debug true}
         result-file (File/createTempFile "antq-lein-plugin-result" ".edn")]

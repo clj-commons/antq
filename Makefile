@@ -7,10 +7,13 @@ outdated: ## Run antq to detect outdated dependencies
 	clojure -M:outdated:nop --upgrade
 
 .PHONY: test
-test: install ## Run tests
-	clojure -M:dev:1.11:test
-	clojure -M:dev:test
-	script/integration_test.sh
+test: ## Run unit tests
+	clojure -M:dev:1.11:test --skip-meta integration
+	clojure -M:dev:test --skip-meta integration
+
+.PHONY: test-integration
+test-integration: ## Run integration tests
+	clojure -M:dev:test --focus-meta integration
 
 .PHONY: lint
 lint: ## Run linters
