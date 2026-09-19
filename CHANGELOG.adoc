@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file. This change
 * https://github.com/clj-commons/antq/issues/304[#304]: When run as a lein plugin, antq now runs analysis in a sub-process to avoid any classpath conflicts between lein and tools.deps
 * Read an artifact's POM from the local Maven repository through tools.deps instead of resolving its repository with Aether and fetching the POM over HTTP. Artifacts in an s3 repository are no longer skipped, and a POM that is not cached yet prints a `Downloading:` line. 
 
+=== Fixed
+* https://github.com/clj-commons/antq/issues/231[#231]: Exclusions are now supported when antq is run as lein plugin
+(thanks, https://github.com/marcobiscaro2112[@marcobiscaro2112]!)
+
 == 2.11.1276 (2025-03-15)
 // {{{
 === Changed
