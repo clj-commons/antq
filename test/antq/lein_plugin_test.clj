@@ -49,7 +49,7 @@
   [out]
   (->> out
        str/split-lines
-       (remove (fn [l] (re-find #"^(SLF4J:|Downloading|\[|\| :f|\|-| *$)" l)))))
+       (remove (fn [l] (re-find #"^(SLF4J:|Retrieving|Downloading|\[|\| :f|\|-| *$)" l)))))
 
 (defn- lein-run
   []
