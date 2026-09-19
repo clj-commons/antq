@@ -102,6 +102,7 @@
    [nil "--check-clojure-tools"]
    [nil "--no-diff"] ; deprecated (for backward compatibility)
    [nil "--no-changes"]
+   [nil "--no-progress"]
    [nil "--changes-in-table"]
    [nil "--transitive"]])
 
@@ -164,7 +165,8 @@
   (let [res (if-let [forced-version (:forced-version dep)]
               (assoc dep :_versions [forced-version])
               (assoc dep :_versions (ver/get-sorted-versions dep options)))]
-    (report/run-progress dep options)
+    (when-not (:no-progress options)
+      (report/run-progress dep options))
     res))
 
 (defn latest

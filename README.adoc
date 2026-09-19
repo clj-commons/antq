@@ -363,6 +363,11 @@ For java dependencies, ignore versions installed to your local Maven repository(
 Detect all tools installed in `~/.clojure/tools` as dependencies.
 You can also upgrade them with <<opt-upgrade>> option.
 
+[[opt-no-progress]]
+=== --no-progress
+
+Skip progress reporting. Progress reporting enabled by default.
+
 [[opt-no-changes]]
 === --no-changes
 
