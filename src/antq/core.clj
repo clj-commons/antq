@@ -346,20 +346,16 @@
           (system-exit 1))
 
       (seq deps)
-      (let [alog (log/start-async-logger!)
-            outdated (antq options deps)]
-        (try
-          (report/reporter outdated options)
-          (cond-> outdated
-            (:upgrade options)
-            (-> (upgrade/upgrade! options)
-                ;; get non-upgraded deps
-                (get false))
+      (let [outdated (antq options deps)]
+        (report/reporter outdated options)
+        (cond-> outdated
+          (:upgrade options)
+          (-> (upgrade/upgrade! options)
+              ;; get non-upgraded deps
+              (get false))
 
-            true
-            (exit))
-          (finally
-            (log/stop-async-logger! alog))))
+          true
+          (exit)))
 
       :else
       (do (log/info "No project file")

@@ -4,7 +4,6 @@
   (:require
    [antq.core]
    [antq.dep.leiningen :as dep.lein]
-   [antq.log :as log]
    [antq.record :as r]
    [antq.report :as report]))
 
@@ -22,21 +21,17 @@
                        (not reporter)) (assoc :reporter "table"))
         _ (when upgrade
             (assert false ":upgrade option not supported under the Lein plugin."))
-        alog (log/start-async-logger!)]
-    (try
-      (let [outdated (->> dependencies
-                          (keep (fn [dep]
-                                  (let [[dep-name version] dep]
-                                    (when (dep.lein/acceptable-version? version)
-                                      (r/map->Dependency {:project :leiningen
-                                                          :type :java
-                                                          :file "project.clj"
-                                                          :name (dep.lein/normalize-name dep-name)
-                                                          :version version
-                                                          :repositories repos
-                                                          :exclude-versions (seq (dep.lein/exclude-version-range dep))})))))
-                          (antq.core/antq options))]
-        (report/reporter outdated options)
-        (spit result-file (pr-str {:exit (if (seq outdated) 1 0)})))
-      (finally
-        (log/stop-async-logger! alog)))))
+        outdated (->> dependencies
+                      (keep (fn [dep]
+                              (let [[dep-name version] dep]
+                                (when (dep.lein/acceptable-version? version)
+                                  (r/map->Dependency {:project :leiningen
+                                                      :type :java
+                                                      :file "project.clj"
+                                                      :name (dep.lein/normalize-name dep-name)
+                                                      :version version
+                                                      :repositories repos
+                                                      :exclude-versions (seq (dep.lein/exclude-version-range dep))})))))
+                      (antq.core/antq options))]
+    (report/reporter outdated options)
+    (spit result-file (pr-str {:exit (if (seq outdated) 1 0)}))))
