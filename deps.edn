@@ -37,6 +37,10 @@
   :nop
   {:extra-deps {org.slf4j/slf4j-nop {:mvn/version "RELEASE"}}}
 
+  :cljstyle
+  {:deps {mvxcvi/cljstyle {:mvn/version "0.17.642"}}
+   :main-opts ["-m" "cljstyle.main"]}
+  
   :outdated
   {:main-opts ["-m" "antq.core"]}
 
