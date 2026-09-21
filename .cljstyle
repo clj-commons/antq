@@ -2,5 +2,5 @@
          :blank-lines {:insert-padding? false}
          :types {:enabled? false}
          :namespaces {:indent-size 1}}
- :files {:ignore #{"target"}}}
+ :files {:ignore #{"target" ".clj-kondo"}}}
 ; vim:ft=clojure

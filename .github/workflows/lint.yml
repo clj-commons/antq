@@ -8,8 +8,8 @@ jobs:
       - uses: actions/checkout@v7
       - uses: DeLaGuardo/setup-clojure@master
         with:
-          clj-kondo: latest
-      - run: clj-kondo --lint src:test --config '{:output {:pattern "::{{level}} file={{filename}},line={{row}},col={{col}}::{{message}}"}}'
+          bb: latest
+      - run: bb lint-kondo
 
   cljstyle:
     runs-on: ubuntu-latest
@@ -17,5 +17,5 @@ jobs:
       - uses: actions/checkout@v7
       - uses: DeLaGuardo/setup-clojure@master
         with:
-          cljstyle: latest
-      - run: cljstyle check --report -v
+          bb: latest
+      - run: bb lint-cljstyle check --report -v
