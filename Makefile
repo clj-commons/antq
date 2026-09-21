@@ -18,7 +18,7 @@ test-integration: ## Run integration tests
 .PHONY: lint
 lint: ## Run linters
 	clojure -M:cljstyle check
-	clj-kondo --lint src:test
+	clj-kondo --lint src test
 
 .PHONY: uberjar
 uberjar: clean ## Generate uberjar file
