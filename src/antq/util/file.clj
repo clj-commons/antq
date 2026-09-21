@@ -7,9 +7,10 @@
 
 (defn- normalize-home
   [file-path]
-  (if-let [home (u.env/getenv "HOME")]
-    (str/replace file-path home "~")
-    file-path))
+  (let [home (u.env/getenv "HOME")]
+    (if (and home (str/starts-with? file-path home))
+      (str/replace-first file-path home "~")
+      file-path)))
 
 (defn- normalize-path*
   [file-path]
