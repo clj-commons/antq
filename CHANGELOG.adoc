@@ -2,6 +2,10 @@ All notable changes to this project will be documented in this file. This change
 
 == Unreleased (dev)
 
+Antq is now under the loving care of https://clj-commons.org/[clj-commons].
+A thousand thanks to https://github.com/liquidz[@liquidz] for creating the wonderful Antq, and for entrusting its ongoing care to us.
+We'll continue to publish releases to the existing Antq maven coordinates https://clojars.org/com.github.liquidz/antq[`com.github.liquidz/antq`] (thanks @liquidz!).
+
 === Added
 * https://github.com/clj-commons/antq/pull/289[#289] New `--no-progress` option to suppress progress indicator while analyzing deps
 (thanks, https://github.com/kirked[@kirked]!)
