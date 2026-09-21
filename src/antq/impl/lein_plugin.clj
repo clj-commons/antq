@@ -1,4 +1,4 @@
-(ns antq.impl.lein-plugin
+(ns ^:no-doc antq.impl.lein-plugin
   "Called from isolated project from leiningen.antq to avoid classpath issues with conflicting
   Maven deps. Runs in a separate process."
   (:require
