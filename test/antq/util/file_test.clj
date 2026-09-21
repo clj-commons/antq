@@ -9,7 +9,9 @@
   (t/testing "HOME"
     (with-redefs [u.env/getenv {"HOME" "/home/foo"}]
       (t/is (= "/path/to/bar" (sut/normalize-path "/path/to/bar")))
-      (t/is (= "~/bar" (sut/normalize-path "/home/foo/bar")))))
+      (t/is (= "~/bar" (sut/normalize-path "/home/foo/bar")))
+      (t/is (= "/embed/home/foo/here" (sut/normalize-path "/embed/home/foo/here")))
+      (t/is (= "~/two/home/foo/three" (sut/normalize-path "/home/foo/two/home/foo/three")))))
 
   (t/testing "Redundant path"
     (t/is (= "/path/to/bar" (sut/normalize-path "/path/to/./foo/../bar"))))
