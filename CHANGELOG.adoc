@@ -21,6 +21,7 @@ We'll continue to publish releases to the existing Antq maven coordinates https:
 * https://github.com/clj-commons/antq/issues/231[#231]: Exclusions are now supported when antq is run as lein plugin
 (thanks, https://github.com/marcobiscaro2112[@marcobiscaro2112]!)
 * https://github.com/clj-commons/antq/issues/320[#320]: Progress bar should no longer be sporadically garbled 
+* https://github.com/clj-commons/antq/issues/324[#324]: No longer replacing embedded `HOME` env var matches in paths with `~`
 
 == 2.11.1276 (2025-03-15)
 // {{{
