@@ -35,11 +35,14 @@
    :jvm-opts ["-Dclojure.core.async.go-checking=true"]}
 
   :nop
-  {:extra-deps {org.slf4j/slf4j-nop {:mvn/version "RELEASE"}}}
+  {:extra-deps {org.slf4j/slf4j-nop {:mvn/version "2.0.19"}}}
 
   :cljstyle
   {:deps {mvxcvi/cljstyle {:mvn/version "0.17.642"}}
    :main-opts ["-m" "cljstyle.main"]}
+
+  :clj-kondo {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2026.08.04"}}
+              :main-opts ["-m" "clj-kondo.main"]}
   
   :outdated
   {:main-opts ["-m" "antq.core"]}
@@ -53,5 +56,5 @@
 
   ;; -X
   :latest
-  {:extra-deps {org.slf4j/slf4j-nop {:mvn/version "RELEASE"}}
+  {:extra-deps {org.slf4j/slf4j-nop {:mvn/version "2.0.19"}}
    :exec-fn antq.core/latest}}}
