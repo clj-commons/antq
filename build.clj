@@ -31,9 +31,11 @@
       (build-edn/uberjar)))
 
 (defn install
-  [m]
-  (-> (merge config m)
-      (build-edn/install)))
+  [{:keys [version-suffix] :as m}]
+
+  (cond-> (merge config m)
+    version-suffix (update :version #(str % version-suffix))
+    :always (build-edn/install)))
 
 (defn deploy
   [m]

@@ -9,6 +9,8 @@
    [matcher-combinators.test]))
 
 (def ^:private test-work-dir "target/integration-test")
+(def ^:private version-suffix "-plugin-test")
+(def ^:private installed-version (atom nil))
 
 (defn- recreate-work-dir
   []
@@ -17,7 +19,15 @@
 
 (use-fixtures :once
   (fn [f]
-    (p/shell "make install")
+    ;; we install to our local .m2 repository with our build.clj defined version but with a suffix to distinguish
+    ;; we extract the installed version from the install response for specific use in tests 
+    (if-let [version (->> (p/shell {:out :string} "clojure -T:build install :version-suffix" (pr-str version-suffix))
+                                    :out
+                                    str/trim
+                                    (re-find #"Installing com\.github\.liquidz/antq-(.*?) ")
+                                    second)]
+      (reset! installed-version version)
+      (throw (ex-info "Unabled to install antq to local maven repo" {})))
     (f)))
 
 (use-fixtures :each
@@ -29,7 +39,6 @@
   [proj-opts]
   (let [default-opts (omap/ordered-map
                       :description "some desc"
-                      :plugins '[[com.github.liquidz/antq "RELEASE"]]
                       :antq {:exclude ["nrepl/nrepl"]})
         opts (merge default-opts (apply omap/ordered-map proj-opts))]
     (spit (fs/file test-work-dir "project.clj")
@@ -73,7 +82,8 @@
                :out [#"\| project\.clj +\| org\.clojure/clojure +\| 1\.10\.2 +\| 1"
                      "Available changes:"
                      #"- https://github.com/clojure/clojure/blob/clojure-1.*/changes\.md"]}
-              (lein-scenario [:dependencies '[[org.clojure/clojure "1.10.2"]]]))))
+              (lein-scenario [:plugins [['com.github.liquidz/antq @installed-version]]
+                              :dependencies '[[org.clojure/clojure "1.10.2"]]]))))
 
 (deftest detects-outdated-managed-deps-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
@@ -81,15 +91,16 @@
                :out [#"\| project\.clj +\| com\.stuartsierra/mapgraph +\| 0\.1\.0 +\| 0\.2\.1"
                      "Available changes:"
                      "- https://github.com/stuartsierra/mapgraph/blob/0.2.1/CHANGES.md"]}
-              (lein-scenario [:managed-dependencies '[[com.stuartsierra/mapgraph "0.1.0"]]
+              (lein-scenario [:plugins [['com.github.liquidz/antq @installed-version]]
+                              :managed-dependencies '[[com.stuartsierra/mapgraph "0.1.0"]]
                               :dependencies '[[com.stuartsierra/mapgraph]]]))))
 
 (deftest detects-outdated-plugins-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
   (is (match? {:exit 1
                :out [#"\| project\.clj +\| lein-swank/lein-swank +\| 1\.4\.1 +\| 1\.4\.5"]}
-              (lein-scenario [:plugins '[[lein-swank "1.4.1"]
-                                         [com.github.liquidz/antq "RELEASE"]]]))))
+              (lein-scenario [:plugins [['lein-swank "1.4.1"]
+                                        ['com.github.liquidz/antq @installed-version]]]))))
 
 (deftest no-updates-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
@@ -98,14 +109,15 @@
               (lein-scenario [:managed-dependencies '[[com.stuartsierra/mapgraph "0.2.1"]]
                               :dependencies '[[me.raynes/fs "1.4.6"]
                                               [com.stuartsierra/mapgraph]]
-                              :plugins '[[lein-swank "1.4.5"]
-                                         [com.github.liquidz/antq "RELEASE"]]]))))
+                              :plugins [['lein-swank "1.4.5"]
+                                        ['com.github.liquidz/antq @installed-version]]]))))
 
 (deftest meta-exclude-test
   ;; test assumes no further releases of this lib, adjust accordingly
   (is (match? {:exit 1
                :out [#"| project\.clj +\| me.raynes/fs +\| 1\.4\.1 +\| 1\.4\.4 +\|"]}
-              (lein-scenario [:dependencies [^{:antq/exclude ["1.4.6" "1.4.5"]} ['me.raynes/fs "1.4.1"]]]))))
+              (lein-scenario [:plugins [['com.github.liquidz/antq @installed-version]]
+                              :dependencies [^{:antq/exclude ["1.4.6" "1.4.5"]} ['me.raynes/fs "1.4.1"]]]))))
 
 (comment
   (recreate-work-dir)
