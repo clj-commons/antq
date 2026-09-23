@@ -5,9 +5,11 @@ jobs:
   test:
     strategy:
       matrix:
+        os: ['ubuntu', 'windows']
         java: ['11', '17', '21', '25', '26']
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}-latest
+    name: test ${{matrix.os }} jdk ${{ matrix.jdk }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-java@v6
