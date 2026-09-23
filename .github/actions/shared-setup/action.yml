@@ -1,0 +1,55 @@
+name: 'shared setup'
+description: 'Shared setup for workflows'
+inputs:
+  jdk:
+    description: 'jdk version'
+    required: false
+    default: '25'
+  shell:
+    description: 'shell must be specified for composite actions - so we setup an appropriate default'
+    required: false
+    default: ${{ contains(runner.os, 'windows') && 'pwsh' || 'bash' }}
+
+runs:
+  using: 'composite'
+
+  steps:
+    - name: Clojure deps cache
+      uses: actions/cache@v6
+      with:
+        path: |
+          ~/.m2/repository
+          ~/.deps.clj
+          ~/.gitlibs
+        key: cljdeps-${{ hashFiles('deps.edn', 'bb.edn') }}
+        restore-keys: cljdeps-
+
+    - name: Setup Java
+      uses: actions/setup-java@v6
+      with:
+        distribution: 'temurin'
+        java-version: ${{ inputs.jdk }}
+      if: inputs.jdk != 'skip'
+
+    - name: Install Clojure Tools
+      uses: DeLaGuardo/setup-clojure@13.7.0
+      with:
+        cli: 'latest'
+        bb: 'latest'
+        lein: '2.12.0' # https://github.com/DeLaGuardo/setup-clojure/issues/138
+
+    - name: Tools Versions
+      shell: ${{ inputs.shell }}
+      run: |
+        echo "java -version"
+        java -version
+        echo "bb --version"
+        bb --version
+        echo "clojure --version"
+        clojure --version
+        echo "lein --version"
+        lein --version
+
+    - name: Download Clojure Dependencies
+      shell: ${{ inputs.shell }}
+      run: bb download-deps

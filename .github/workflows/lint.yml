@@ -5,17 +5,21 @@ jobs:
   clj-kondo:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: DeLaGuardo/setup-clojure@master
-        with:
-          bb: latest
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup
+        uses: ./.github/actions/shared-setup
+
       - run: bb lint-kondo
 
   cljstyle:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: DeLaGuardo/setup-clojure@master
-        with:
-          bb: latest
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup
+        uses: ./.github/actions/shared-setup
+
       - run: bb lint-cljstyle check --report -v
