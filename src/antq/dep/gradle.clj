@@ -18,6 +18,7 @@
                                     gradle-command
                                     "--project-dir" parent-path
                                     "antq_list_repositories")]
+    ;; TODO: if gradle exits with non-zero, not an error?
     (when (= 0 exit)
       (->> (str/split-lines out)
            (filter #(str/starts-with? % "ANTQ;"))
@@ -28,7 +29,7 @@
 (defn- filter-deps-from-gradle-dependencies
   [file-path]
   (let [parent-path (.getParent (io/file file-path))
-        {:keys [exit out]} (p/shell {:out :string :err :discard :continue true}
+        {:keys [exit out err]} (p/shell {:out :string :err :string :continue true}
                                     gradle-command
                                     "--project-dir" parent-path
                                     "--quiet"
@@ -40,7 +41,11 @@
            (map #(str/replace % dep-regexp ""))
            (map #(first (str/split % #" " 2)))
            (set))
-      (throw (ex-info "Failed to run gradle" {:exit exit})))))
+      (do
+        (println "exit!" exit)
+        (println "out!" (str "\n" out))
+        (println "err!" (str "\n" err))
+        (throw (ex-info "Failed to run gradle" {:exit exit}))))))
 
 (defn- convert-grandle-dependency
   "e.g. dep-str: 'org.clojure:clojure:1.10.0'"
