@@ -65,4 +65,3 @@
              (set (map :file deps)))))
 
   (t/is (nil? (sut/load-deps "non_existing_directory"))))
-

@@ -22,10 +22,10 @@
     ;; we install to our local .m2 repository with our build.clj defined version but with a suffix to distinguish
     ;; we extract the installed version from the install response for specific use in tests 
     (if-let [version (->> (p/shell {:out :string} "clojure -T:build install :version-suffix" (pr-str version-suffix))
-                                    :out
-                                    str/trim
-                                    (re-find #"Installing com\.github\.liquidz/antq-(.*?) ")
-                                    second)]
+                          :out
+                          str/trim
+                          (re-find #"Installing com\.github\.liquidz/antq-(.*?) ")
+                          second)]
       (reset! installed-version version)
       (throw (ex-info "Unabled to install antq to local maven repo" {})))
     (f)))

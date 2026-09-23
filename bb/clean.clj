@@ -1,5 +1,6 @@
 (ns clean
-  (:require [babashka.fs :as fs]))
+  (:require
+   [babashka.fs :as fs]))
 
 (defn task
   [_opts]
