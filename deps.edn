@@ -39,6 +39,15 @@
                 lambdaisland/kaocha-cloverage {:mvn/version "1.1.89"}}
    :jvm-opts ["-Dclojure.core.async.go-checking=true"]}
 
+  :nrepl/jvm
+  {:extra-deps {nrepl/nrepl {:mvn/version "1.7.0"}
+                cider/cider-nrepl {:mvn/version "0.62.2"}
+                refactor-nrepl/refactor-nrepl {:mvn/version "3.14.0"}}
+   :jvm-opts ["-XX:-OmitStackTraceInFastThrow" "-Djdk.attach.allowAttachSelf"]
+   :main-opts ["-m" "nrepl.cmdline"
+                "--middleware" "[refactor-nrepl.middleware/wrap-refactor,cider.nrepl/cider-middleware]"
+                "-i"]}
+
   :nop
   {:extra-deps {org.slf4j/slf4j-nop {:mvn/version "2.0.20"}}}
 
