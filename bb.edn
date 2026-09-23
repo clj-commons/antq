@@ -2,5 +2,6 @@
  :deps {lread/status-line {:git/url "https://github.com/lread/status-line.git"
                            :sha "eace48e2e0fcc65a3986d696fb0b910fa5790a1c"}}
  :tasks
- {lint-kondo    {:exec-fn lint-kondo/task   :doc "lint with clj-kondo"}
+ {clean         {:exec-fn clean/task        :doc "delete all build work"}
+  lint-kondo    {:exec-fn lint-kondo/task   :doc "lint with clj-kondo"}
   lint-cljstyle {:task lint-cljstyle/-main  :doc "lint with cljstyle"}}}
