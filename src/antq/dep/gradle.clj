@@ -4,8 +4,8 @@
    [antq.log :as log]
    [antq.record :as r]
    [antq.util.dep :as u.dep]
+   [babashka.process :as p]
    [clojure.java.io :as io]
-   [clojure.java.shell :as sh]
    [clojure.string :as str]))
 
 (def gradle-command "gradle")
@@ -14,9 +14,10 @@
 (defn- get-repositories
   [file-path]
   (let [parent-path (.getParent (io/file file-path))
-        {:keys [exit out]} (sh/sh gradle-command
-                                  "--project-dir" parent-path
-                                  "antq_list_repositories")]
+        {:keys [exit out]} (p/shell {:out :string :err :discard :continue true}
+                                    gradle-command
+                                    "--project-dir" parent-path
+                                    "antq_list_repositories")]
     (when (= 0 exit)
       (->> (str/split-lines out)
            (filter #(str/starts-with? % "ANTQ;"))
@@ -27,10 +28,11 @@
 (defn- filter-deps-from-gradle-dependencies
   [file-path]
   (let [parent-path (.getParent (io/file file-path))
-        {:keys [exit out]} (sh/sh gradle-command
-                                  "--project-dir" parent-path
-                                  "--quiet"
-                                  "dependencies")]
+        {:keys [exit out]} (p/shell {:out :string :err :discard :continue true}
+                                    gradle-command
+                                    "--project-dir" parent-path
+                                    "--quiet"
+                                    "dependencies")]
     (if (= 0 exit)
       (->> (str/split-lines out)
            (filter seq)
@@ -76,3 +78,4 @@
      (when (.exists file)
        (extract-deps (u.dep/relative-path file)
                      (.getAbsolutePath file))))))
+

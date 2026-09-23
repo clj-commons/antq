@@ -68,7 +68,7 @@
                                                     :version "1.0.0-SNAPSHOT"})))))
 
 (t/deftest normalize-path-test
-  (t/are [expected input] (= expected (sut/normalize-path input))
+  (t/are [expected input] (= (h/os-path expected) (sut/normalize-path input))
     "foo/bar" "foo/bar"
     "foo/bar" "foo/./bar"
     "bar" "foo/../bar"

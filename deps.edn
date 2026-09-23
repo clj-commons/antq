@@ -1,6 +1,7 @@
 {:paths ["src"]
  :deps
- {org.clojure/clojure {:mvn/version "1.12.6"}
+ {babashka/process {:mvn/version "0.6.25"}
+  org.clojure/clojure {:mvn/version "1.12.6"}
   org.clojure/data.xml {:mvn/version "0.2.0-alpha11"}
   org.clojure/data.zip {:mvn/version "1.1.1"}
   org.clojure/tools.cli {:mvn/version "1.4.256"}

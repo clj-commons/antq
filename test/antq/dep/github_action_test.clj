@@ -3,6 +3,7 @@
    [antq.constant.github-action :as const.gh-action]
    [antq.dep.github-action :as sut]
    [antq.record :as r]
+   [antq.test-helper :as h]
    [clojure.java.io :as io]
    [clojure.test :as t]))
 
@@ -55,12 +56,13 @@
 
 (t/deftest load-deps-test
   (let [deps (sut/load-deps)]
-    (t/is (= #{".github/workflows/coverage.yml"
-               ".github/workflows/dependencies.yml"
-               ".github/workflows/release.yml"
-               ".github/workflows/lint.yml"
-               ".github/workflows/reviewdog.yml"
-               ".github/workflows/test.yml"}
+    (t/is (= (set (map h/os-path [".github/workflows/coverage.yml"
+                                  ".github/workflows/dependencies.yml"
+                                  ".github/workflows/release.yml"
+                                  ".github/workflows/lint.yml"
+                                  ".github/workflows/reviewdog.yml"
+                                  ".github/workflows/test.yml"]))
              (set (map :file deps)))))
 
   (t/is (nil? (sut/load-deps "non_existing_directory"))))
+

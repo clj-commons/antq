@@ -1,5 +1,6 @@
 (ns antq.util.file-test
   (:require
+   [antq.test-helper :as h]
    [antq.util.env :as u.env]
    [antq.util.file :as sut]
    [clojure.java.io :as io]
@@ -7,18 +8,18 @@
 
 (t/deftest normalize-path-test
   (t/testing "HOME"
-    (with-redefs [u.env/getenv {"HOME" "/home/foo"}]
-      (t/is (= "/path/to/bar" (sut/normalize-path "/path/to/bar")))
-      (t/is (= "~/bar" (sut/normalize-path "/home/foo/bar")))
-      (t/is (= "/embed/home/foo/here" (sut/normalize-path "/embed/home/foo/here")))
-      (t/is (= "~/two/home/foo/three" (sut/normalize-path "/home/foo/two/home/foo/three")))))
+    (with-redefs [u.env/getenv {"HOME" (h/os-path "/home/foo")}]
+      (t/is (= (h/os-path "/path/to/bar") (sut/normalize-path "/path/to/bar")))
+      (t/is (= (h/os-path "~/bar") (sut/normalize-path "/home/foo/bar")))
+      (t/is (= (h/os-path "/embed/home/foo/here") (sut/normalize-path "/embed/home/foo/here")))
+      (t/is (= (h/os-path "~/two/home/foo/three") (sut/normalize-path "/home/foo/two/home/foo/three")))))
 
   (t/testing "Redundant path"
-    (t/is (= "/path/to/bar" (sut/normalize-path "/path/to/./foo/../bar"))))
+    (t/is (= (h/os-path "/path/to/bar") (sut/normalize-path "/path/to/./foo/../bar"))))
 
   (t/testing "HOME and Redundant path"
-    (with-redefs [u.env/getenv {"HOME" "/home/foo"}]
-      (t/is (= "~/bar" (sut/normalize-path "/home/./bar/../foo/bar"))))))
+    (with-redefs [u.env/getenv {"HOME" (h/os-path "/home/foo")}]
+      (t/is (= (h/os-path "~/bar") (sut/normalize-path "/home/./bar/../foo/bar"))))))
 
 (t/deftest detect-project-test
   (t/are [expected file-path] (= expected (sut/detect-project file-path))

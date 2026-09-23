@@ -33,7 +33,7 @@
         actual-deps (set deps)]
     ;; NOTE: Gradle on local additionally detects `nrepl/nrepl`
     ;;       And also, gradle on GitHub Actions additionally detects `org.clojure/java.classpath`
-    ;;       So we check only dependencies which is explicitly defined in buld.gradle.
+    ;;       So we check only dependencies which is explicitly defined in build.gradle.
     (t/is (every? #(contains? actual-deps %) defined-deps))))
 
 (t/deftest extract-deps-without-repositories-test
