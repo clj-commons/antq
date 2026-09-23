@@ -1,11 +1,13 @@
-{:paths ["bb"]
+{:min-bb-version "1.13.224"
+ :paths ["bb"]
  :deps {lread/status-line {:git/url "https://github.com/lread/status-line.git"
                            :sha "eace48e2e0fcc65a3986d696fb0b910fa5790a1c"}
         version-clj/version-clj {:mvn/version "2.0.3"}
         wevre/natural-compare {:mvn/version "0.0.10"}}
  :tasks
- {clean         {:exec-fn clean/task        :doc "delete all build work"}
-  dev-jvm       {:exec-fn dev-repl/task     :doc "launch jvm nREPL for development"}
-  lint-kondo    {:exec-fn lint-kondo/task   :doc "lint with clj-kondo"}
-  lint-cljstyle {:task lint-cljstyle/-main  :doc "lint with cljstyle"}
-  test-clj      {:exec-fn test-clj/task     :doc "run tests against a version of Clojure" }}}
+ {clean         {:exec-fn clean/task         :doc "delete all build work"}
+  download-deps {:exec-fn download-deps/task :doc "bring down Clojure deps"}
+  dev-jvm       {:exec-fn dev-repl/task      :doc "launch jvm nREPL for development"}
+  lint-kondo    {:exec-fn lint-kondo/task    :doc "lint with clj-kondo"}
+  lint-cljstyle {:task lint-cljstyle/-main   :doc "lint with cljstyle"}
+  test-clj      {:exec-fn test-clj/task      :doc "run tests against a version of Clojure" }}}
