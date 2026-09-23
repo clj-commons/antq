@@ -25,7 +25,7 @@
       (p/shell {:out :string} "clojure -T:build install"
                ":version" (pr-str antq-test-version))
       (f)
-      ;; take a stab at cleaning up, assume .m2 repo was not overriden in developer's config
+      ;; take a stab at cleaning up, assume .m2 repo was not overridden in developer's config
       (finally
         (fs/delete-tree (fs/expand-home (str "~/.m2/repository/com/github/liquidz/antq/" antq-test-version)))))))
 
