@@ -45,4 +45,4 @@ coverage: ## Check coverage
 
 .PHONY: clean
 clean:
-	rm -rf .cpcache target
+	bb clean

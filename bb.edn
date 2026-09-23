@@ -1,0 +1,5 @@
+{:paths ["bb"]
+ :deps {lread/status-line {:git/url "https://github.com/lread/status-line.git"
+                           :sha "eace48e2e0fcc65a3986d696fb0b910fa5790a1c"}}
+ :tasks
+ {clean         {:exec-fn clean/task        :doc "delete all build work"}}}
