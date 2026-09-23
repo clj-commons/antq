@@ -20,7 +20,7 @@ jobs:
       - uses: DeLaGuardo/setup-clojure@master
         with:
           cli: latest
-          lein: latest
+          lein: 2.12.0
       # The runner image comes with a later version gradle that does not work with antq unit tests yet
       - name: Install Gradle for antq
         uses: gradle/actions/setup-gradle@v6
