@@ -35,7 +35,7 @@
    :jvm-opts ["-Dclojure.core.async.go-checking=true"]}
 
   :nop
-  {:extra-deps {org.slf4j/slf4j-nop {:mvn/version "2.0.19"}}}
+  {:extra-deps {org.slf4j/slf4j-nop {:mvn/version "2.0.20"}}}
 
   :cljstyle
   {:deps {mvxcvi/cljstyle {:mvn/version "0.17.642"}}
@@ -57,5 +57,5 @@
 
   ;; -X
   :latest
-  {:extra-deps {org.slf4j/slf4j-nop {:mvn/version "2.0.19"}}
+  {:extra-deps {org.slf4j/slf4j-nop {:mvn/version "2.0.20"}}
    :exec-fn antq.core/latest}}}
