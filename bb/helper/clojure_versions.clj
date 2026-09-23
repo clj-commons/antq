@@ -29,11 +29,6 @@
        (remove :pre-release?)
        last))
 
-(defn for-native
-  "Returns clojure versions for native image testing"
-  []
-  (into [(current-prod)] (filter :pre-release? (all))))
-
 (defn lookup
   "Retunrs :version :alias :pre-release? map for `version`"
   [version]
