@@ -17,8 +17,13 @@
  {:ns-default antq.tool}
 
  :aliases
- {:1.11
-  {:override-deps {org.clojure/clojure ^:antq/exclude {:mvn/version "1.11.4"}}}
+ {;;
+  ;; Clojure versions we support (discovered by scripts by their clojure- prefix)
+  ;;
+  :clojure-1.11 {:override-deps {org.clojure/clojure {:mvn/version "1.11.4"}}}
+  :clojure-1.12 {:override-deps {org.clojure/clojure {:mvn/version "1.12.6"}}}
+  ;; Candidate release is :clojure-pre-* (ex. clojure-pre-1.13.0) (if any)
+  :clojure-pre-1.13 {:override-deps {org.clojure/clojure {:mvn/version "1.13.0-alpha7"}}}
 
   :dev
   {:extra-paths ["dev"

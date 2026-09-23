@@ -8,12 +8,11 @@ outdated: ## Run antq to detect outdated dependencies
 
 .PHONY: test
 test: ## Run unit tests
-	clojure -M:dev:1.11:test --skip-meta integration
-	clojure -M:dev:test --skip-meta integration
+	bb test-clj --clojure-version all --skip-meta integration
 
 .PHONY: test-integration
 test-integration: ## Run integration tests
-	clojure -M:dev:test --focus-meta integration
+	bb test-clj --focus-meta integration
 
 .PHONY: lint
 lint: ## Run linters

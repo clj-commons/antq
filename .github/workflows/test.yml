@@ -17,6 +17,7 @@ jobs:
       - run: java -version
       - uses: DeLaGuardo/setup-clojure@master
         with:
+          bb: latest
           cli: latest
           lein: latest
       # The runner image comes with a later version gradle that does not work with antq unit tests yet
@@ -28,7 +29,9 @@ jobs:
         with:
           path: ~/.m2
           key: test-m2-${{ hashFiles('deps.edn') }}-v1
+
       - name: run unit tests
-        run: make test
+        run: bb test-clj --clojure-version all --skip-meta integration
+
       - name: run integration tests
-        run: make test-integration
+        run: bb test-clj --focus-meta integration
