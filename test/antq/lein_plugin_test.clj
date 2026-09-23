@@ -8,7 +8,9 @@
    [flatland.ordered.map :as omap]
    [matcher-combinators.test]))
 
-(def ^:private test-work-dir "target/integration-test")
+(def ^:private test-work-dir "target/test/lein-plugin")
+(def ^:private antq-test-version "0.0.0-lein-plugin-test")
+(def ^:private antq-coords ['com.github.liquidz/antq antq-test-version])
 
 (defn- recreate-work-dir
   []
@@ -17,8 +19,15 @@
 
 (use-fixtures :once
   (fn [f]
-    (p/shell "make install")
-    (f)))
+    (try
+      ;; we install to our local .m2 repository, 
+      ;; but are careful to not conflict with some real installed antq artifact 
+      (p/shell {:out :string} "clojure -T:build install"
+               ":version" (pr-str antq-test-version))
+      (f)
+      ;; take a stab at cleaning up, assume .m2 repo was not overriden in developer's config
+      (finally
+        (fs/delete-tree (fs/expand-home (str "~/.m2/repository/com/github/liquidz/antq/" antq-test-version)))))))
 
 (use-fixtures :each
   (fn [f]
@@ -29,11 +38,10 @@
   [proj-opts]
   (let [default-opts (omap/ordered-map
                       :description "some desc"
-                      :plugins '[[com.github.liquidz/antq "RELEASE"]]
-                      :antq {:exclude ["nrepl/nrepl"]})
+                      :antq {:exclude ["nrepl/nrepl" "com.github.liquidz/antq"]})
         opts (merge default-opts (apply omap/ordered-map proj-opts))]
     (spit (fs/file test-work-dir "project.clj")
-          (str "(defproject red1 \"n/a\"\n"
+          (str "(defproject lein-plugin-test \"n/a\"\n"
                (str/join "\n" (into (mapv
                                      (fn [[k v]]
                                        (str "  " k " "
@@ -73,7 +81,8 @@
                :out [#"\| project\.clj +\| org\.clojure/clojure +\| 1\.10\.2 +\| 1"
                      "Available changes:"
                      #"- https://github.com/clojure/clojure/blob/clojure-1.*/changes\.md"]}
-              (lein-scenario [:dependencies '[[org.clojure/clojure "1.10.2"]]]))))
+              (lein-scenario [:plugins [antq-coords]
+                              :dependencies '[[org.clojure/clojure "1.10.2"]]]))))
 
 (deftest detects-outdated-managed-deps-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
@@ -81,15 +90,16 @@
                :out [#"\| project\.clj +\| com\.stuartsierra/mapgraph +\| 0\.1\.0 +\| 0\.2\.1"
                      "Available changes:"
                      "- https://github.com/stuartsierra/mapgraph/blob/0.2.1/CHANGES.md"]}
-              (lein-scenario [:managed-dependencies '[[com.stuartsierra/mapgraph "0.1.0"]]
+              (lein-scenario [:plugins [antq-coords]
+                              :managed-dependencies '[[com.stuartsierra/mapgraph "0.1.0"]]
                               :dependencies '[[com.stuartsierra/mapgraph]]]))))
 
 (deftest detects-outdated-plugins-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
   (is (match? {:exit 1
                :out [#"\| project\.clj +\| lein-swank/lein-swank +\| 1\.4\.1 +\| 1\.4\.5"]}
-              (lein-scenario [:plugins '[[lein-swank "1.4.1"]
-                                         [com.github.liquidz/antq "RELEASE"]]]))))
+              (lein-scenario [:plugins [['lein-swank "1.4.1"]
+                                        antq-coords]]))))
 
 (deftest no-updates-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
@@ -98,14 +108,15 @@
               (lein-scenario [:managed-dependencies '[[com.stuartsierra/mapgraph "0.2.1"]]
                               :dependencies '[[me.raynes/fs "1.4.6"]
                                               [com.stuartsierra/mapgraph]]
-                              :plugins '[[lein-swank "1.4.5"]
-                                         [com.github.liquidz/antq "RELEASE"]]]))))
+                              :plugins [['lein-swank "1.4.5"]
+                                        antq-coords]]))))
 
 (deftest meta-exclude-test
   ;; test assumes no further releases of this lib, adjust accordingly
   (is (match? {:exit 1
                :out [#"| project\.clj +\| me.raynes/fs +\| 1\.4\.1 +\| 1\.4\.4 +\|"]}
-              (lein-scenario [:dependencies [^{:antq/exclude ["1.4.6" "1.4.5"]} ['me.raynes/fs "1.4.1"]]]))))
+              (lein-scenario [:plugins [antq-coords]
+                              :dependencies [^{:antq/exclude ["1.4.6" "1.4.5"]} ['me.raynes/fs "1.4.1"]]]))))
 
 (comment
   (recreate-work-dir)
