@@ -12,4 +12,8 @@
   lint-cljstyle {:task lint-cljstyle/-main   :doc "lint with cljstyle"}
   test-clj      {:exec-fn test-clj/task      :doc "run tests against a version of Clojure"}
   test-coverage {:exec-fn test-coverage/task :doc "generate code coverage reports Clojure tests"}
+  jar           {:exec-fn jar/jar            :doc "Generate antq jar"}
+  uberjar       {:exec-fn jar/uberjar        :doc "Generate antq uberjar"
+                 :override-builtin true}
+  install       {:exec-fn jar/install        :doc "Install antq to local maven repository"}
   outdated      {:task outdated/-main        :doc "report on outdated dependencies (antq with antq!)"}}}
