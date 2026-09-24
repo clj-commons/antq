@@ -187,8 +187,10 @@ See link:./doc/timeout.adoc[Timeouts] for details.
 ====
 **Repeatable Options:**
 Options documented with `...` at the end of their names can be specified multiple times.
-For example, to <<opt-exclude>> artifact `a` and `b`: +
-`--exclude=a --exclude=b`.
+For example, to <<opt-exclude>> artifact `a` and `b` you can express as: +
+
+* `--exclude=a --exclude=b`
+* or `--exclude=a:b`
 ====
 
 [NOTE]
@@ -245,7 +247,7 @@ Add search path for projects.
 The current directory (`.`) is added by default.
 Specify multiple times for multiple directories.
 
-E.g. `-d foo --directory=bar:baz` will search "foo", "baz" and "bar" directories.
+E.g. `-d foo --directory=bar:baz` will search ".", "foo", "baz" and "bar" directories.
 
 === --focus=ARTIFACT_NAME ...
 Focus version checking for specified artifacts.
@@ -316,6 +318,15 @@ The diff URL for Version Control System. (Nullable)
 Antq uses https://github.com/athos/pogonos[Pogonos] as a template engine, so you can use http://mustache.github.io/[Mustache] features.
 
 e.g. `{{name}}{{#latest-name}} -> {{.}}{{/latest-name}}`
+
+[TIP]
+====
+When running as a clojure tool, you might need some extra escaping for this option's value, .i.e.:
+[source,shell]
+----
+clojure -Tantq outdated :error-format '"{{file}}::{{message}}"'
+----
+====
 
 [[opt-reporter]]
 === --reporter=REPORTER

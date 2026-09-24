@@ -5,5 +5,5 @@
 
 (defn -main
   [& args]
-  (status/line :head "Checking Clojure deps")
+  (status/line :head "Checking outdated deps")
   (apply shell/command {:continue true} "clojure -M:outdated:nop" args))

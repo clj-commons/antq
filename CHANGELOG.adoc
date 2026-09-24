@@ -7,8 +7,11 @@ A thousand thanks to https://github.com/liquidz[@liquidz] for creating the wonde
 We'll continue to publish releases to the existing Antq maven coordinates https://clojars.org/com.github.liquidz/antq[`com.github.liquidz/antq`] (thanks @liquidz!).
 
 === Added
-* https://github.com/clj-commons/antq/pull/289[#289] New `--no-progress` option to suppress progress indicator while analyzing deps
+* https://github.com/clj-commons/antq/pull/289[#289]: New `--no-progress` option to suppress progress indicator while analyzing deps
 (thanks, https://github.com/kirked[@kirked]!)
+* https://github.com/clj-commons/antq/issues/280[#280],
+https://github.com/clj-commons/antq/issues/259[#259],
+https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now has `--help` (and for antq clojure tools users, `:help true`) and option validation. Tools-usage and main-usage now draw from the same single source of cli truth.
 
 === Changed
 * General dep bumping and maintenance after migrating antq to clj-commons :tada:

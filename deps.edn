@@ -3,10 +3,10 @@
  {org.clojure/clojure {:mvn/version "1.12.6"}
   org.clojure/data.xml {:mvn/version "0.2.0-alpha11"}
   org.clojure/data.zip {:mvn/version "1.1.1"}
-  org.clojure/tools.cli {:mvn/version "1.4.256"}
   org.clojure/core.async {:mvn/version "1.9.865"}
   org.clojure/tools.deps {:mvn/version "0.31.1646"}
   org.clojure/data.json {:mvn/version "2.5.2"}
+  org.babashka/cli {:mvn/version "0.12.91"}
   clj-commons/clj-yaml {:mvn/version "1.0.30"}
   version-clj/version-clj {:mvn/version "2.0.3"}
   rewrite-clj/rewrite-clj {:mvn/version "1.2.57"}
@@ -59,8 +59,12 @@
   {:deps {clj-kondo/clj-kondo {:mvn/version "2026.08.04"}}
    :main-opts ["-m" "clj-kondo.main"]}
   
+  ;; for local usage
+  ;; clojure -M:outdated ...
+  ;; clojure -X:outdated outdated... 
   :outdated
-  {:main-opts ["-m" "antq.core"]}
+  {:main-opts ["-m" "antq.core"]
+   :ns-default antq.tool}
 
   :test
   {:main-opts ["-m" "kaocha.runner"]}
