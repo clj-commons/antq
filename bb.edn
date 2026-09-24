@@ -16,4 +16,6 @@
   uberjar       {:exec-fn jar/uberjar        :doc "Generate antq uberjar"
                  :override-builtin true}
   install       {:exec-fn jar/install        :doc "Install antq to local maven repository"}
-  outdated      {:task outdated/-main        :doc "report on outdated dependencies (antq with antq!)"}}}
+  antq          {:task outdated/-main        :doc "run antq on antq"}
+  docker-build  {:exec-fn docker/build       :doc "build docker image"}
+  docker-antq   {:exec-fn docker/sources     :doc "run antq on against cwd from docker image"}}}
