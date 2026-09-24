@@ -10,4 +10,5 @@
   dev-jvm       {:exec-fn dev-repl/task      :doc "launch jvm nREPL for development"}
   lint-kondo    {:exec-fn lint-kondo/task    :doc "lint with clj-kondo"}
   lint-cljstyle {:task lint-cljstyle/-main   :doc "lint with cljstyle"}
-  test-clj      {:exec-fn test-clj/task      :doc "run tests against a version of Clojure" }}}
+  test-clj      {:exec-fn test-clj/task      :doc "run tests against a version of Clojure"}
+  test-coverage {:exec-fn test-coverage/task :doc "generate code coverage reports Clojure tests"}}}

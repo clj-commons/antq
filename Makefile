@@ -40,7 +40,7 @@ docker-test: ## Run test in a docker container
 
 .PHONY: coverage
 coverage: ## Check coverage
-	clojure -M:dev:test --skip-meta integration --plugin cloverage --codecov --cov-ns-exclude-regex leiningen.antq
+	bb test-coverage
 
 .PHONY: clean
 clean:

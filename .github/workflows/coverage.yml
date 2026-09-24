@@ -22,7 +22,7 @@ jobs:
           gradle-version: '8.14.3'
 
       - name: Run cloverage
-        run: make coverage
+        run: bb test-coverage
 
       - name: Upload reports
         uses: codecov/codecov-action@v7
