@@ -11,4 +11,5 @@
   lint-kondo    {:exec-fn lint-kondo/task    :doc "lint with clj-kondo"}
   lint-cljstyle {:task lint-cljstyle/-main   :doc "lint with cljstyle"}
   test-clj      {:exec-fn test-clj/task      :doc "run tests against a version of Clojure"}
-  test-coverage {:exec-fn test-coverage/task :doc "generate code coverage reports Clojure tests"}}}
+  test-coverage {:exec-fn test-coverage/task :doc "generate code coverage reports Clojure tests"}
+  outdated      {:task outdated/-main        :doc "report on outdated dependencies (antq with antq!)"}}}
