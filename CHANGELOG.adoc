@@ -25,6 +25,7 @@ https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now
 (thanks, https://github.com/marcobiscaro2112[@marcobiscaro2112]!)
 * https://github.com/clj-commons/antq/issues/320[#320]: Progress bar should no longer be sporadically garbled 
 * https://github.com/clj-commons/antq/issues/324[#324]: No longer replacing embedded `HOME` env var matches in paths with `~`
+* https://github.com/clj-commons/antq/issues/329[#329]: `.\foo\bar` now converts to, as intended, `foo\bar` on Windows
 
 == 2.11.1276 (2025-03-15)
 // {{{
