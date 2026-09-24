@@ -25,8 +25,11 @@
 
 (defn relative-path
   [^File target-file]
-  (-> (.getPath target-file)
-      (str/replace-first #"^\./" "")))
+  (let [p (.getPath target-file)
+        dot-slash (str "." File/separator)]
+    (if (str/starts-with? p dot-slash)
+      (subs p 2)
+      p)))
 
 (defn name-candidates
   [^String dep-name]
