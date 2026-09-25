@@ -1,8 +1,6 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of http://keepachangelog.com/[keepachangelog.com].
 
 == Unreleased (dev)
-=== Fixed
-* https://github.com/liquidz/antq/issues/300[#300]: Avoid a `NullPointerException` when a dependency's POM has a malformed SCM URL that uses a slash instead of a colon (e.g. `git@github.com/foo/bar.git`).
 
 Antq is now under the loving care of https://clj-commons.org/[clj-commons].
 A thousand thanks to https://github.com/liquidz[@liquidz] for creating the wonderful Antq, and for entrusting its ongoing care to us.
@@ -19,15 +17,18 @@ https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now
 * General dep bumping and maintenance after migrating antq to clj-commons :tada:
 * Minimum Clojure version is now 1.11
 * https://github.com/clj-commons/antq/issues/304[#304]: When run as a lein plugin, antq now runs analysis in a sub-process to avoid any classpath conflicts between lein and tools.deps
-* Read an artifact's POM from the local Maven repository through tools.deps instead of resolving its repository with Aether and fetching the POM over HTTP. Artifacts in an s3 repository are no longer skipped, and a POM that is not cached yet prints a `Downloading:` line. 
+* Read an artifact's POM from the local Maven repository through tools.deps instead of resolving its repository with Aether and fetching the POM over HTTP.
+Artifacts in an s3 repository are no longer skipped, and a POM that is not cached yet prints a `Downloading:` line.
 * https://github.com/clj-commons/antq/issues/276[#276]: Docs and docstrings reviewed for cljdoc.org, this included defining the public API which is currently limited to the `antq.api` namespace.
 
 === Fixed
 * https://github.com/clj-commons/antq/issues/231[#231]: Exclusions are now supported when antq is run as lein plugin
 (thanks, https://github.com/marcobiscaro2112[@marcobiscaro2112]!)
-* https://github.com/clj-commons/antq/issues/320[#320]: Progress bar should no longer be sporadically garbled 
+* https://github.com/clj-commons/antq/issues/320[#320]: Progress bar should no longer be sporadically garbled
 * https://github.com/clj-commons/antq/issues/324[#324]: No longer replacing embedded `HOME` env var matches in paths with `~`
 * https://github.com/clj-commons/antq/issues/329[#329]: `.\foo\bar` now converts to, as intended, `foo\bar` on Windows
+* https://github.com/liquidz/antq/issues/300[#300]: Avoid a `NullPointerException` when a dependency's POM has a malformed SCM URL that uses a slash instead of a colon (e.g. `git@github.com/foo/bar.git`).
+(thanks, https://github.com/SAY-5[@SAY-5]!)
 
 == 2.11.1276 (2025-03-15)
 // {{{
