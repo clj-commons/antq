@@ -1,6 +1,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of http://keepachangelog.com/[keepachangelog.com].
 
 == Unreleased (dev)
+=== Fixed
+* https://github.com/liquidz/antq/issues/300[#300]: Avoid a `NullPointerException` when a dependency's POM has a malformed SCM URL that uses a slash instead of a colon (e.g. `git@github.com/foo/bar.git`).
 
 Antq is now under the loving care of https://clj-commons.org/[clj-commons].
 A thousand thanks to https://github.com/liquidz[@liquidz] for creating the wonderful Antq, and for entrusting its ongoing care to us.

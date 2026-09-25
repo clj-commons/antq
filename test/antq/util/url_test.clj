@@ -13,7 +13,10 @@
   (t/is (= "https://github.com/foo/bar/"
            (sut/ensure-git-https-url "https://github.com/foo/bar.git")))
   (t/is (= "https://github.com/foo/bar/"
-           (sut/ensure-git-https-url "git@github.com:foo/bar"))))
+           (sut/ensure-git-https-url "git@github.com:foo/bar")))
+  (t/is (= "https://github.com/foo/bar/"
+           (sut/ensure-git-https-url "git@github.com/foo/bar.git"))
+        "compensate for common case of malformed url, with / in place of :"))
 
 (t/deftest ensure-https
   (t/is (= "https://github.com"
