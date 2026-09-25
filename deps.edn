@@ -33,7 +33,7 @@
                 babashka/process {:mvn/version "0.6.25"}
                 nubank/matcher-combinators {:mvn/version "3.11.0"}
                 org.flatland/ordered {:mvn/version "1.15.12"}
-                metosin/malli ^{:antq/exclude "0.17.0"} {:mvn/version "0.20.1"}
+                metosin/malli ^{:antq/exclude "0.17.0"} {:mvn/version "0.20.2"}
                 lambdaisland/kaocha {:mvn/version "1.91.1392"}
                 lambdaisland/deep-diff2 {:mvn/version "2.14.235"}
                 lambdaisland/kaocha-cloverage {:mvn/version "1.1.89"}}
@@ -58,10 +58,10 @@
   :clj-kondo
   {:deps {clj-kondo/clj-kondo {:mvn/version "2026.08.04"}}
    :main-opts ["-m" "clj-kondo.main"]}
-  
+
   ;; for local usage
   ;; clojure -M:outdated ...
-  ;; clojure -X:outdated outdated... 
+  ;; clojure -X:outdated outdated...
   :outdated
   {:main-opts ["-m" "antq.core"]
    :ns-default antq.tool}
