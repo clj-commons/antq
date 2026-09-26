@@ -70,7 +70,7 @@ If you have trouble, please see link:./doc/non-supported-clojure-version.adoc[he
 | build.gradle
 | https://gradle.org[Gradle]
 | {sym-no}
-| Experimental. `gradle` command must be installed.
+| Experimental. Uses the project's `gradlew`, otherwise the `gradle` command must be installed.
 
 | ~/.clojure/tools
 | https://clojure.org/reference/clojure_cli#tools[Clojure CLI Tools]

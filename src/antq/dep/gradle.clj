@@ -11,12 +11,45 @@
 (def gradle-command "gradle")
 (def ^:private dep-regexp #"^[^-]\-+\s")
 
+(defn- windows?
+  []
+  (-> (System/getProperty "os.name")
+      (str/lower-case)
+      (str/starts-with? "windows")))
+
+(defn- gradle-wrapper-name
+  []
+  (if (windows?) "gradlew.bat" "gradlew"))
+
+(defn- gradle-project-dir?
+  [dir]
+  (some #(.isFile (io/file dir %))
+        ["build.gradle" "build.gradle.kts" "settings.gradle" "settings.gradle.kts"]))
+
+(defn find-gradle-wrapper
+  "Returns the path of the Gradle wrapper for the project in `dir`.
+  The wrapper usually lives in the root project, so parent directories are searched
+  as long as they are part of the Gradle build."
+  [dir]
+  (loop [dir (.getAbsoluteFile (io/file dir))]
+    (when (and dir (gradle-project-dir? dir))
+      (let [wrapper (io/file dir (gradle-wrapper-name))]
+        (if (and (.isFile wrapper) (.canExecute wrapper))
+          (.getPath wrapper)
+          (recur (.getParentFile dir)))))))
+
+(defn- gradle
+  "Runs the project's Gradle wrapper, or the `gradle` command when there is none."
+  [project-dir & args]
+  (apply sh/sh (or (find-gradle-wrapper project-dir) gradle-command)
+         "--project-dir" project-dir
+         args))
+
 (defn- get-repositories
   [file-path]
   (let [parent-path (.getParent (io/file file-path))
-        {:keys [exit out]} (sh/sh gradle-command
-                                  "--project-dir" parent-path
-                                  "antq_list_repositories")]
+        {:keys [exit out]} (gradle parent-path
+                                   "antq_list_repositories")]
     (when (= 0 exit)
       (->> (str/split-lines out)
            (filter #(str/starts-with? % "ANTQ;"))
@@ -27,10 +60,9 @@
 (defn- filter-deps-from-gradle-dependencies
   [file-path]
   (let [parent-path (.getParent (io/file file-path))
-        {:keys [exit out]} (sh/sh gradle-command
-                                  "--project-dir" parent-path
-                                  "--quiet"
-                                  "dependencies")]
+        {:keys [exit out]} (gradle parent-path
+                                   "--quiet"
+                                   "dependencies")]
     (if (= 0 exit)
       (->> (str/split-lines out)
            (filter seq)
