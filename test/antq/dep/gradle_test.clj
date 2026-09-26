@@ -71,7 +71,24 @@
                                       :version "1.0.0"
                                       :repositories {"wrapper-repo" {:url "https://example.com/maven/"}}})]
                  (sut/extract-deps file-path (.getPath (io/resource path))))
-              path)))))
+              path))))
+
+  (t/deftest non-executable-gradle-wrapper-test
+    ;; git does not reliably keep a file non-executable, so the project is created here
+    (let [dir (.toFile (java.nio.file.Files/createTempDirectory
+                        "antq-gradle" (make-array java.nio.file.attribute.FileAttribute 0)))
+          build-file (io/file dir "build.gradle")
+          wrapper (io/file dir "gradlew")]
+      (try
+        (spit build-file "")
+        (spit wrapper "#!/bin/sh\n")
+        (.setExecutable wrapper false)
+        (t/is (thrown-with-msg? clojure.lang.ExceptionInfo #"Gradle wrapper is not executable"
+                (sut/find-gradle-wrapper dir)))
+        (with-redefs [sut/gradle-command "__non-existing-command__"]
+          (t/is (nil? (sut/extract-deps file-path (.getPath build-file)))))
+        (finally
+          (run! io/delete-file [wrapper build-file dir]))))))
 
 (t/deftest extract-deps-command-error-test
   (with-redefs [sut/gradle-command "__non-existing-command__"]

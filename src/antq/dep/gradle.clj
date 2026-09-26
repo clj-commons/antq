@@ -29,14 +29,22 @@
 (defn find-gradle-wrapper
   "Returns the path of the Gradle wrapper for the project in `dir`.
   The wrapper usually lives in the root project, so parent directories are searched
-  as long as they are part of the Gradle build."
+  as long as they are part of the Gradle build.
+  Throws if the wrapper is not executable."
   [dir]
   (loop [dir (.getAbsoluteFile (io/file dir))]
     (when (and dir (gradle-project-dir? dir))
       (let [wrapper (io/file dir (gradle-wrapper-name))]
-        (if (and (.isFile wrapper) (.canExecute wrapper))
-          (.getPath wrapper)
-          (recur (.getParentFile dir)))))))
+        (cond
+          (not (.isFile wrapper))
+          (recur (.getParentFile dir))
+
+          (not (.canExecute wrapper))
+          (throw (ex-info (str "Gradle wrapper is not executable: " (.getPath wrapper))
+                          {:wrapper (.getPath wrapper)}))
+
+          :else
+          (.getPath wrapper))))))
 
 (defn- gradle
   "Runs the project's Gradle wrapper, or the `gradle` command when there is none."
