@@ -54,6 +54,9 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 (thanks, https://github.com/aadrian[@aadrian]!)
 * https://github.com/clj-commons/antq/issues/370[#370]: Windows: gradle command now found and launches
 (https://github.com/lread[@lread])
+* https://github.com/clj-commons/antq/issues/330[#330]: Windows: preserve host-specific newlines in updated files
+(https://github.com/lread[@lread])
+
 
 == 2.11.1276 (2025-03-15)
 // {{{

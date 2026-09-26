@@ -1,6 +1,7 @@
 (ns antq.util.zip-test
   (:require
    [antq.util.zip :as sut]
+   [babashka.fs :as fs]
    [clojure.test :as t]
    [rewrite-clj.zip :as z]))
 
@@ -25,3 +26,27 @@
   (t/is (nil? (-> (z/of-string "(foo (bar (baz)))")
                   (sut/find-next #(= 'unknown (and (z/sexpr-able? %)
                                                    (z/sexpr %))))))))
+
+(t/deftest edn-update-preserves-line-endings-test
+  (doseq [content ["{:deps {foo/bar {:mvn/version \"1.2.3\"}}\r\n}\r\n"
+                   "{:deps {foo/bar {:mvn/version \"1.2.3\"}}\n}\n"]]
+    (fs/with-temp-dir [d]
+      (let [f (fs/file d "shadow-cljs.edn")]
+        (spit f content)
+        (t/is (= content (-> f
+                             sut/of-edn-file
+                             z/down z/down z/right
+                             sut/root-edn-string))
+              content)))))
+
+(t/deftest indented-update-preserves-windows-line-endings-test
+  (doseq [content ["foo\r\n  hello\r\n    bar\r\n"
+                   "foo\n  hello\n    bar\n"]]
+    (fs/with-temp-dir [d]
+      (let [f (fs/file d "shadow-cljs.edn")]
+        (spit f content)
+        (t/is (= content (-> f
+                             sut/of-indented-file
+                             z/down z/down
+                             sut/root-indented-string))
+              (pr-str content))))))

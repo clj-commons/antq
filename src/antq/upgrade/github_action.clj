@@ -4,6 +4,7 @@
    [antq.dep.github-action :as dep.gh-action]
    [antq.log :as log]
    [antq.upgrade :as upgrade]
+   [antq.util.zip :as u.zip]
    [clojure.string :as str]
    [rewrite-indented.zip :as ri.zip]))
 
@@ -114,6 +115,6 @@
 (defmethod upgrade/upgrader :github-action
   [version-checked-dep]
   (some-> (:file version-checked-dep)
-          (ri.zip/of-file)
+          (u.zip/of-indented-file)
           (upgrade-dep version-checked-dep)
-          (ri.zip/root-string)))
+          (u.zip/root-indented-string)))

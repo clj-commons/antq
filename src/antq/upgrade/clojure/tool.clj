@@ -25,7 +25,7 @@
 
 (defmethod upgrade/upgrader :clojure-tool
   [version-checked-dep]
-  (-> (z/of-file (:file version-checked-dep))
+  (-> (u.zip/of-edn-file (:file version-checked-dep))
       (replace-git-tag version-checked-dep)
       (replace-git-sha version-checked-dep)
-      (z/root-string)))
+      (u.zip/root-edn-string)))

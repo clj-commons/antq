@@ -2,6 +2,7 @@
   (:require
    [antq.log :as log]
    [antq.upgrade :as upgrade]
+   [antq.util.file :as u.file]
    [antq.util.zip :as u.zip]
    [clojure.data.xml :as xml]
    [clojure.java.io :as io]
@@ -114,10 +115,20 @@
 
 (defmethod upgrade/upgrader :pom
   [version-checked-dep]
-  (some-> (:file version-checked-dep)
-          (io/input-stream)
-          (xml/parse :skip-whitespace true
-                     :include-node? #{:element :characters :comment})
-          (zip/xml-zip)
-          (upgrade-dep version-checked-dep)
-          (xml/indent-str)))
+  (when-let [f (:file version-checked-dep)]
+    ;; XML is written with host-default EOLs.
+    ;; Just in case that changes in a future release, we'll re-inspect EOL after update.
+    ;; If there was no EOLs in the input file, we'll not convert eols.
+    ;; Unlikely, but a nuance of our strategy.
+    (let [orig-eol (u.file/first-eol f)
+          s (with-open [stream (io/input-stream f)]
+              (some-> stream
+                      (xml/parse :skip-whitespace true
+                                 :include-node? #{:element :characters :comment})
+                      (zip/xml-zip)
+                      (upgrade-dep version-checked-dep)
+                      (xml/indent-str)))
+          new-eol (when s (re-find #"\r\n|\r|\n" s))]
+      (if (and orig-eol new-eol (not= orig-eol new-eol))
+        (str/replace s new-eol orig-eol)
+        s))))
