@@ -20,6 +20,7 @@ https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now
 * https://github.com/clj-commons/antq/pull/316[#316]: Read an artifact's POM from the local Maven repository through tools.deps instead of resolving its repository with Aether and fetching the POM over HTTP.
 Artifacts in an s3 repository are no longer skipped, and a POM that is not cached yet prints a `Downloading:` line.
 * https://github.com/clj-commons/antq/issues/276[#276]: Docs and docstrings reviewed for cljdoc.org, this included defining the public API which is currently limited to the `antq.api` namespace.
+* https://github.com/clj-commons/antq/issues/235[#235]: Improve pre-release detection: recognize more markers as whole words (e.g. `-M1`, `milestone`, `preview`, `pre`, `CR`, `dev`), so they are no longer suggested as the latest version
 
 === Fixed
 * https://github.com/clj-commons/antq/issues/231[#231]: Exclusions are now supported when antq is run as lein plugin

@@ -22,6 +22,37 @@
   [s]
   (some? (re-find #"^\d+(\.\d+)*$" s)))
 
+(defn remove-build-metadata
+  "Build metadata has no precedence, c.f. https://semver.org/#spec-item-10
+  e.g. \"1.2.3+alpha.1\" => \"1.2.3\""
+  [s]
+  (if-let [i (str/index-of s "+")]
+    (subs s 0 i)
+    s))
+
+(defn segments
+  "e.g. \"2.4-M7-groovy-5.0\" => (\"2\" \"4\" \"M7\" \"groovy\" \"5\" \"0\")"
+  [s]
+  (remove str/blank? (str/split s #"[-._]")))
+
+(defn- digit?
+  [c]
+  (Character/isDigit (char c)))
+
+(defn segment-words
+  "The runs of letters in a segment, and whether a digit precedes each run.
+  e.g. \"M7\" => ({:digit-before? false :word \"m\"})
+       \"R8RC2\" => ({:digit-before? false :word \"r\"} {:digit-before? true :word \"rc\"})"
+  [segment]
+  (->> (partition-by digit? segment)
+       (map (partial apply str))
+       (cons nil)
+       (partition 2 1)
+       (remove (fn [[_ run]] (digit? (first run))))
+       (map (fn [[before run]]
+              {:digit-before? (some? before)
+               :word (str/lower-case run)}))))
+
 (defmulti normalize-latest-version
   (fn [dep] (:type dep)))
 
