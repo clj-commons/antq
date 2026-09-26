@@ -33,6 +33,27 @@
     false "0.0-1"
     false ""))
 
+(t/deftest remove-build-metadata-test
+  (t/are [expected in] (= expected (sut/remove-build-metadata in))
+    "1.2.3" "1.2.3+alpha.1"
+    "1.0.0-alpha" "1.0.0-alpha+001"
+    "1.2.3" "1.2.3"))
+
+(t/deftest segments-test
+  (t/are [expected in] (= expected (sut/segments in))
+    ["2" "4" "M7" "groovy" "5" "0"] "2.4-M7-groovy-5.0"
+    ["1" "0" "0" "alpha01"] "1.0.0_alpha01"
+    ["1" "0"] "1..0"
+    [] ""))
+
+(t/deftest segment-words-test
+  (t/are [expected in] (= expected (sut/segment-words in))
+    [{:digit-before? false :word "m"}] "M7"
+    [{:digit-before? true :word "rc"}] "0rc2"
+    [{:digit-before? false :word "r"} {:digit-before? true :word "rc"}] "R8RC2"
+    [{:digit-before? false :word "kotlinm"}] "KotlinM11"
+    [] "123"))
+
 (t/deftest timestamped-snapshot?-test
   (t/are [expected in] (= expected (sut/timestamped-snapshot? in))
     true "2.5-20240101.120000-1"

@@ -1,0 +1,11 @@
+#!/bin/sh
+# A fake Gradle wrapper for antq.dep.gradle-test: prints what Gradle would print.
+case "$*" in
+  *antq_list_repositories*)
+    echo "ANTQ;wrapper-repo;https://example.com/maven/"
+    ;;
+  *dependencies*)
+    echo "compileClasspath - Compile classpath for source set 'main'."
+    echo "\\--- org.example:from-wrapper:1.0.0"
+    ;;
+esac

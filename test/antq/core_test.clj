@@ -130,6 +130,27 @@
       (t/is (= [(test-dep {:name "alice" :version "1.0.0" :latest-version "0.5.0" :forced-version "0.5.0"})]
                (sut/outdated-deps deps {:focus ["alice@0.5.0"]}))))))
 
+(defmethod ver/get-sorted-versions :test-pre-release
+  [dep _]
+  (get {"flow" ["4.0.0-pre5" "4.0.0-pre1" "3.0.0" "2.0.0"]
+        "spock" ["2.4-M7-groovy-5.0" "2.4-M7-groovy-4.0" "2.3-groovy-4.0" "2.2-groovy-4.0"]}
+       (:name dep)))
+
+(t/deftest outdated-deps-pre-release-test
+  (let [dep #(r/map->Dependency {:type :test-pre-release :name %1 :version %2})
+        outdated #(sut/outdated-deps [(dep %1 %2)] {})]
+    (t/testing "a pre-release is not suggested for a release"
+      (t/is (= [] (outdated "flow" "3.0.0")))
+      (t/is (= [(assoc (dep "flow" "2.0.0") :latest-version "3.0.0")]
+               (outdated "flow" "2.0.0")))
+      (t/is (= [] (outdated "spock" "2.3-groovy-4.0")))
+      (t/is (= [(assoc (dep "spock" "2.2-groovy-4.0") :latest-version "2.3-groovy-4.0")]
+               (outdated "spock" "2.2-groovy-4.0"))))
+
+    (t/testing "a newer pre-release is suggested for a pre-release"
+      (t/is (= [(assoc (dep "flow" "4.0.0-pre1") :latest-version "4.0.0-pre5")]
+               (outdated "flow" "4.0.0-pre1"))))))
+
 (t/deftest assoc-changes-url-test
   (let [dummy-dep {:type :java :name "foo/bar" :version "1" :latest-version "2"}]
     (t/testing "changelog"

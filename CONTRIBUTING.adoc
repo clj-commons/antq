@@ -1,0 +1,23 @@
+= Contributing Guidelines
+
+== Do
+
+* remember that a gift, while appreciated, is also a burden; *start with an issue* to propose your change before investing your valuable time in a PR.
+* try to follow link:https://chris.beams.io/posts/git-commit/#seven-rules[the seven rules of a great Git commit message].
+* take inspiration from link:https://guide.clojure.style[the Clojure Style Guide].
+* include/update tests to cover your change.
+* ensure that the Continuous Integration checks pass.
+* feel free to pester the project maintainers about your PR if it hasn't been responded to.
+Sometimes notifications can be missed.
+* read the link:doc/02-developer-guide.adoc[Developer Guide].
+
+== Don't
+
+* *force push* on a PR; it makes it impossible to review.
+Don't worry if you have more commits than you'd like, we typically squash them into one commit when merging to master.
+* include more than one feature or fix in a single PR.
+* include changes unrelated to the purpose of the PR.
+This includes changing the project version number, adding lines to the `.gitignore` file, or purposefully changing the indentation or formatting.
+* open a new PR if changes are requested.
+Just push to the same branch and the PR will be updated.
+* overuse vertical whitespace; avoid multiple sequential blank lines.

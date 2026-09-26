@@ -17,4 +17,4 @@
          ".clj-kondo/.cache"
          ".lsp/.cache"
          "test/resources/dep/build"
-         "test/resources/no_repo_gradle/build"]))
+         "test/resources/dep/no_repo_gradle/build"]))
