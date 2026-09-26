@@ -4,7 +4,9 @@ WARNING: Gradle support is experimental
 
 == Requirements
 
-* `gradle` command must be installed.
+* The project's Gradle wrapper (`gradlew`, or `gradlew.bat` on Windows) is used when there is one.
+  It is looked up in the project directory and in its parent directories that belong to the same Gradle build.
+* Otherwise the `gradle` command must be installed.
 ** antq alone does not work.
 
 == build.gradle

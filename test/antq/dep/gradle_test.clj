@@ -2,7 +2,9 @@
   (:require
    [antq.dep.gradle :as sut]
    [antq.record :as r]
+   [antq.test-helper :as h]
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [clojure.test :as t]))
 
 (def ^:private file-path
@@ -46,6 +48,30 @@
         actual-deps (set deps)]
     (t/is (seq actual-deps))
     (t/is (every? #(contains? actual-deps %) defined-deps))))
+
+;; The fixture's `gradlew` is a shell script
+(when-not h/windows?
+  (t/deftest find-gradle-wrapper-test
+    (let [wrapper-path? #(and % (str/ends-with? % (h/os-path "dep/gradle_wrapper/gradlew")))]
+      (t/testing "the wrapper in the project directory"
+        (t/is (wrapper-path? (sut/find-gradle-wrapper (io/resource "dep/gradle_wrapper")))))
+      (t/testing "the wrapper in the root project of a subproject"
+        (t/is (wrapper-path? (sut/find-gradle-wrapper (io/resource "dep/gradle_wrapper/sub")))))
+      (t/testing "no wrapper"
+        (t/is (nil? (sut/find-gradle-wrapper (io/resource "dep")))))))
+
+  (t/deftest extract-deps-with-gradle-wrapper-test
+    (with-redefs [sut/gradle-command "__non-existing-command__"]
+      (doseq [path ["dep/gradle_wrapper/build.gradle"
+                    "dep/gradle_wrapper/sub/build.gradle"]]
+        (t/is (= [(r/map->Dependency {:project :gradle
+                                      :type :java
+                                      :file file-path
+                                      :name "org.example/from-wrapper"
+                                      :version "1.0.0"
+                                      :repositories {"wrapper-repo" {:url "https://example.com/maven/"}}})]
+                 (sut/extract-deps file-path (.getPath (io/resource path))))
+              path)))))
 
 (t/deftest extract-deps-command-error-test
   (with-redefs [sut/gradle-command "__non-existing-command__"]
