@@ -1,5 +1,6 @@
 (ns ^:no-doc antq.ver
   (:require
+   [antq.util.ver :as u.ver]
    [clojure.string :as str]
    [version-clj.core :as version]))
 
@@ -18,7 +19,8 @@
   [s]
   (if (and s
            (string? s))
-    (str/includes? (str/lower-case s) "snapshot")
+    (or (str/includes? (str/lower-case s) "snapshot")
+        (u.ver/timestamped-snapshot? s))
     false))
 
 (defmulti get-sorted-versions

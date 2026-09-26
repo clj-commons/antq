@@ -75,7 +75,8 @@
     false "foo"
     true "foo-snapshot"
     true "foo-SnapShot"
-    true "foo-SNAPSHOT"))
+    true "foo-SNAPSHOT"
+    true "2.5-20240101.120000-1"))
 
 
 (t/deftest get-maven-settings-test
