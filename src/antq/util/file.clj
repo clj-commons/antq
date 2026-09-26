@@ -51,3 +51,15 @@
               (update :result conj dir)))))
     {:fixme #{} :result []}
     dirs)))
+
+(defn first-eol
+  "Returns the first eol in `f`"
+  [f]
+  (with-open [in (io/input-stream f)]
+    (loop []
+      (let [b (.read in)]
+        (case (int b)
+          -1 nil
+          10 "\n"
+          13 (if (= 10 (.read in)) "\r\n" "\r")
+          (recur))))))

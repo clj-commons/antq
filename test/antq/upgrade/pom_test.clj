@@ -5,6 +5,7 @@
    [antq.test-helper :as h]
    [antq.upgrade :as upgrade]
    [antq.upgrade.pom]
+   [babashka.fs :as fs]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [clojure.test :as t])
@@ -96,3 +97,19 @@
                  (h/diff-deps from-deps to-deps))))
       (finally
         (.delete tmp-file)))))
+
+(t/deftest pom-upgrade-preserves-line-endings-test
+  (doseq [[expected-eol input]
+          [["\n"   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<foo><bar><baz>The baz value</baz></bar></foo>\n"]
+           ["\r\n" "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<foo><bar><baz>The baz value</baz></bar></foo>\r\n"]]]
+    (fs/with-temp-dir [d]
+      (let [f (fs/file d "pom.xml")]
+        (spit f input)
+        ;; XML is pretty printed, so won't exactly equal input
+        (let [eols (->> (upgrade/upgrader {:file f
+                                           :project :pom
+                                           :name "foo/bar"})
+                        (re-seq #"(\r\n|\n)")
+                        (mapv last))]
+          (t/is (pos? (count eols)))
+          (t/is (every? #(= expected-eol %) eols)))))))

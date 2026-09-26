@@ -2,6 +2,7 @@
   (:require
    [antq.log :as log]
    [antq.upgrade :as upgrade]
+   [antq.util.file :as u.file]
    [antq.util.zip :as u.zip]
    [clojure.data.xml :as xml]
    [clojure.java.io :as io]
@@ -114,10 +115,18 @@
 
 (defmethod upgrade/upgrader :pom
   [version-checked-dep]
-  (some-> (:file version-checked-dep)
-          (io/input-stream)
-          (xml/parse :skip-whitespace true
-                     :include-node? #{:element :characters :comment})
-          (zip/xml-zip)
-          (upgrade-dep version-checked-dep)
-          (xml/indent-str)))
+  (when-let [f (:file version-checked-dep)]
+    ;; if there is no original eol, then we'll default to \n, which might not
+    ;; be exactly what user expects, but this case is unlikely, so I think we
+    ;; are good enough for now.
+    (let [orig-eol (u.file/first-eol f)
+          s (with-open [stream (io/input-stream f)]
+              (some-> stream
+                      (xml/parse :skip-whitespace true
+                                 :include-node? #{:element :characters :comment})
+                      (zip/xml-zip)
+                      (upgrade-dep version-checked-dep)
+                      (xml/indent-str)))]
+      (if (and orig-eol (not= orig-eol "\n"))
+        (str/replace s "\n" orig-eol)
+        s))))

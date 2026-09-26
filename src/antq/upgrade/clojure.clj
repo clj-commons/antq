@@ -117,6 +117,6 @@
 
 (defmethod upgrade/upgrader :clojure
   [version-checked-dep]
-  (-> (z/of-file (:file version-checked-dep))
+  (-> (u.zip/of-edn-file (:file version-checked-dep))
       (upgrade-dep version-checked-dep)
-      (z/root-string)))
+      (u.zip/root-edn-string)))
