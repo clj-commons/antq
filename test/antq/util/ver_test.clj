@@ -33,6 +33,14 @@
     false "0.0-1"
     false ""))
 
+(t/deftest timestamped-snapshot?-test
+  (t/are [expected in] (= expected (sut/timestamped-snapshot? in))
+    true "2.5-20240101.120000-1"
+    false "2.5-SNAPSHOT"
+    false "1.0-20240315"
+    false "2.5-20240101.120000-"
+    false ""))
+
 (t/deftest normalize-latest-version-test
   (t/is (= "foo"
            (sut/normalize-latest-version (r/map->Dependency {:type :java :latest-version "foo"}))))

@@ -65,7 +65,10 @@
                                  "foo" {:url "s3://foo"})
             :snapshots? true}
            (sut/repository-opts (r/map->Dependency {:repositories {"foo" {:url "s3p://foo"}}
-                                                    :version "1.0.0-SNAPSHOT"})))))
+                                                    :version "1.0.0-SNAPSHOT"}))))
+  (t/is (= {:repositories u.mvn/default-repos
+            :snapshots? true}
+           (sut/repository-opts (r/map->Dependency {:version "1.0.0-20240101.120000-1"})))))
 
 (t/deftest normalize-path-test
   (t/are [expected input] (= (h/os-path expected) (sut/normalize-path input))

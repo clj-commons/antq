@@ -3,6 +3,7 @@
    [antq.log :as log]
    [antq.util.env :as u.env]
    [antq.util.leiningen :as u.lein]
+   [antq.util.ver :as u.ver]
    [antq.util.xml :as u.xml]
    [clojure.data.xml :as xml]
    [clojure.java.io :as io]
@@ -45,7 +46,8 @@
 (defn snapshot?
   [s]
   (if s
-    (str/includes? (str/lower-case s) "snapshot")
+    (or (str/includes? (str/lower-case s) "snapshot")
+        (u.ver/timestamped-snapshot? s))
     false))
 
 (defn ensure-username-or-password
