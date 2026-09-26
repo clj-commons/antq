@@ -13,7 +13,6 @@ Sometimes notifications can be missed.
 
 == Don't
 
-* submit generated code; we follow the Clojure Core Team's position on https://clojure.org/community/contributing#_no_generated_code[no generated code]
 * *force push* on a PR; it makes it impossible to review.
 Don't worry if you have more commits than you'd like, we typically squash them into one commit when merging to master.
 * include more than one feature or fix in a single PR.
