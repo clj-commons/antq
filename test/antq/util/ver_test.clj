@@ -62,6 +62,15 @@
     false "2.5-20240101.120000-"
     false ""))
 
+(t/deftest commit-hash?-test
+  (t/are [expected in] (= expected (sut/commit-hash? in))
+    true "40e04ea"
+    true "g95695ea0"
+    true "4dd6c85cab1ef1a4415abb74704d60e57497b7b8"
+    false "1234567"
+    false "abcdef"
+    false "release"))
+
 (t/deftest normalize-latest-version-test
   (t/is (= "foo"
            (sut/normalize-latest-version (r/map->Dependency {:type :java :latest-version "foo"}))))

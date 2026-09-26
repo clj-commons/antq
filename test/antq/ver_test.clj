@@ -58,6 +58,16 @@
       "1.0-prefetch"
       "1.0-mysql"
       "1.0-device"))
+  (t/testing "early access"
+    (t/are [in] (= [in true] [in (sut/under-development? in)])
+      "0.1.1-ea"              ; com.github.vlaaad/reveal
+      "2.1-EA1"               ; javax.xml.bind/jaxb-api
+      "13-ea+14b"))           ; org.openjfx/javafx-base
+  (t/testing "releases with a commit hash"
+    (t/are [in] (= [in false] [in (sut/under-development? in)])
+      "20260921.233200.d9e8e0f" ; yetibot/core
+      "20210520.145017.40e04ea" ; yetibot/core: the hash ends in `ea`
+      "v1.9.49-38-g95695ea0"))  ; org.akvo.flow/akvo-flow: `git describe`
   (t/testing "build metadata has no precedence"
     ;; Synthetic, https://semver.org/#spec-item-10
     (t/are [in] (= [in false] [in (sut/under-development? in)])

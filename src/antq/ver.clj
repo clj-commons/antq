@@ -6,7 +6,7 @@
 
 (def ^:private under-development-keywords
   #{"alpha" "beta" "rc" "cr" "m" "milestone" "dev" "pr" "pre" "prealpha" "preview"
-    "experimental" "unstable"})
+    "experimental" "unstable" "ea"})
 
 (defn under-development-word?
   "`alpha` and `beta` may carry one more letter, e.g. `alphaB`, but not `alphabet`."
@@ -30,6 +30,8 @@
   (if (and s
            (string? s))
     (->> (u.ver/segments (u.ver/remove-build-metadata s))
+         ;; The letters of a commit hash are not words: `40e04ea` has no early access marker
+         (remove u.ver/commit-hash?)
          (some under-development-segment?)
          (boolean))
     false))

@@ -72,6 +72,22 @@
                   time
                   (digits? time 6)))))
 
+(defn- hex-char?
+  [c]
+  (str/includes? "0123456789abcdef" (str/lower-case (str c))))
+
+(defn commit-hash?
+  "At least 7 hex characters, with a digit and a letter, optionally prefixed with `g` as
+  `git describe` does.
+  e.g. \"40e04ea\" => true, \"g95695ea0\" => true, \"1234567\" => false, \"release\" => false"
+  [segment]
+  (let [hex (cond-> segment
+              (str/starts-with? segment "g") (subs 1))]
+    (and (<= 7 (count hex))
+         (every? hex-char? hex)
+         (some? (some digit? hex))
+         (some? (some (complement digit?) hex)))))
+
 (defmulti normalize-latest-version
   (fn [dep] (:type dep)))
 

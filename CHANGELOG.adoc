@@ -22,6 +22,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 * https://github.com/clj-commons/antq/issues/276[#276]: Docs and docstrings reviewed for cljdoc.org, this included defining the public API which is currently limited to the `antq.api` namespace.
 * https://github.com/clj-commons/antq/issues/235[#235]: Improve pre-release detection: recognize more markers as whole words (e.g. `-M1`, `milestone`, `preview`, `pre`, `CR`, `dev`), so they are no longer suggested as the latest version
 * Recognise Maven timestamped snapshots (e.g. `2.5-20240101.120000-1`) as snapshots
+* https://github.com/clj-commons/antq/issues/352[#352]: Recognise early access versions (e.g. `1.1-ea`, `13-ea+14b`) as pre-releases, without mistaking a commit hash in a version (e.g. `20210520.145017.40e04ea`) for one
 
 === Fixed
 * https://github.com/clj-commons/antq/issues/231[#231]: Exclusions are now supported when antq is run as lein plugin
