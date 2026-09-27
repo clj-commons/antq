@@ -9,6 +9,7 @@ WARNING: Gradle support is experimental
   A wrapper that is not executable is reported as an error.
 * Otherwise the `gradle` command must be installed.
 ** antq alone does not work.
+* If Gradle cannot be run or fails, antq stops with an error that includes Gradle's output.
 
 == build.gradle
 

@@ -86,13 +86,25 @@
         (t/is (thrown-with-msg? clojure.lang.ExceptionInfo #"Gradle wrapper is not executable"
                 (sut/find-gradle-wrapper dir)))
         (with-redefs [sut/gradle-command "__non-existing-command__"]
-          (t/is (nil? (sut/extract-deps file-path (.getPath build-file)))))
+          (t/is (thrown-with-msg? clojure.lang.ExceptionInfo #"Failed to read path/to/build.gradle: Gradle wrapper is not executable"
+                  (sut/extract-deps file-path (.getPath build-file)))))
         (finally
-          (run! io/delete-file [wrapper build-file dir]))))))
+          (run! io/delete-file [wrapper build-file dir])))))
+
+  (t/deftest extract-deps-gradle-failure-test
+    (let [ex (try
+               (sut/extract-deps file-path (.getPath (io/resource "dep/gradle_failure/build.gradle")))
+               nil
+               (catch clojure.lang.ExceptionInfo ex ex))]
+      (t/is (some? ex))
+      (t/testing "the message includes Gradle's output"
+        (t/is (str/includes? (ex-message ex) "Failed to read path/to/build.gradle: Gradle task dependencies failed with exit code 1"))
+        (t/is (str/includes? (ex-message ex) "FAILURE: Build failed with an exception.")))
+      (t/is (= {:exit 1 :file file-path} (ex-data ex))))))
 
 (t/deftest extract-deps-command-error-test
   (with-redefs [sut/gradle-command "__non-existing-command__"]
-    (let [deps (sut/extract-deps
-                file-path
-                (.getPath (io/resource "dep/build.gradle")))]
-      (t/is (nil? deps)))))
+    (t/is (thrown-with-msg? clojure.lang.ExceptionInfo #"Failed to read path/to/build.gradle"
+            (sut/extract-deps
+             file-path
+             (.getPath (io/resource "dep/build.gradle")))))))

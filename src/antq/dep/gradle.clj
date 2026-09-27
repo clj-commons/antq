@@ -1,7 +1,6 @@
 (ns ^:no-doc antq.dep.gradle
   (:require
    [antq.constant.project-file :as const.project-file]
-   [antq.log :as log]
    [antq.record :as r]
    [antq.util.dep :as u.dep]
    [clojure.java.io :as io]
@@ -65,12 +64,20 @@
            (reduce (fn [accm [_ repo-name url]]
                      (assoc accm repo-name {:url url})) {})))))
 
+(defn- gradle-failure
+  "Returns an exception for a failed Gradle `task`, with Gradle's output to help with diagnosis."
+  [task {:keys [exit out err]}]
+  (let [output (str/trim (str out "\n" err))]
+    (ex-info (cond-> (str "Gradle task " task " failed with exit code " exit)
+               (seq output) (str ":\n" output))
+             {:exit exit})))
+
 (defn- filter-deps-from-gradle-dependencies
   [file-path]
   (let [parent-path (.getParent (io/file file-path))
-        {:keys [exit out]} (gradle parent-path
-                                   "--quiet"
-                                   "dependencies")]
+        {:keys [exit out] :as result} (gradle parent-path
+                                              "--quiet"
+                                              "dependencies")]
     (if (= 0 exit)
       (->> (str/split-lines out)
            (filter seq)
@@ -78,7 +85,7 @@
            (map #(str/replace % dep-regexp ""))
            (map #(first (str/split % #" " 2)))
            (set))
-      (throw (ex-info "Failed to run gradle" {:exit exit})))))
+      (throw (gradle-failure "dependencies" result)))))
 
 (defn- convert-grandle-dependency
   "e.g. dep-str: 'org.clojure:clojure:1.10.0'"
@@ -103,8 +110,10 @@
           deps (map #(assoc % :repositories repos) deps)]
       deps)
     (catch Exception ex
-      (log/error (.getMessage ex))
-      nil)))
+      ;; Not chained with `ex`: a failing run reports only the root cause,
+      ;; e.g. "error=2, No such file or directory" without the command name.
+      (throw (ex-info (str "Failed to read " relative-file-path ": " (.getMessage ex))
+                      (assoc (ex-data ex) :file relative-file-path))))))
 
 (defn load-deps
   {:malli/schema [:function
