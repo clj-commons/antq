@@ -2,25 +2,68 @@
 
 WARNING: Gradle support is experimental
 
+== How it works
+
+A `build.gradle` file is a program, so antq does not parse it.
+Instead, antq runs Gradle in the project directory and reads what Gradle reports:
+
+* `dependencies`, to find the dependencies
+* `antq_list_repositories`, if the build defines it, to find the repositories (see <<repositories>>)
+
+[IMPORTANT]
+====
+Running Gradle is riskier than parsing a file.
+Gradle runs the build's scripts and plugins, and the Gradle wrapper may download a Gradle distribution.
+Only run antq on Gradle projects you trust, as you would only run `./gradlew build` on projects you trust.
+
+To stop antq from running Gradle, use `--skip=gradle`.
+====
+
 == Requirements
 
 * The project's Gradle wrapper (`gradlew`, or `gradlew.bat` on Windows) is used when there is one.
   It is looked up in the project directory and in its parent directories that belong to the same Gradle build.
   A wrapper that is not executable is reported as an error.
 * Otherwise the `gradle` command must be installed.
-** antq alone does not work.
 * If Gradle cannot be run or fails, antq stops with an error that includes Gradle's output.
 
-== build.gradle
+== Quick start
 
-To work with gradle, you should update your `build.gradle` as following.
+antq does not need to be added to the build.
+Run it in the project directory as for any other project, e.g. as a https://clojure.org/reference/clojure_cli#tools[Clojure CLI tool]:
+
+[source,sh]
+----
+clojure -Tantq outdated
+----
+
+[[repositories]]
+== Repositories
+
+Without extra configuration, antq looks up the latest versions in its default repositories, Maven Central and Clojars.
+
+If your build uses other repositories, e.g. a company repository, add this task to `build.gradle`.
+antq runs it and uses the repositories it prints.
 
 [source,groovy]
 ----
-plugins {
-  id 'java-library'
+tasks.register('antq_list_repositories') {
+  doLast {
+    project.repositories.each { println "ANTQ;" + it.name + ";" + it.url }
+  }
 }
+----
 
+The task lists the repositories of the project it runs in.
+Repositories declared in `settings.gradle` are not listed, and credentials are not passed to antq.
+
+== Running antq from the build
+
+If you prefer `./gradlew outdated`, antq can also run from the build.
+A dedicated configuration keeps antq off your application's classpath:
+
+[source,groovy]
+----
 repositories {
   mavenCentral()
   maven {
@@ -29,24 +72,38 @@ repositories {
   }
 }
 
-dependencies {
-  runtimeOnly 'org.clojure:clojure:1.10.3'
-  runtimeOnly 'com.github.liquidz:antq:latest.release'
-}
-
-// OPTIONAL: Used to support detecting repositories
-task antq_list_repositories {
-  doLast {
-    project.repositories.each { println "ANTQ;" + it.name + ";" + it.url }
+configurations {
+  antq {
+    canBeConsumed = false
+    canBeResolved = true
   }
 }
 
-// Main task to run antq
-task outdated(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = "clojure.main"
-    args = ['-m', 'antq.core']
+dependencies {
+  antq 'com.github.liquidz:antq:latest.release'
+}
+
+tasks.register('outdated', JavaExec) {
+  classpath = configurations.antq
+  mainClass = 'clojure.main'
+  args = ['-m', 'antq.core', '--exclude=com.github.liquidz/antq']
 }
 ----
 
-Then, run `gradle outdated`.
+antq exits with `1` when it finds outdated dependencies, so the task then ends as failed.
+Add `ignoreExitValue = true` to the task if you do not want that.
+
+== Limitations
+
+* `--upgrade` is not supported.
+* Only `build.gradle` is detected. Builds that use the Kotlin DSL (`build.gradle.kts`) are not checked.
+* Multi-module builds: antq only reads the project in the directory it runs in, so the root project of a multi-module build usually reports nothing.
+  Run antq for each subproject instead, e.g. `--directory=app --directory=lib`.
+* Versions of Gradle plugins (the `plugins { }` block) are not checked.
+* Dynamic versions such as `latest.release` or `3.+` are shown as they are written, and always reported as outdated.
+  Use `--exclude` for them.
+
+== Troubleshooting
+
+* `Gradle wrapper is not executable`: run `chmod +x gradlew`.
+* Gradle 9 needs Java 17 or later to run.
