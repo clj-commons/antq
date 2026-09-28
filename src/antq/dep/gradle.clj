@@ -87,7 +87,7 @@
            (set))
       (throw (gradle-failure "dependencies" result)))))
 
-(defn- convert-grandle-dependency
+(defn- convert-gradle-dependency
   "e.g. dep-str: 'org.clojure:clojure:1.10.0'"
   [file-path dep-str]
   (let [[group-id artifact-id version] (str/split dep-str #":" 3)]
@@ -106,7 +106,7 @@
   (try
     (let [repos (get-repositories absolute-file-path)
           deps (filter-deps-from-gradle-dependencies absolute-file-path)
-          deps (keep #(convert-grandle-dependency relative-file-path %) deps)
+          deps (keep #(convert-gradle-dependency relative-file-path %) deps)
           deps (map #(assoc % :repositories repos) deps)]
       deps)
     (catch Exception ex
