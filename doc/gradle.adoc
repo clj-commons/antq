@@ -55,7 +55,36 @@ tasks.register('antq_list_repositories') {
 ----
 
 The task lists the repositories of the project it runs in.
-Repositories declared in `settings.gradle` are not listed, and credentials are not passed to antq.
+Repositories declared in `settings.gradle` are not listed.
+
+For a repository that needs a login, antq reads the credentials from `~/.m2/settings.xml`, like Maven and the Clojure CLI.
+The `<server>` id must be the repository's `name` in `build.gradle`:
+
+[source,groovy]
+----
+repositories {
+  maven {
+    name = 'company'
+    url = 'https://repo.example.com/maven'
+    credentials(PasswordCredentials)
+  }
+}
+----
+
+[source,xml]
+----
+<settings>
+  <servers>
+    <server>
+      <id>company</id>
+      <username>...</username>
+      <password>...</password>
+    </server>
+  </servers>
+</settings>
+----
+
+A Gradle plugin that reads Maven's `settings.xml` lets Gradle use the same entry.
 
 == Running antq from the build
 
