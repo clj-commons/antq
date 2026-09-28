@@ -42,7 +42,7 @@
         acc))))
 
 (defn task
-  {:org.babashka/cli {:restrict false :restrict-args false ; allow koacha opts through
+  {:org.babashka/cli {:restrict false :restrict-args false ; allow kaocha opts through
                       :spec cli-spec}}
   [{:keys [clojure-version kaocha-help]}]
   (let [env-jdk-version (jdk/version)

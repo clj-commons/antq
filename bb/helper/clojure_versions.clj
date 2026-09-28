@@ -30,7 +30,7 @@
        last))
 
 (defn lookup
-  "Retunrs :version :alias :pre-release? map for `version`"
+  "Returns :version :alias :pre-release? map for `version`"
   [version]
   (or (some #(when (= version (:version %)) %) (all))
       (throw (ex-info (str "Clojure version not found: " version) {}))))

@@ -146,7 +146,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 == 2.8.1185 (2024-02-23)
 // {{{
 === Fixed
-* https://github.com/clj-commons/antq/pull/248[#248]: Updated github action thrird party detection to add babashka, clj-kondo, cljfmt, cljstyle, and zprint supports.
+* https://github.com/clj-commons/antq/pull/248[#248]: Updated github action third party detection to add babashka, clj-kondo, cljfmt, cljstyle, and zprint supports.
 * https://github.com/clj-commons/antq/pull/248[#248]: Fixed github action upgrader to support bb, clj-kondo, cljfmt, cljstyle, and zprint on setup-clojure action.
 
 === Changed
@@ -239,7 +239,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 * Bumped deep-diff2 to 2.10.211.
 
 === Fixed
-* https://github.com/clj-commons/antq/issues/228[#228]: Updated tool's help to add `traisitive` option.
+* https://github.com/clj-commons/antq/issues/228[#228]: Updated tool's help to add `transitive` option.
 // }}}
 
 == 2.5.1095 (2023-06-17)
@@ -316,7 +316,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 * Bumped tools.deps to 0.17.1297.
 * Bumped kaocha to 1.80.1274.
 * Bumped build.edn to 0.9.203.
-* Updateed release workflow to use https://github.com/ncipollo/release-action[ncipollo/release-action].
+* Updated release workflow to use https://github.com/ncipollo/release-action[ncipollo/release-action].
 // }}}
 
 == 2.2.999 (2023-02-24)
@@ -488,7 +488,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 * Bumped build.edn to 0.5.116.
 
 === Fixed
-* https://github.com/clj-commons/antq/pull/166[#166]: Fixed to catch `XmlPullParserExceptio`.
+* https://github.com/clj-commons/antq/pull/166[#166]: Fixed to catch `XmlPullParserException`.
 // }}}
 
 == 1.7.804 (2022-06-11)
@@ -698,7 +698,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 // {{{
 === Changed
 * https://github.com/clj-commons/antq/pull/100[#100]: Bumped version-clj to 2.0.2.
-* https://github.com/clj-commons/antq/pull/102[#102]: Replaceed https://github.com/dakrone/cheshire[cheshire] with https://github.com/clojure/data.json[clojure.data.json].
+* https://github.com/clj-commons/antq/pull/102[#102]: Replaced https://github.com/dakrone/cheshire[cheshire] with https://github.com/clojure/data.json[clojure.data.json].
 
 === Fixed
 * https://github.com/clj-commons/antq/pull/99[#99]: Fixed to handle errors when parsing GitHub version tags.
@@ -711,7 +711,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 === Changed
 * Updated to support https://clojure.org/reference/deps_and_cli#tool_install[tool installation].
 ** To install `clojure -Ttools install com.github.liquidz/antq '{:git/tag "0.16.1"}' :as antq`
-** To execute `clojure -Tantq oudated`
+** To execute `clojure -Tantq outdated`
 * Bumped tools.deps.alpha to 0.12.1003.
 * Bumped clj-yaml to 0.7.107.
 // }}}
@@ -748,8 +748,8 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 * Bumped tools.deps.alpha to 0.11.926.
 
 === Fixed
-* Also check `:managed-dependencies` when checking Leingen projects (under its `main` variant).
-* Also check `:plugins` when checking Leingen projects (under its plugin variant).
+* Also check `:managed-dependencies` when checking Leiningen projects (under its `main` variant).
+* Also check `:plugins` when checking Leiningen projects (under its plugin variant).
 // }}}
 
 == 0.15.0 (2021-06-03)
@@ -888,7 +888,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 * Bumped org.clojure/clojure to 1.10.2.
 * Bumped tools.deps.alpha to 0.9.863.
 * Bumped clj-commons/clj-yaml to 0.7.106.
-* Updateed lread/rewrite-cljc to be latest.
+* Updated lread/rewrite-cljc to be latest.
 
 === Fixed
 

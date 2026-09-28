@@ -53,7 +53,7 @@
                             :version (:mvn/version attr)
                             :repositories repos})))
     (catch Exception _
-      ;; Fall back to pasing XML
+      ;; Fall back to parsing XML
       (extract-deps-from-xml-string
        file-path
        (slurp file)))))

@@ -124,7 +124,7 @@ clojure -Tantq outdated
 clojure -Tantq outdated :upgrade true
 # Show help
 clojure -A:deps -Tantq help/doc
-# Upgrade oudated dependencies
+# Upgrade outdated dependencies
 clojure -Tantq outdated :check-clojure-tools true :upgrade true
 ----
 
@@ -203,7 +203,7 @@ For examples:
 
 * <<opt-upgrade>> is specified as `:upgrade true` for both clojure tool and antq option usage
 * <<opt-exclude,--exclude=ARTIFACT1 --exclude ARTIFACT2>> is specified as
-** `:exclude '["ARTIFACT1" "ARTFACT2"]'` for clojure tool usage
+** `:exclude '["ARTIFACT1" "ARTIFACT2"]'` for clojure tool usage
 ** `:exclude ["ARTIFACT1" "ARTIFACT2"]` as a lein plugin `:antq` option
 ====
 

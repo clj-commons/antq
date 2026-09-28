@@ -40,7 +40,7 @@
                 (some?)))
       false
 
-      ;; exlusion
+      ;; exclusion
       (-> loc
           (zip/up)
           (tag-name)

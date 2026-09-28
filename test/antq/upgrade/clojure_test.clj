@@ -248,7 +248,7 @@
                        (dep.clj/extract-deps ""))]
       (t/is (empty? (h/diff-deps from-deps to-deps))))))
 
-(t/deftest upgrade-dep-replce-deps-test
+(t/deftest upgrade-dep-replace-deps-test
   (let [dummy-dep (assoc dummy-java-dep :name "rep")
         from-deps (->> dummy-dep
                        :file

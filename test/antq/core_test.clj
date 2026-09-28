@@ -50,7 +50,7 @@
       true "foo/clojure"
       false "foo"
       true "foo/bar"))
-  (t/testing "`focus` shoud be prefer than `exclude`"
+  (t/testing "`focus` should be preferred over `exclude`"
     (t/is (false? (sut/skip-artifacts? (r/map->Dependency {:name "org.clojure/clojure"})
                                        {:exclude ["org.clojure/clojure"]
                                         :focus ["org.clojure/clojure"]})))))

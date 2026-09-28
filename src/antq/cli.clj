@@ -72,7 +72,7 @@
     :ref "<directory>"
     :collect (fn multi-value
                [coll arg-value]
-               ;; "." is not optional/overideable
+               ;; "." is not optional/overridable
                (into (or coll ["."])
                      (str/split arg-value #":")))
     :default ["."]
@@ -268,7 +268,7 @@
                                                         (swap! errors conj error))
                                             :restrict true
                                             :restrict-args true})
-            ;; for now, sort by msg, I'd rather sort by user entry order, but that's a nitpik
+            ;; for now, sort by msg, I'd rather sort by user entry order, but that's a nitpick
             errors (sort-by :msg @errors)
             warnings (sort-by :msg (deprecation-warnings opts))]
         (cond-> {}
