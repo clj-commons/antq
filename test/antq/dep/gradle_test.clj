@@ -100,7 +100,16 @@
       (t/testing "the message includes Gradle's output"
         (t/is (str/includes? (ex-message ex) "Failed to read path/to/build.gradle: Gradle task dependencies failed with exit code 1"))
         (t/is (str/includes? (ex-message ex) "FAILURE: Build failed with an exception.")))
-      (t/is (= {:exit 1 :file file-path} (ex-data ex))))))
+      (t/is (= {:exit 1 :file file-path} (ex-data ex)))))
+
+  (t/deftest extract-deps-skips-constraints-test
+    (t/is (= [(r/map->Dependency {:project :gradle
+                                  :type :java
+                                  :file file-path
+                                  :name "org.clojure/clojure"
+                                  :version "1.10.0"
+                                  :repositories nil})]
+             (sut/extract-deps file-path (.getPath (io/resource "dep/gradle_constraint/build.gradle")))))))
 
 (t/deftest extract-deps-command-error-test
   (with-redefs [sut/gradle-command "__non-existing-command__"]

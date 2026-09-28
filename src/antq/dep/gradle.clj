@@ -9,6 +9,8 @@
 
 (def gradle-command "gradle")
 (def ^:private dep-regexp #"^[^-]\-+\s")
+;; e.g. 'org.clojure:java.classpath:0.3.0 -> 1.0.0 (c)'
+(def ^:private constraint-regexp #"\s\(c\)$")
 
 (defn- windows?
   []
@@ -82,6 +84,8 @@
       (->> (str/split-lines out)
            (filter seq)
            (filter #(re-seq dep-regexp %))
+           ;; Constraints (e.g. added by a plugin) are not dependencies
+           (remove #(re-find constraint-regexp %))
            (map #(str/replace % dep-regexp ""))
            (map #(first (str/split % #" " 2)))
            (set))

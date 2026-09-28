@@ -33,6 +33,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 * https://github.com/clj-commons/antq/issues/329[#329]: `.\foo\bar` now converts to, as intended, `foo\bar` on Windows
 * https://github.com/liquidz/antq/issues/300[#300]: Avoid a `NullPointerException` when a dependency's POM has a malformed SCM URL that uses a slash instead of a colon (e.g. `git@github.com/foo/bar.git`).
 (thanks, https://github.com/SAY-5[@SAY-5]!)
+* https://github.com/clj-commons/antq/issues/359[#359]: Gradle: dependency constraints (e.g. added by a plugin) are no longer reported as dependencies
 
 == 2.11.1276 (2025-03-15)
 // {{{

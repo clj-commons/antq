@@ -1,0 +1,13 @@
+#!/bin/sh
+# A fake Gradle wrapper for antq.dep.gradle-test: prints a dependency constraint,
+# as the dev.clojurephant.clojure plugin adds one.
+case "$*" in
+  *dependencies*)
+    echo "compileClasspath - Compile classpath for source set 'main'."
+    echo "+--- org.clojure:clojure:1.10.0"
+    echo "\\--- org.clojure:java.classpath:0.3.0 -> 1.0.0 (c)"
+    ;;
+  *)
+    exit 1
+    ;;
+esac
