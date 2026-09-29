@@ -1,11 +1,7 @@
 #!/bin/sh
 # A fake Gradle wrapper for antq.dep.gradle-test: fails like a broken build.
 case "$*" in
-  *antq_list_repositories*)
-    echo "Task 'antq_list_repositories' not found in root project 'gradle_failure'." >&2
-    exit 1
-    ;;
-  *dependencies*)
+  *antqDependencies*)
     echo "FAILURE: Build failed with an exception." >&2
     echo "* What went wrong:" >&2
     echo "A problem occurred evaluating root project 'gradle_failure'." >&2

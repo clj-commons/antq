@@ -1,11 +1,17 @@
 #!/bin/sh
-# A fake Gradle wrapper for antq.dep.gradle-test: prints what Gradle would print.
-case "$*" in
-  *antq_list_repositories*)
-    echo "ANTQ;wrapper-repo;https://example.com/maven/"
-    ;;
-  *dependencies*)
-    echo "compileClasspath - Compile classpath for source set 'main'."
-    echo "\\--- org.example:from-wrapper:1.0.0"
-    ;;
-esac
+# A fake Gradle wrapper for antq.dep.gradle-test: prints what antq's init script would print.
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --project-dir) project_dir="$2"; shift ;;
+    --init-script) init_script="$2"; shift ;;
+    antqDependencies) task="$1" ;;
+  esac
+  shift
+done
+if [ "$task" != antqDependencies ] || [ ! -f "$init_script" ]; then
+  echo "Expected the antqDependencies task and an existing init script" >&2
+  exit 1
+fi
+echo "ANTQ_PROJECT;:;$project_dir/build.gradle"
+echo "ANTQ_REPO;:;wrapper-repo;https://example.com/maven/"
+echo "ANTQ_DEP;:;$project_dir/build.gradle;org.example:from-wrapper:1.0.0"

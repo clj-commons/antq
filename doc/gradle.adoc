@@ -5,10 +5,13 @@ WARNING: Gradle support is experimental
 == How it works
 
 A `build.gradle` file is a program, so antq does not parse it.
-Instead, antq runs Gradle in the project directory and reads what Gradle reports:
+Instead, antq runs Gradle in the project directory with a small init script, passed with `--init-script`.
+The build's files are not changed.
+For that Gradle run, the script adds a read-only task to each project that lists the project's repositories and declared dependencies.
 
-* `dependencies`, to find the dependencies
-* `antq_list_repositories`, if the build defines it, to find the repositories (see <<repositories>>)
+All projects of a multi-module build are read in one run.
+In a subproject's directory, antq reads that project and its subprojects.
+Builds that use the Kotlin DSL (`build.gradle.kts`) are read the same way.
 
 [IMPORTANT]
 ====
@@ -25,6 +28,7 @@ To stop antq from running Gradle, use `--skip=gradle`.
   It is looked up in the project directory and in its parent directories that belong to the same Gradle build.
   A wrapper that is not executable is reported as an error.
 * Otherwise the `gradle` command must be installed.
+* Gradle 8 or later.
 * If Gradle cannot be run or fails, antq stops with an error that includes Gradle's output.
 
 == Quick start
@@ -40,22 +44,9 @@ clojure -Tantq outdated
 [[repositories]]
 == Repositories
 
-Without extra configuration, antq looks up the latest versions in its default repositories, Maven Central and Clojars.
-
-If your build uses other repositories, e.g. a company repository, add this task to `build.gradle`.
-antq runs it and uses the repositories it prints.
-
-[source,groovy]
-----
-tasks.register('antq_list_repositories') {
-  doLast {
-    project.repositories.each { println "ANTQ;" + it.name + ";" + it.url }
-  }
-}
-----
-
-The task lists the repositories of the project it runs in.
-Repositories declared in `settings.gradle` are not listed.
+antq looks up the latest versions in the repositories of each project, including those declared in `settings.gradle`, and in its default repositories, Maven Central and Clojars.
+No changes to the build are needed.
+(The `antq_list_repositories` task that earlier versions of antq used is no longer needed. A build that still has it keeps working.)
 
 For a repository that needs a login, antq reads the credentials from `~/.m2/settings.xml`, like Maven and the Clojure CLI.
 The `<server>` id must be the repository's `name` in `build.gradle`:
@@ -125,9 +116,7 @@ Add `ignoreExitValue = true` to the task if you do not want that.
 == Limitations
 
 * `--upgrade` is not supported.
-* Only `build.gradle` is detected. Builds that use the Kotlin DSL (`build.gradle.kts`) are not checked.
-* Multi-module builds: antq only reads the project in the directory it runs in, so the root project of a multi-module build usually reports nothing.
-  Run antq for each subproject instead, e.g. `--directory=app --directory=lib`.
+* Dependencies that a plugin declares itself are listed too, e.g. the `nrepl` dependency of the `dev.clojurephant.clojure` plugin.
 * Versions of Gradle plugins (the `plugins { }` block) are not checked.
 * Dynamic versions such as `latest.release` or `3.+` are shown as they are written, and always reported as outdated.
   Use `--exclude` for them.

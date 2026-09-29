@@ -67,7 +67,7 @@ If you have trouble, please see link:./doc/non-supported-clojure-version.adoc[he
 | {sym-yes}
 |
 
-| build.gradle
+| build.gradle, build.gradle.kts
 | https://gradle.org[Gradle]
 | {sym-no}
 | Experimental. Uses the project's `gradlew`, otherwise the `gradle` command must be installed.

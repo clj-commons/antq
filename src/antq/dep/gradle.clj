@@ -5,12 +5,52 @@
    [antq.util.dep :as u.dep]
    [clojure.java.io :as io]
    [clojure.java.shell :as sh]
-   [clojure.string :as str]))
+   [clojure.string :as str])
+  (:import
+   java.io.File))
 
 (def gradle-command "gradle")
-(def ^:private dep-regexp #"^[^-]\-+\s")
-;; e.g. 'org.clojure:java.classpath:0.3.0 -> 1.0.0 (c)'
-(def ^:private constraint-regexp #"\s\(c\)$")
+
+(def ^:private init-script
+  "Gradle init script, passed with `--init-script`.
+  It adds a read-only `antqDependencies` task to each project, which prints the project's
+  repositories and declared dependencies as lines for antq to read:
+    ANTQ_PROJECT;<project path>;<build file>
+    ANTQ_REPO;<project path>;<name>;<url>   (an empty project path: repositories from settings.gradle)
+    ANTQ_DEP;<project path>;<build file>;<group>:<name>:<version>
+  The lines are collected while Gradle configures the build, so the task also works
+  with the configuration cache.
+  Kept in the code rather than as a resource, so that it is found in the uberjar too."
+  "def settingsRepos = []
+settingsEvaluated { settings ->
+  settings.dependencyResolutionManagement.repositories.withType(MavenArtifactRepository) { r ->
+    settingsRepos << 'ANTQ_REPO;;' + r.name + ';' + r.url
+  }
+}
+
+gradle.beforeProject { p ->
+  p.tasks.register('antqDependencies') { t ->
+    def lines = ['ANTQ_PROJECT;' + p.path + ';' + p.buildFile]
+    lines.addAll(settingsRepos)
+    p.repositories.withType(MavenArtifactRepository).each { r ->
+      lines << 'ANTQ_REPO;' + p.path + ';' + r.name + ';' + r.url
+    }
+    p.configurations.each { c ->
+      c.dependencies.withType(ExternalModuleDependency).each { d ->
+        // Dependencies without a version (e.g. managed by a platform) are skipped
+        if (d.version) {
+          lines << 'ANTQ_DEP;' + p.path + ';' + p.buildFile + ';' + d.group + ':' + d.name + ':' + d.version
+        }
+      }
+    }
+    t.doLast { lines.each { println it } }
+  }
+}
+")
+
+;; Any of these files makes a directory part of a Gradle build
+(def ^:private project-files
+  [const.project-file/gradle "build.gradle.kts" "settings.gradle" "settings.gradle.kts"])
 
 (defn- windows?
   []
@@ -24,8 +64,7 @@
 
 (defn- gradle-project-dir?
   [dir]
-  (some #(.isFile (io/file dir %))
-        ["build.gradle" "build.gradle.kts" "settings.gradle" "settings.gradle.kts"]))
+  (some #(.isFile (io/file dir %)) project-files))
 
 (defn find-gradle-wrapper
   "Returns the path of the Gradle wrapper for the project in `dir`.
@@ -54,18 +93,6 @@
          "--project-dir" project-dir
          args))
 
-(defn- get-repositories
-  [file-path]
-  (let [parent-path (.getParent (io/file file-path))
-        {:keys [exit out]} (gradle parent-path
-                                   "antq_list_repositories")]
-    (when (= 0 exit)
-      (->> (str/split-lines out)
-           (filter #(str/starts-with? % "ANTQ;"))
-           (map #(str/split % #";" 3))
-           (reduce (fn [accm [_ repo-name url]]
-                     (assoc accm repo-name {:url url})) {})))))
-
 (defn- gradle-failure
   "Returns an exception for a failed Gradle `task`, with Gradle's output to help with diagnosis."
   [task {:keys [exit out err]}]
@@ -74,22 +101,52 @@
                (seq output) (str ":\n" output))
              {:exit exit})))
 
-(defn- filter-deps-from-gradle-dependencies
-  [file-path]
-  (let [parent-path (.getParent (io/file file-path))
-        {:keys [exit out] :as result} (gradle parent-path
-                                              "--quiet"
-                                              "dependencies")]
-    (if (= 0 exit)
-      (->> (str/split-lines out)
-           (filter seq)
-           (filter #(re-seq dep-regexp %))
-           ;; Constraints (e.g. added by a plugin) are not dependencies
-           (remove #(re-find constraint-regexp %))
-           (map #(str/replace % dep-regexp ""))
-           (map #(first (str/split % #" " 2)))
-           (set))
-      (throw (gradle-failure "dependencies" result)))))
+(defn- read-gradle-build
+  "Runs the `antqDependencies` task of antq's init script for the project in `project-dir`
+  and its subprojects. Returns the printed lines, split into their fields."
+  [project-dir]
+  ;; Gradle needs the init script as a file
+  (let [init-script-file (File/createTempFile "antq-init" ".gradle")]
+    (try
+      (spit init-script-file init-script)
+      (let [{:keys [exit out] :as result} (gradle project-dir
+                                                  "--init-script" (.getPath init-script-file)
+                                                  "--quiet"
+                                                  "antqDependencies")]
+        (when-not (= 0 exit)
+          (throw (gradle-failure "antqDependencies" result)))
+        (let [lines (->> (str/split-lines out)
+                         (filter #(str/starts-with? % "ANTQ_"))
+                         (map #(str/split % #";" 4)))]
+          ;; Every project prints an ANTQ_PROJECT line, even without dependencies.
+          ;; Without any, the init script did not work, e.g. with a future Gradle version,
+          ;; and reporting no dependencies would hide that.
+          (when-not (some #(= "ANTQ_PROJECT" (first %)) lines)
+            (throw (ex-info (str "Gradle did not print the output of antq's init script."
+                                 " This Gradle version may not be supported.")
+                            {})))
+          lines))
+      (finally
+        (.delete init-script-file)))))
+
+(defn- repositories-by-project
+  "Returns a function that returns the repositories of a project, by its project path.
+  Repositories from settings.gradle (an empty project path) apply to every project."
+  [lines]
+  (let [repos (->> lines
+                   (filter #(= "ANTQ_REPO" (first %)))
+                   (reduce (fn [accm [_ project-path repo-name url]]
+                             (assoc-in accm [project-path repo-name] {:url url}))
+                           {}))]
+    (fn [project-path]
+      (not-empty (merge (get repos "") (get repos project-path))))))
+
+(defn- build-file-path
+  "Returns the path of a (sub)project's `build-file`, relative in the same way as `project-file`."
+  [project-file project-dir build-file]
+  (let [relative (.relativize (.toPath (.getCanonicalFile (io/file project-dir)))
+                              (.toPath (.getCanonicalFile (io/file build-file))))]
+    (u.dep/relative-path (io/file (.getParentFile (io/file project-file)) (str relative)))))
 
 (defn- convert-gradle-dependency
   "e.g. dep-str: 'org.clojure:clojure:1.10.0'"
@@ -108,11 +165,18 @@
                   [:maybe r/?dependencies]]}
   [relative-file-path absolute-file-path]
   (try
-    (let [repos (get-repositories absolute-file-path)
-          deps (filter-deps-from-gradle-dependencies absolute-file-path)
-          deps (keep #(convert-gradle-dependency relative-file-path %) deps)
-          deps (map #(assoc % :repositories repos) deps)]
-      deps)
+    (let [project-dir (.getParent (io/file absolute-file-path))
+          lines (read-gradle-build project-dir)
+          repos-of (repositories-by-project lines)]
+      (->> lines
+           (filter #(= "ANTQ_DEP" (first %)))
+           ;; the same dependency can be declared in several configurations
+           (distinct)
+           (keep (fn [[_ project-path build-file dep-str]]
+                   (some-> (convert-gradle-dependency
+                            (build-file-path relative-file-path project-dir build-file)
+                            dep-str)
+                           (assoc :repositories (repos-of project-path)))))))
     (catch Exception ex
       ;; Not chained with `ex`: a failing run reports only the root cause,
       ;; e.g. "error=2, No such file or directory" without the command name.
@@ -125,7 +189,9 @@
                   [:=> [:cat 'string?] [:maybe r/?dependencies]]]}
   ([] (load-deps "."))
   ([dir]
-   (let [file (io/file dir const.project-file/gradle)]
-     (when (.exists file)
-       (extract-deps (u.dep/relative-path file)
-                     (.getAbsolutePath file))))))
+   (when-let [file (->> project-files
+                        (map #(io/file dir %))
+                        (filter #(.isFile ^File %))
+                        (first))]
+     (extract-deps (u.dep/relative-path file)
+                   (.getAbsolutePath file)))))

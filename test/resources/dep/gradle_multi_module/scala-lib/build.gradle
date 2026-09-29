@@ -1,0 +1,8 @@
+plugins {
+  // Not listed: the plugin adds its Zinc compiler dependency only when Gradle resolves it
+  id 'scala'
+}
+
+dependencies {
+  implementation 'org.scala-lang:scala3-library_3:3.3.0'
+}

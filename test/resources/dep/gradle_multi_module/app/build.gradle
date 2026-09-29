@@ -1,0 +1,24 @@
+plugins {
+  id 'java'
+  // Not listed: the plugin adds its Checkstyle dependency only when Gradle resolves it
+  id 'checkstyle'
+}
+
+repositories {
+  maven {
+    name = 'app-repo'
+    url = 'https://example.com/maven/'
+  }
+}
+
+dependencies {
+  implementation project(':lib')
+  implementation 'org.clojure:tools.namespace:1.0.0'
+}
+
+// Listed: a dependency added after the build script is evaluated, as some plugins do
+afterEvaluate {
+  dependencies {
+    implementation 'org.clojure:data.json:2.4.0'
+  }
+}

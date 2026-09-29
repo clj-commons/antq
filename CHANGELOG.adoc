@@ -12,6 +12,7 @@ We'll continue to publish releases to the existing Antq maven coordinates https:
 * https://github.com/clj-commons/antq/issues/280[#280],
 https://github.com/clj-commons/antq/issues/259[#259],
 https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now has `--help` (and for antq clojure tools users, `:help true`) and option validation. Tools-usage and main-usage now draw from the same single source of cli truth.
+* https://github.com/clj-commons/antq/issues/362[#362]: Gradle: all projects of a multi-module build are now read in one run, `build.gradle.kts` builds are recognized, and repositories (including those in `settings.gradle`) are found without changes to the build. antq passes a small init script to Gradle for this. Requires Gradle 8 or later
 
 === Changed
 * General dep bumping and maintenance after migrating antq to clj-commons :tada:
