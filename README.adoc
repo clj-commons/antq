@@ -417,6 +417,12 @@ Otherwise, it may take a long time for the results to be reported.
 == Projects using antq
 
 * https://github.com/nnichols/clojure-dependency-update-action[clojure-dependency-update-action]: A simple GitHub Actions to create Pull Requests for outdated tools.deps dependencies
+* https://github.com/jacobobryant/biff[Biff]: The `update` task upgrades dependencies with antq, and the `add` task uses antq to find the latest versions
+* https://github.com/exoscale/tools.project[exoscale/tools.project]: The `outdated` task runs antq
+* https://github.com/pmonks/pbr[pbr]: The `antq-outdated` build task runs antq
+* https://github.com/polyfy/polylith[Polylith]: `poly libs :outdated` and `poly libs :update` use antq
+* https://github.com/practicalli/clojure-cli-config[practicalli/clojure-cli-config]: The `:search/outdated` and `:update/dependency-versions` aliases run antq
+* https://github.com/linux-china/task-keeper[task-keeper]: `tk outdated` for Leiningen projects runs antq through a `lein outdated` alias
 
 == Tips
 
