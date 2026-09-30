@@ -12,30 +12,46 @@ We'll continue to publish releases to the existing Antq maven coordinates https:
 * https://github.com/clj-commons/antq/issues/280[#280],
 https://github.com/clj-commons/antq/issues/259[#259],
 https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now has `--help` (and for antq clojure tools users, `:help true`) and option validation. Tools-usage and main-usage now draw from the same single source of cli truth.
+(https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/362[#362]: Gradle: all projects of a multi-module build are now read in one run, `build.gradle.kts` builds are recognized, and repositories (including those in `settings.gradle`) are found without changes to the build. antq passes a small init script to Gradle for this. Requires Gradle 8 or later
+(thanks, https://github.com/aadrian[@aadrian]!)
 
 === Changed
 * General dep bumping and maintenance after migrating antq to clj-commons :tada:
+(https://github.com/lread[@lread])
 * Minimum Clojure version is now 1.11
+(https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/304[#304]: When run as a lein plugin, antq now runs analysis in a sub-process to avoid any classpath conflicts between lein and tools.deps
+(https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/pull/316[#316]: Read an artifact's POM from the local Maven repository through tools.deps instead of resolving its repository with Aether and fetching the POM over HTTP.
 Artifacts in an s3 repository are no longer skipped, and a POM that is not cached yet prints a `Downloading:` line.
+(https://github.com/borkdude[@borkdude])
 * https://github.com/clj-commons/antq/issues/276[#276]: Docs and docstrings reviewed for cljdoc.org, this included defining the public API which is currently limited to the `antq.api` namespace.
+(https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/235[#235]: Improve pre-release detection: recognize more markers as whole words (e.g. `-M1`, `milestone`, `preview`, `pre`, `CR`, `dev`), so they are no longer suggested as the latest version
+(thanks, https://github.com/aadrian[@aadrian]!)
 * Recognise Maven timestamped snapshots (e.g. `2.5-20240101.120000-1`) as snapshots
+(thanks, https://github.com/aadrian[@aadrian]!)
 * https://github.com/clj-commons/antq/issues/352[#352]: Recognise early access versions (e.g. `1.1-ea`, `13-ea+14b`) as pre-releases, without mistaking a commit hash in a version (e.g. `20210520.145017.40e04ea`) for one
+(thanks, https://github.com/aadrian[@aadrian]!)
 * https://github.com/clj-commons/antq/issues/353[#353]: Gradle: when Gradle cannot be run or fails, antq now stops with an error that includes Gradle's output, instead of reporting all dependencies as up-to-date
+(thanks, https://github.com/aadrian[@aadrian]!)
 * https://github.com/clj-commons/antq/issues/357[#357]: Improved Gradle docs: running antq without changes to the build, repositories, running from the build, limitations and troubleshooting
+(thanks, https://github.com/aadrian[@aadrian]!)
 
 === Fixed
 * https://github.com/clj-commons/antq/issues/231[#231]: Exclusions are now supported when antq is run as lein plugin
 (thanks, https://github.com/marcobiscaro2112[@marcobiscaro2112]!)
 * https://github.com/clj-commons/antq/issues/320[#320]: Progress bar should no longer be sporadically garbled
+(https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/324[#324]: No longer replacing embedded `HOME` env var matches in paths with `~`
+(https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/329[#329]: `.\foo\bar` now converts to, as intended, `foo\bar` on Windows
+(https://github.com/lread[@lread])
 * https://github.com/liquidz/antq/issues/300[#300]: Avoid a `NullPointerException` when a dependency's POM has a malformed SCM URL that uses a slash instead of a colon (e.g. `git@github.com/foo/bar.git`).
 (thanks, https://github.com/SAY-5[@SAY-5]!)
 * https://github.com/clj-commons/antq/issues/359[#359]: Gradle: dependency constraints (e.g. added by a plugin) are no longer reported as dependencies
+(thanks, https://github.com/aadrian[@aadrian]!)
 
 == 2.11.1276 (2025-03-15)
 // {{{
