@@ -3,12 +3,18 @@
    [antq.dep.gradle :as sut]
    [antq.record :as r]
    [antq.test-helper :as h]
+   [antq.util.os :as os]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test])
+  (:import
+   (java.util.regex
+    Pattern)))
 
 (def ^:private file-path
-  "path/to/build.gradle")
+  (h/os-path "path/to/build.gradle"))
 
 (def ^:private expected-repos
   {"MavenRepo" {:url "https://repo.maven.apache.org/maven2/"}
@@ -33,7 +39,7 @@
               (.getPath (io/resource "dep/build.gradle")))
         defined-deps (set defined-deps)
         actual-deps (set deps)]
-    (t/is (= defined-deps actual-deps))))
+    (t/is (match? (m/equals defined-deps) actual-deps))))
 
 (t/deftest extract-deps-without-repository-task-test
   (let [deps (sut/extract-deps
@@ -52,7 +58,7 @@
         dep (fn [file dep-name version]
               (r/map->Dependency {:project :gradle
                                   :type :java
-                                  :file file
+                                  :file (h/os-path file)
                                   :name dep-name
                                   :version version
                                   :repositories clojars}))
@@ -60,21 +66,23 @@
         app-deps [(assoc (dep "path/to/app/build.gradle" "org.clojure/tools.namespace" "1.0.0") :repositories app-repos)
                   (assoc (dep "path/to/app/build.gradle" "org.clojure/data.json" "2.4.0") :repositories app-repos)]]
     (t/testing "all projects of the build, each dependency with its own project's file and repositories"
-      (t/is (= (set (concat [(dep "path/to/lib/build.gradle.kts" "org.clojure/clojure" "1.10.0")
-                             (dep "path/to/lib/build.gradle.kts" "com.fasterxml.jackson/jackson-bom" "2.12.0")
-                             (dep "path/to/groovy-lib/build.gradle" "org.apache.groovy/groovy" "4.0.0")
-                             (dep "path/to/scala-lib/build.gradle" "org.scala-lang/scala3-library_3" "3.3.0")]
-                            app-deps))
-               (set (sut/extract-deps "path/to/settings.gradle.kts" (.getPath settings-file))))))
+      (t/is (match? (m/nested-equals
+                     (set (concat [(dep "path/to/lib/build.gradle.kts" "org.clojure/clojure" "1.10.0")
+                                   (dep "path/to/lib/build.gradle.kts" "com.fasterxml.jackson/jackson-bom" "2.12.0")
+                                   (dep "path/to/groovy-lib/build.gradle" "org.apache.groovy/groovy" "4.0.0")
+                                   (dep "path/to/scala-lib/build.gradle" "org.scala-lang/scala3-library_3" "3.3.0")]
+                                  app-deps)))
+                    (set (sut/extract-deps "path/to/settings.gradle.kts" (.getPath settings-file))))))
     (t/testing "a subproject"
-      (t/is (= (set (map #(assoc % :file "path/to/build.gradle") app-deps))
-               (set (sut/extract-deps "path/to/build.gradle"
-                                      (.getPath (io/resource "dep/gradle_multi_module/app/build.gradle")))))))
+      (t/is (match? (m/nested-equals
+                     (set (map #(assoc % :file (h/os-path "path/to/build.gradle")) app-deps)))
+                    (set (sut/extract-deps "path/to/build.gradle"
+                                           (.getPath (io/resource "dep/gradle_multi_module/app/build.gradle")))))))
     (t/testing "a build with only settings.gradle.kts in its root directory is found"
       (t/is (= 6 (count (sut/load-deps (.getParent (io/file (.getPath settings-file))))))))))
 
 ;; The fixture's `gradlew` is a shell script
-(when-not h/windows?
+(when-not (os/windows?)
   (t/deftest find-gradle-wrapper-test
     (let [wrapper-path? #(and % (str/ends-with? % (h/os-path "dep/gradle_wrapper/gradlew")))]
       (t/testing "the wrapper in the project directory"
@@ -90,7 +98,7 @@
                     "dep/gradle_wrapper/sub/build.gradle"]]
         (t/is (= [(r/map->Dependency {:project :gradle
                                       :type :java
-                                      :file file-path
+                                      :file (h/os-path file-path)
                                       :name "org.example/from-wrapper"
                                       :version "1.0.0"
                                       :repositories {"wrapper-repo" {:url "https://example.com/maven/"}}})]
@@ -163,7 +171,8 @@
 
 (t/deftest extract-deps-command-error-test
   (with-redefs [sut/gradle-command "__non-existing-command__"]
-    (t/is (thrown-with-msg? clojure.lang.ExceptionInfo #"Failed to read path/to/build.gradle"
+    (t/is (thrown-with-msg? clojure.lang.ExceptionInfo
+                            (re-pattern (str "Failed to read " (Pattern/quote file-path)))
             (sut/extract-deps
              file-path
              (.getPath (io/resource "dep/build.gradle")))))))

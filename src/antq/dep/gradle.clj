@@ -3,8 +3,9 @@
    [antq.constant.project-file :as const.project-file]
    [antq.record :as r]
    [antq.util.dep :as u.dep]
+   [antq.util.os :as os]
+   [babashka.process :as process]
    [clojure.java.io :as io]
-   [clojure.java.shell :as sh]
    [clojure.string :as str])
   (:import
    java.io.File))
@@ -52,15 +53,9 @@ gradle.beforeProject { p ->
 (def ^:private project-files
   [const.project-file/gradle "build.gradle.kts" "settings.gradle" "settings.gradle.kts"])
 
-(defn- windows?
-  []
-  (-> (System/getProperty "os.name")
-      (str/lower-case)
-      (str/starts-with? "windows")))
-
 (defn- gradle-wrapper-name
   []
-  (if (windows?) "gradlew.bat" "gradlew"))
+  (if (os/windows?) "gradlew.bat" "gradlew"))
 
 (defn- gradle-project-dir?
   [dir]
@@ -89,7 +84,8 @@ gradle.beforeProject { p ->
 (defn- gradle
   "Runs the project's Gradle wrapper, or the `gradle` command when there is none."
   [project-dir & args]
-  (apply sh/sh (or (find-gradle-wrapper project-dir) gradle-command)
+  (apply process/shell {:continue true :out :string :err :string}
+         (or (find-gradle-wrapper project-dir) gradle-command)
          "--project-dir" project-dir
          args))
 

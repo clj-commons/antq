@@ -2,6 +2,7 @@
   (:require
    [antq.record :as r]
    [antq.upgrade.clojure]
+   [antq.util.os :as os]
    [clojure.string :as str]
    [lambdaisland.deep-diff2 :as ddiff])
   (:import
@@ -53,14 +54,9 @@
        (finally
          (.delete ~sym)))))
 
-(def windows?
-  (-> (System/getProperty "os.name")
-      (str/lower-case)
-      (str/includes? "win")))
-
 (defn os-path
   "Returns os-appropriate path as for unix-style path p"
   [p]
-  (if windows?
+  (if (os/windows?)
     (str/replace p "/" "\\")
     p))
