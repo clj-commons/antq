@@ -4,7 +4,7 @@
    [clojure.test :as t]))
 
 (t/deftest info-test
-  (t/is (= "INFO\n"
+  (t/is (= (str "INFO" (System/lineSeparator))
            (with-out-str (sut/info "INFO")))))
 
 (t/deftest error-test
@@ -12,7 +12,7 @@
         err-str (binding [*err* sw]
                   (sut/error "ERROR")
                   (str sw))]
-    (t/is (= "ERROR\n" err-str))))
+    (t/is (= (str "ERROR" (System/lineSeparator)) err-str))))
 
 (t/deftest warning-test
   (t/testing "verbose false"
@@ -29,4 +29,4 @@
                              *err* sw]
                      (sut/warning "WARNING")
                      (str sw))]
-      (t/is (= "WARNING\n" warn-str)))))
+      (t/is (= (str "WARNING" (System/lineSeparator)) warn-str)))))
