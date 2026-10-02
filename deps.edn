@@ -10,7 +10,7 @@
   org.babashka/cli {:mvn/version "0.12.91"}
   clj-commons/clj-yaml {:mvn/version "1.0.30"}
   version-clj/version-clj {:mvn/version "2.0.3"}
-  rewrite-clj/rewrite-clj {:mvn/version "1.3.58"}
+  rewrite-clj/rewrite-clj {:mvn/version "1.3.59"}
   com.github.liquidz/rewrite-indented {:mvn/version "0.2.44"}
   pogonos/pogonos {:mvn/version "0.2.1"}}
 
