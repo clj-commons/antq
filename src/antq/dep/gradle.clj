@@ -179,15 +179,19 @@ gradle.beforeProject { p ->
       (throw (ex-info (str "Failed to read " relative-file-path ": " (.getMessage ex))
                       (assoc (ex-data ex) :file relative-file-path))))))
 
+(defn discover-project
+  [dir]
+  (->> project-files
+       (map #(io/file dir %))
+       (filter #(.isFile ^File %))
+       (first)))
+
 (defn load-deps
   {:malli/schema [:function
                   [:=> :cat [:maybe r/?dependencies]]
                   [:=> [:cat 'string?] [:maybe r/?dependencies]]]}
   ([] (load-deps "."))
   ([dir]
-   (when-let [file (->> project-files
-                        (map #(io/file dir %))
-                        (filter #(.isFile ^File %))
-                        (first))]
+   (when-let [file (discover-project dir)]
      (extract-deps (u.dep/relative-path file)
                    (.getAbsolutePath file)))))

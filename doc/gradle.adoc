@@ -19,7 +19,7 @@ Running Gradle is riskier than parsing a file.
 Gradle runs the build's scripts and plugins, and the Gradle wrapper may download a Gradle distribution.
 Only run antq on Gradle projects you trust, as you would only run `./gradlew build` on projects you trust.
 
-To stop antq from running Gradle, use `--skip=gradle`.
+As such, checking Gradle dependencies is opt-in via `--check-gradle`.
 ====
 
 == Requirements

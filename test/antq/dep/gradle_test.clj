@@ -1,4 +1,4 @@
-(ns antq.dep.gradle-test
+(ns ^:gradle antq.dep.gradle-test
   (:require
    [antq.dep.gradle :as sut]
    [antq.record :as r]

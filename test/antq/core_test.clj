@@ -2,13 +2,19 @@
   (:require
    [antq.changelog :as changelog]
    [antq.core :as sut]
+   [antq.log :as log]
    [antq.record :as r]
+   [antq.test-helper :as h]
    [antq.util.dep :as u.dep]
    [antq.util.exception :as u.ex]
    [antq.util.git :as u.git]
+   [antq.util.os :as os]
    [antq.ver :as ver]
+   [babashka.fs :as fs]
    [clojure.string :as str]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test]))
 
 (defmethod ver/get-sorted-versions :test
   [_ _]
@@ -205,40 +211,140 @@
                :latest-name "com.github.seancorfield/next.jdbc"}]
              (sut/unverified-deps dummy-deps)))))
 
+(defn- dep-files
+  [project-dir deps]
+  (->> deps
+       (mapv :file)
+       distinct
+       (mapv #(fs/relativize project-dir %))
+       (mapv str)
+       (mapv h/os-path)
+       set))
+
+(defn- setup-deps-scenario
+  [target-project-dir]
+  (let [;; for our test scenario:
+        ;;           test/resources/dep/source project-dir/dest
+        test-files  [["build.gradle"           "build.gradle"]
+                     ["test_bb.edn"            "bb.edn"]
+                     ["test_build.boot"        "build.boot"]
+                     ["test_circle_ci.yml"     ".circleci/config.yml"]
+                     ["test_deps.edn"          "deps.edn"]
+                     ["test_github_action.yml" ".github/workflows/test.yml"]
+                     ["test_pom.xml"           "pom.xml"]
+                     ["test_project.clj"       "project.clj"]
+                     ["test_shadow-cljs.edn"   "shadow-cljs.edn"]]
+        all-files (->> test-files (mapv second) (map h/os-path) set)]
+    ;; contrive some project files to discover
+    (fs/delete-tree target-project-dir)
+    (fs/create-dirs  target-project-dir)
+    (doseq [[source dest] test-files]
+      (let [dest (fs/path target-project-dir dest)]
+        (fs/create-dirs (fs/parent dest))
+        (fs/copy (fs/path "test/resources/dep" source) dest)))
+    all-files))
+
 (t/deftest fetch-deps-test
-  (t/is (seq (sut/fetch-deps {:directory ["."]})))
+  (let [project-dir "target/test/fetch-deps-test"
+        all-files (setup-deps-scenario project-dir)
+        dep-files #(dep-files project-dir %)]
 
-  (t/testing "skip"
-    (t/testing "boot"
-      (t/is (nil? (some #(= "test/resources/dep/build.boot" (:file %))
-                        (sut/fetch-deps {:directory ["test/resources/dep"]
-                                         :skip ["boot"]})))))
+    (t/testing "antq project deps"
+      (t/is (match? (m/embeds ["bb.edn"
+                               "deps.edn"
+                               (if (os/windows?)
+                                 #".github\\workflows\\.*"
+                                 #".github/workflows/.*")])
+                    (->> (sut/fetch-deps {:directory ["."]})
+                         (mapv :file)
+                         distinct))))
 
-    (t/testing "clojure-cli"
-      (t/is (nil? (some #(= "test/resources/dep/deps.edn" (:file %))
-                        (sut/fetch-deps {:directory ["test/resources/dep"]
-                                         :skip ["clojure-cli"]})))))
+    (t/testing "default"
+      (t/is (match? (disj all-files "build.gradle")
+                    (dep-files (sut/fetch-deps {:directory [project-dir]})))))
 
-    (t/testing "github-action"
-      (t/is (nil? (some #(= "test/resources/dep/github_action.yml" (:file %))
-                        (sut/fetch-deps {:directory ["test/resources/dep"]
-                                         :skip ["github-action"]})))))
+    (t/testing "skip"
+      (t/testing "boot"
+        (t/is (match? (disj all-files "build.gradle" "build.boot")
+                      (dep-files (sut/fetch-deps {:directory [project-dir]
+                                                  :skip ["boot"]})))))
 
-    (t/testing "pom"
-      (t/is (nil? (some #(= "test/resources/dep/pom.xml" (:file %))
-                        (sut/fetch-deps {:directory ["test/resources/dep"]
-                                         :skip ["pom"]})))))
+      (t/testing "clojure-cli"
+        (t/is (match? (disj all-files "build.gradle" "deps.edn")
+                      (dep-files (sut/fetch-deps {:directory [project-dir]
+                                                  :skip ["clojure-cli"]})))))
 
-    (t/testing "shadow-cljs"
-      (t/is (nil? (some #(#{"test/resources/dep/shadow-cljs.edn"
-                            "test/resources/dep/shadow-cljs-env.edn"} (:file %))
-                        (sut/fetch-deps {:directory ["test/resources/dep"]
-                                         :skip ["shadow-cljs"]})))))
+      (t/testing "github-action"
+        (t/is (match? (disj all-files "build.gradle"
+                            (h/os-path ".github/workflows/test.yml"))
+                      (dep-files (sut/fetch-deps {:directory [project-dir]
+                                                  :skip ["github-action"]})))))
 
-    (t/testing "leiningen"
-      (t/is (nil? (some #(= "test/resources/dep/project.clj" (:file %))
-                        (sut/fetch-deps {:directory ["test/resources/dep"]
-                                         :skip ["leiningen"]})))))))
+      (t/testing "pom"
+        (t/is (match? (disj all-files "build.gradle" "pom.xml")
+                      (dep-files (sut/fetch-deps {:directory [project-dir]
+                                                  :skip ["pom"]})))))
+
+      (t/testing "shadow-cljs"
+        (t/is (match? (disj all-files "build.gradle" "shadow-cljs.edn")
+                      (dep-files (sut/fetch-deps {:directory [project-dir]
+                                                  :skip ["shadow-cljs"]})))))
+
+      (t/testing "leiningen"
+        (t/is (match? (disj all-files "build.gradle" "project.clj")
+                      (dep-files (sut/fetch-deps {:directory [project-dir]
+                                                  :skip ["leiningen"]})))))
+      (t/testing "babashka"
+        (t/is (match? (disj all-files "build.gradle" "bb.edn")
+                      (dep-files (sut/fetch-deps {:directory [project-dir]
+                                                  :skip ["babashka"]}))))))))
+
+(t/deftest ^:gradle fetch-deps-gradle-test
+  ;; gradle does not run on the entire broader set of of supported Antq JDKs, hence this tagged
+  ;; isolated test to allow for explicit inclusion and exclusion
+  (let [project-dir "target/test/fetch-deps-gradle-test"
+        all-files (setup-deps-scenario project-dir)
+        dep-files #(dep-files project-dir %)]
+    (t/testing "hint is logged when not checking gradle"
+      (let [log-info (atom [])]
+        (with-redefs [log/info (fn [s] (swap! log-info conj s) nil)]
+          (t/is (match? (disj all-files "build.gradle")
+                        (dep-files (sut/fetch-deps {:directory [project-dir]}))))
+          (t/is (match? [(str "Skipping Gradle project discovered via "
+                              (h/os-path "target/test/fetch-deps-gradle-test/build.gradle")
+                              ", use:\n"
+                              " --check-gradle to check it\n"
+                              " --skip=gradle to suppress this message")] @log-info)))))
+    (t/testing "hint is suppressed with --skip=gradle"
+      (let [log-info (atom [])]
+        (with-redefs [log/info (fn [s] (swap! log-info conj s) nil)]
+          (t/is (match? (disj all-files "build.gradle")
+                        (dep-files (sut/fetch-deps {:directory [project-dir]
+                                                    :skip ["gradle"]}))))
+          (t/is (match? [] @log-info)))))
+    (t/testing "--skip=gradle takes precedence over --check-gradle"
+      (let [log-info (atom [])]
+        (with-redefs [log/info (fn [s] (swap! log-info conj s) nil)]
+          (t/is (match? (disj all-files "build.gradle")
+                        (dep-files (sut/fetch-deps {:directory [project-dir]
+                                                    :skip ["gradle"]
+                                                    :check-gradle true}))))
+          (t/is (match? [] @log-info)))))
+    (t/testing "check all"
+      (let [log-info (atom [])]
+        (with-redefs [log/info (fn [s] (swap! log-info conj s))]
+          (t/is (match? all-files
+                        (dep-files (sut/fetch-deps {:directory [project-dir]
+                                                    :check-gradle true}))))
+          (t/is (match? [] @log-info)))))
+    (t/testing "hint is not presented if no gradle project detected"
+      ;; NB: altering test scenario
+      (fs/delete (fs/path project-dir "build.gradle"))
+      (let [log-info (atom [])]
+        (with-redefs [log/info (fn [s] (swap! log-info conj s))]
+          (t/is (match? (disj all-files "build.gradle")
+                        (dep-files (sut/fetch-deps {:directory [project-dir]}))))
+          (t/is (match? [] @log-info)))))))
 
 (t/deftest mark-only-newest-version-flag-test
   (let [deps [(r/map->Dependency {:name "org.clojure/clojure" :version "1"})

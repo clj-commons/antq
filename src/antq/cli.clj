@@ -104,6 +104,10 @@
    {:coerce boolean
     :desc "Detect outdated clojure tools in ~/.clojure/tools"}
 
+   :check-gradle
+   {:coerce boolean
+    :desc "Detect outdated deps in Gradle projects"}
+
    :no-diff
    {:coerce :boolean
     :deprecated-fn (fn [m] (format "Please use %s instead." (styled-long-opt :no-changes m)))}
@@ -243,7 +247,7 @@
                      ;; match order from README, exclude deprecated and undocumented options
                      :order [:upgrade :force :exclude :directory :focus
                              :skip :error-format :reporter :no-progress :download :ignore-locals
-                             :check-clojure-tools :no-changes :changes-in-table :transitive
+                             :check-clojure-tools :check-gradle :no-changes :changes-in-table :transitive
                              :verbose :help]})))
 
 (defn parse-args

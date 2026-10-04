@@ -113,6 +113,7 @@
                           :download true
                           :ignore-locals true
                           :check-clojure-tools true
+                          :check-gradle true
                           :no-changes true
                           :changes-in-table true
                           :transitive true}}
@@ -129,6 +130,7 @@
                                    "--download"
                                    "--ignore-locals"
                                    "--check-clojure-tools"
+                                   "--check-gradle"
                                    "--no-changes"
                                    "--changes-in-table"
                                    "--transitive"]))))

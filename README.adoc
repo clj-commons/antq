@@ -70,7 +70,10 @@ If you have trouble, please see link:./doc/non-supported-clojure-version.adoc[he
 | build.gradle, build.gradle.kts
 | https://gradle.org[Gradle]
 | {sym-no}
-| Experimental. Uses the project's `gradlew`, otherwise the `gradle` command must be installed.
+| Experimental. +
+Uses the project's `gradlew`, otherwise the `gradle` command must be installed.
+Disabled by default.
+See <<opt-check-gradle>> option.
 
 | ~/.clojure/tools
 | https://clojure.org/reference/clojure_cli#tools[Clojure CLI Tools]
@@ -175,6 +178,7 @@ Or if you prefer, you can use our ready-made GitHub action:
 
 Antq experimentally supports https://gradle.org[Gradle].
 See link:./doc/gradle.adoc[our Gradle docs] for details.
+Disabled by default, see <<opt-check-gradle>>.
 
 === Timeouts
 
@@ -368,6 +372,13 @@ the new version will not be downloaded even if you specify the `--download` opti
 === --ignore-locals
 
 For java dependencies, ignore versions installed to your local Maven repository(`~/.m2/`). Disabled by default.
+
+[[opt-check-gradle]]
+=== --check-gradle
+Because gradle dependencies are discovered by invoking `gradlew` or `gradle`, this implies some risk.
+Checking gradle dependencies is opt-in via `--check-gradle`.
+
+Gradle dependencies do not support <<opt-upgrade>>.
 
 [[opt-check-clojure-tools]]
 === --check-clojure-tools

@@ -6,6 +6,10 @@ Antq is now under the loving care of https://clj-commons.org/[clj-commons].
 A thousand thanks to https://github.com/liquidz[@liquidz] for creating the wonderful Antq, and for entrusting its ongoing care to us.
 We'll continue to publish releases to the existing Antq maven coordinates https://clojars.org/com.github.liquidz/antq[`com.github.liquidz/antq`] (thanks @liquidz!).
 
+=== Minor Breaking
+* https://github.com/clj-commons/antq/issues/376[#376]: Discovering Gradle dependencies requires invoking `gradle` or `gradlew`, which can pose some risk.
+Therefore, checking Gradle dependencies is now opt-in via `--check-gradle`.
+
 === Added
 * https://github.com/clj-commons/antq/pull/289[#289]: New `--no-progress` option to suppress progress indicator while analyzing deps
 (thanks, https://github.com/kirked[@kirked]!)
