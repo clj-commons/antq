@@ -306,45 +306,45 @@
         all-files (setup-deps-scenario project-dir)
         dep-files #(dep-files project-dir %)]
     (t/testing "hint is logged when not checking gradle"
-      (let [log-info (atom [])]
-        (with-redefs [log/info (fn [s] (swap! log-info conj s) nil)]
+      (let [log-error (atom [])]
+        (with-redefs [log/error (fn [s] (swap! log-error conj s) nil)]
           (t/is (match? (disj all-files "build.gradle")
                         (dep-files (sut/fetch-deps {:directory [project-dir]}))))
           (t/is (match? [(str "Skipping Gradle project discovered via "
                               (h/os-path "target/test/fetch-deps-gradle-test/build.gradle")
                               ", use:\n"
                               " --check-gradle to check it\n"
-                              " --skip=gradle to suppress this message")] @log-info)))))
+                              " --skip=gradle to suppress this message")] @log-error)))))
     (t/testing "hint is suppressed with --skip=gradle"
-      (let [log-info (atom [])]
-        (with-redefs [log/info (fn [s] (swap! log-info conj s) nil)]
+      (let [log-error (atom [])]
+        (with-redefs [log/error (fn [s] (swap! log-error conj s) nil)]
           (t/is (match? (disj all-files "build.gradle")
                         (dep-files (sut/fetch-deps {:directory [project-dir]
                                                     :skip ["gradle"]}))))
-          (t/is (match? [] @log-info)))))
+          (t/is (match? [] @log-error)))))
     (t/testing "--skip=gradle takes precedence over --check-gradle"
-      (let [log-info (atom [])]
-        (with-redefs [log/info (fn [s] (swap! log-info conj s) nil)]
+      (let [log-error (atom [])]
+        (with-redefs [log/error (fn [s] (swap! log-error conj s) nil)]
           (t/is (match? (disj all-files "build.gradle")
                         (dep-files (sut/fetch-deps {:directory [project-dir]
                                                     :skip ["gradle"]
                                                     :check-gradle true}))))
-          (t/is (match? [] @log-info)))))
+          (t/is (match? [] @log-error)))))
     (t/testing "check all"
-      (let [log-info (atom [])]
-        (with-redefs [log/info (fn [s] (swap! log-info conj s))]
+      (let [log-error (atom [])]
+        (with-redefs [log/error (fn [s] (swap! log-error conj s))]
           (t/is (match? all-files
                         (dep-files (sut/fetch-deps {:directory [project-dir]
                                                     :check-gradle true}))))
-          (t/is (match? [] @log-info)))))
+          (t/is (match? [] @log-error)))))
     (t/testing "hint is not presented if no gradle project detected"
       ;; NB: altering test scenario
       (fs/delete (fs/path project-dir "build.gradle"))
-      (let [log-info (atom [])]
-        (with-redefs [log/info (fn [s] (swap! log-info conj s))]
+      (let [log-error (atom [])]
+        (with-redefs [log/error (fn [s] (swap! log-error conj s))]
           (t/is (match? (disj all-files "build.gradle")
                         (dep-files (sut/fetch-deps {:directory [project-dir]}))))
-          (t/is (match? [] @log-info)))))))
+          (t/is (match? [] @log-error)))))))
 
 (t/deftest mark-only-newest-version-flag-test
   (let [deps [(r/map->Dependency {:name "org.clojure/clojure" :version "1"})

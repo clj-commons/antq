@@ -250,10 +250,10 @@
                 (if (:check-gradle options)
                   (dep.gradle/load-deps %)
                   (when-let [file (dep.gradle/discover-project %)]
-                    (log/info (format (str "Skipping Gradle project discovered via %s, use:\n"
-                                           " --check-gradle to check it\n"
-                                           " --skip=gradle to suppress this message")
-                                      file)))))
+                    (log/error (format (str "Skipping Gradle project discovered via %s, use:\n"
+                                            " --check-gradle to check it\n"
+                                            " --skip=gradle to suppress this message")
+                                       file)))))
               (when (:check-clojure-tools options) (dep.clj.tool/load-deps)))
             (distinct (:directory options)))))
 
