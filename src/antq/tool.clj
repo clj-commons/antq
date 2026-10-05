@@ -23,6 +23,7 @@
   - :download            <boolean>
   - :ignore-locals       <boolean>
   - :check-clojure-tools <boolean>
+  - :check-gradle        <boolean>
   - :no-changes          <boolean>
   - :changes-in-table    <boolean>
   - :transitive          <boolean>
