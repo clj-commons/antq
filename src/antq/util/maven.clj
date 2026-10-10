@@ -64,8 +64,8 @@
          :password (:password credential-info)}))))
 
 (defn credentials
-  "Returns a map of repository id to :url, :username and :password for each
-  entry of repositories with a username and a password."
+  "Returns repository id to :url, :username and :password for the
+  repositories with credentials."
   [repositories]
   (into {}
         (keep (fn [[id {:keys [url]} :as repository]]
