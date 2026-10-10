@@ -12,7 +12,18 @@
   lint-kondo    {:exec-fn lint-kondo/task    :doc "lint with clj-kondo"}
   lint-cljstyle {:task lint-cljstyle/-main   :doc "lint with cljstyle"}
   test-clj      {:exec-fn test-clj/task      :doc "run tests against a version of Clojure"}
-  test-bb       {:exec-fn test-bb/task       :doc "run tests against babashka"}
+  test-bb       {:doc "run tests against babashka"
+                 :extra-paths ["test" "test/resources"]
+                 :extra-deps {com.github.liquidz/antq {:local/root "."}
+                              io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
+                              nubank/matcher-combinators {:mvn/version "3.11.0"}
+                              org.flatland/ordered {:mvn/version "1.15.12"}
+                              lambdaisland/deep-diff2 {:mvn/version "2.14.235"}
+                              metosin/malli {:mvn/version "0.20.2"}}
+                 :requires ([cognitect.test-runner.api :as test-runner])
+                 ;; aether-test needs the JVM, lein-plugin-test needs Leiningen
+                 :task (test-runner/test {:dirs ["test"]
+                                          :patterns ["^antq\\.(?!util\\.aether-test$|lein-plugin-test$).*-test$"]})}
   test-coverage {:exec-fn test-coverage/task :doc "generate code coverage reports Clojure tests"}
   jar           {:exec-fn jar/jar            :doc "generate antq jar"}
   uberjar       {:exec-fn jar/uberjar        :doc "generate antq uberjar"
