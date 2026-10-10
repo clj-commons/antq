@@ -2,6 +2,7 @@
   (:require
    [antq.constant :as const]
    [antq.util.async :as u.async]
+   [antq.util.bb :refer [if-bb]]
    [antq.util.dep :as u.dep]
    [antq.util.exception :as u.ex]
    [antq.util.maven :as u.mvn]
@@ -9,26 +10,18 @@
    [clojure.set :as set]
    [version-clj.core :as version])
   (:import
-   clojure.lang.ExceptionInfo
-   (org.eclipse.aether
-    DefaultRepositorySystemSession
-    RepositorySystem)
-   (org.eclipse.aether.artifact
-    Artifact)
-   (org.eclipse.aether.resolution
-    VersionRangeRequest)))
+   clojure.lang.ExceptionInfo))
+
+(if-bb (require '[babashka.deps.maven :as deps.maven]) nil)
 
 (defn- get-versions
   [name opts]
-  (let [{:keys [^RepositorySystem system
-                ^DefaultRepositorySystemSession  session
-                ^Artifact artifact
-                remote-repos]} (u.mvn/repository-system name "[0,)" opts)
-        req (doto (VersionRangeRequest.)
-              (.setArtifact artifact)
-              (.setRepositories remote-repos))]
-    (->> (.resolveVersionRange system session req)
-         (.getVersions))))
+  (if-bb
+   (let [repos (:repositories opts)
+         config {:mvn/repos (update-vals repos #(select-keys % [:url :releases :snapshots]))}]
+     (deps.maven/with-repository-credentials (u.mvn/credentials repos)
+       (mapv :mvn/version (deps.maven/find-versions (symbol name) config {:snapshots true}))))
+   ((requiring-resolve 'antq.util.aether/get-versions) name opts)))
 
 (def ^:private get-versions-with-timeout
   (u.async/fn-with-timeout

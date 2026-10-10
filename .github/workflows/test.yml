@@ -28,3 +28,27 @@ jobs:
 
       - name: run integration tests
         run: bb test-clj --focus-meta integration
+
+  test-bb:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup
+        uses: ./.github/actions/shared-setup
+
+      # babashka.deps.maven is not released yet
+      - name: Install babashka dev build
+        run: |
+          curl -sSLO https://raw.githubusercontent.com/babashka/babashka/master/install
+          bash install --dev-build --dir "$HOME/bb-dev"
+          echo "$HOME/bb-dev" >> "$GITHUB_PATH"
+
+      - name: Install Gradle for antq
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.14.3'
+
+      - name: run unit tests
+        run: bb test-bb

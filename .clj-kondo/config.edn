@@ -1,3 +1,3 @@
-{:linters {:unresolved-namespace {:exclude [z]}}
+{:linters {:unresolved-namespace {:exclude [z deps.maven]}}
  :exclude-files "test/resources/dep/.*"
  :lint-as {antq.test-helper/with-temp-file clojure.core/let}}

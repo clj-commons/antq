@@ -11,6 +11,7 @@ We'll continue to publish releases to the existing Antq maven coordinates https:
 Therefore, checking Gradle dependencies is now opt-in via `--check-gradle`.
 
 === Added
+* Add babashka compatibility (https://github.com/borkdude[@borkdude])
 * https://github.com/clj-commons/antq/pull/289[#289]: New `--no-progress` option to suppress progress indicator while analyzing deps
 (thanks, https://github.com/kirked[@kirked]!)
 * https://github.com/clj-commons/antq/issues/280[#280],
