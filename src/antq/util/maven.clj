@@ -48,7 +48,7 @@
     (or (u.lein/env x)
         (str x))))
 
-(defn get-auth-info
+(defn- get-auth-info
   [repository]
   (let [[id {:keys [url username password creds]}] repository]
     (cond

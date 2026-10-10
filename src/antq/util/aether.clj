@@ -36,14 +36,10 @@
   [opts]
   (let [settings ^Settings (deps.util.maven/get-settings)
         server-ids (set (map #(.getId ^Server %) (.getServers settings)))]
-    ;; credentials from Leiningen's :repositories
-    (doseq [repo (:repositories opts)]
-      (let [{:keys [id username password]} (u.mvn/get-auth-info repo)]
-        (when (and username
-                   password
-                   (not (contains? server-ids id)))
-          (.addServer settings
-                      (new-repository-server {:id id :username username :password password})))))
+    (doseq [[id {:keys [username password]}] (u.mvn/credentials (:repositories opts))
+            :when (not (contains? server-ids id))]
+      (.addServer settings
+                  (new-repository-server {:id id :username username :password password})))
     settings))
 
 (def ^TransferListener custom-transfer-listener

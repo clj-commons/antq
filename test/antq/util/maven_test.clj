@@ -1,12 +1,30 @@
 (ns antq.util.maven-test
   (:require
    [antq.test-helper :as h]
+   [antq.util.env :as u.env]
+   [antq.util.leiningen :as u.lein]
    [antq.util.maven :as sut]
    [clojure.data.xml :as xml]
    [clojure.java.io :as io]
    [clojure.test :as t])
   (:import
    java.util.UUID))
+
+(def ^:private dummy-repos
+  {"serv3" {:url "https://three.example.com"
+            :username "three-user"
+            :password "three-pass"}
+   "serv4" {:url "https://four.example.com"
+            :username :env
+            :password :env/four}
+   "serv5" {:url "https://five.example.com"
+            :creds :gpg}
+   ;; no username and password
+   "dummy" {:url "https://dummy.example.com"}})
+
+(def ^:private dummy-env
+  {"LEIN_PASSWORD" "lein-pass"
+   "FOUR" "env-four"})
 
 (def ^:private test-pom-file
   (io/file (io/resource "util/maven/pom.xml")))
@@ -40,6 +58,15 @@
     true "foo-SNAPSHOT"
     true "2.5-20240101.120000-1"))
 
+
+(t/deftest credentials-test
+  (with-redefs [u.env/getenv #(get dummy-env %)
+                u.lein/get-credential (constantly {:username "gpg-user"
+                                                   :password "gpg-pass"})]
+    (t/is (= {"serv3" {:url "https://three.example.com" :username "three-user" :password "three-pass"}
+              "serv4" {:url "https://four.example.com" :username "lein-pass" :password "env-four"}
+              "serv5" {:url "https://five.example.com" :username "gpg-user" :password "gpg-pass"}}
+             (sut/credentials dummy-repos)))))
 
 (t/deftest read-pom-test
   (t/is (= {:url "https://github.com/clj-commons/antq"
