@@ -163,7 +163,7 @@
 
 (t/deftest extract-deps-without-init-script-output-test
   (t/testing "no dependencies are reported when the init script did not work"
-    (let [test-dir (tdir "extract-deps-without-init-script-ouput-test")
+    (let [test-dir (tdir "extract-deps-without-init-script-output-test")
           _ (h/setup-deps-scenario test-dir [["gradle_no_output"]])
           ex (try
                (sut/extract-deps file-path (fs/path test-dir "gradle_no_output" "build.gradle"))
