@@ -10,8 +10,7 @@
    [clojure.java.io :as io]
    [clojure.tools.deps.extensions.pom :as ext.pom])
   (:import
-   java.io.File
-   org.apache.maven.model.Repository))
+   java.io.File))
 
 (defn extract-repos-from-xml
   [xml]
@@ -42,9 +41,7 @@
   (try
     (let [config {:mvn/repos u.mvn/default-repos}
           model (ext.pom/read-model-file file config)
-          repos (reduce (fn [accm ^Repository repo]
-                          (assoc accm (.getId repo) {:url (.getUrl repo)}))
-                        {} (.getRepositories model))]
+          repos ((requiring-resolve 'antq.util.aether/model-repositories) model)]
       (for [[dep-name attr] (ext.pom/model-deps model)]
         (r/map->Dependency {:project :pom
                             :type :java

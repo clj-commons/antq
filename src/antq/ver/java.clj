@@ -9,26 +9,11 @@
    [clojure.set :as set]
    [version-clj.core :as version])
   (:import
-   clojure.lang.ExceptionInfo
-   (org.eclipse.aether
-    DefaultRepositorySystemSession
-    RepositorySystem)
-   (org.eclipse.aether.artifact
-    Artifact)
-   (org.eclipse.aether.resolution
-    VersionRangeRequest)))
+   clojure.lang.ExceptionInfo))
 
 (defn- get-versions
   [name opts]
-  (let [{:keys [^RepositorySystem system
-                ^DefaultRepositorySystemSession  session
-                ^Artifact artifact
-                remote-repos]} (u.mvn/repository-system name "[0,)" opts)
-        req (doto (VersionRangeRequest.)
-              (.setArtifact artifact)
-              (.setRepositories remote-repos))]
-    (->> (.resolveVersionRange system session req)
-         (.getVersions))))
+  ((requiring-resolve 'antq.util.aether/get-versions) name opts))
 
 (def ^:private get-versions-with-timeout
   (u.async/fn-with-timeout

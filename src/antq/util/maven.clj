@@ -7,23 +7,11 @@
    [antq.util.xml :as u.xml]
    [clojure.data.xml :as xml]
    [clojure.java.io :as io]
-   [clojure.string :as str]
-   [clojure.tools.deps.util.maven :as deps.util.maven]
-   [clojure.tools.deps.util.session :as deps.util.session])
+   [clojure.string :as str])
   (:import
-   eu.maveniverse.maven.mima.context.Context
    (java.net
     Authenticator
-    PasswordAuthentication)
-   (org.apache.maven.settings
-    Server
-    Settings)
-   (org.eclipse.aether
-    DefaultRepositorySystemSession
-    RepositorySystem)
-   (org.eclipse.aether.transfer
-    TransferEvent
-    TransferListener)))
+    PasswordAuthentication)))
 
 (def default-repos
   {"central" {:url "https://repo1.maven.org/maven2/"}
@@ -57,15 +45,7 @@
     (or (u.lein/env x)
         (str x))))
 
-(defn- new-repository-server
-  ^Server
-  [{:keys [id username password]}]
-  (doto (Server.)
-    (.setId id)
-    (.setUsername (ensure-username-or-password username))
-    (.setPassword (ensure-username-or-password password))))
-
-(defn- get-auth-info
+(defn get-auth-info
   [repository]
   (let [[id {:keys [url username password creds]}] repository]
     (cond
@@ -79,55 +59,6 @@
         {:id id
          :username (:username credential-info)
          :password (:password credential-info)}))))
-
-(defn get-maven-settings
-  ^Settings
-  [opts]
-  (let [settings ^Settings (deps.util.maven/get-settings)
-        server-ids (set (map #(.getId ^Server %) (.getServers settings)))]
-    ;; NOTE
-    ;; In Leiningen, authentication information is defined in project.clj or profiles.clj instead of ~/.m2/settings.xml,
-    ;; so if there is authentication information in `:repositories`, apply to `settings`
-    (doseq [repo (:repositories opts)]
-      (let [{:keys [id username password]} (get-auth-info repo)]
-        (when (and username
-                   password
-                   (not (contains? server-ids id)))
-          (.addServer settings
-                      (new-repository-server {:id id :username username :password password})))))
-    settings))
-
-(def ^TransferListener custom-transfer-listener
-  "Copy from clojure.tools.deps.util.maven/console-listener
-  But no outputs for `transferStarted`"
-  (reify TransferListener
-    (transferStarted [_ _event])
-    (transferCorrupted [_ event]
-      (log/warning (str "Download corrupted:" (.. ^TransferEvent event getException getMessage))))
-    ;; This happens when Maven can't find an artifact in a particular repo
-    ;; (but still may find it in a different repo), ie this is a common event
-    (transferFailed [_ _event])
-    (transferInitiated [_ _event])
-    (transferProgressed [_ _event])
-    (transferSucceeded [_ _event])))
-
-(defn repository-system
-  [name version opts]
-  (let [lib (cond-> name (string? name) symbol)
-        local-repo @deps.util.maven/cached-local-repo
-        system ^RepositorySystem (deps.util.session/retrieve :mvn/system #(deps.util.maven/make-system))
-        settings ^Settings (get-maven-settings opts)
-        context ^Context (deps.util.maven/make-context :local-repo local-repo :settings settings)
-        session ^DefaultRepositorySystemSession (deps.util.maven/make-system-session context)
-        ;; Overwrite TransferListener not to show "Downloading" messages
-        _ (.setTransferListener session custom-transfer-listener)
-        ;; c.f. https://stackoverflow.com/questions/35488167/how-can-you-find-the-latest-version-of-a-maven-artifact-from-java-using-aether
-        artifact (deps.util.maven/coord->artifact lib {:mvn/version version})
-        remote-repos (deps.util.maven/remote-repos system session (:repositories opts))]
-    {:system system
-     :session session
-     :artifact artifact
-     :remote-repos remote-repos}))
 
 (defn read-pom
   "Returns the url and scm url of a POM file as a map."
@@ -172,7 +103,7 @@
 
 (defn initialize-proxy-setting!
   []
-  (when-let [prxy (some-> (get-maven-settings {})
+  (when-let [prxy (some-> ((requiring-resolve 'antq.util.aether/get-maven-settings) {})
                           (.getActiveProxy))]
     (let [host (.getHost prxy)
           port (.getPort prxy)
