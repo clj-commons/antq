@@ -223,26 +223,17 @@
 
 (defn- setup-deps-scenario
   [target-project-dir]
-  (let [;; for our test scenario:
-        ;;           test/resources/dep/source project-dir/dest
-        test-files  [["build.gradle"           "build.gradle"]
-                     ["test_bb.edn"            "bb.edn"]
-                     ["test_build.boot"        "build.boot"]
-                     ["test_circle_ci.yml"     ".circleci/config.yml"]
-                     ["test_deps.edn"          "deps.edn"]
-                     ["test_github_action.yml" ".github/workflows/test.yml"]
-                     ["test_pom.xml"           "pom.xml"]
-                     ["test_project.clj"       "project.clj"]
-                     ["test_shadow-cljs.edn"   "shadow-cljs.edn"]]
-        all-files (->> test-files (mapv second) (map h/os-path) set)]
-    ;; contrive some project files to discover
-    (fs/delete-tree target-project-dir)
-    (fs/create-dirs  target-project-dir)
-    (doseq [[source dest] test-files]
-      (let [dest (fs/path target-project-dir dest)]
-        (fs/create-dirs (fs/parent dest))
-        (fs/copy (fs/path "test/resources/dep" source) dest)))
-    all-files))
+  (h/setup-deps-scenario
+   target-project-dir
+   [["build.gradle"]
+    ["test_bb.edn"            "bb.edn"]
+    ["test_build.boot"        "build.boot"]
+    ["test_circle_ci.yml"     ".circleci/config.yml"]
+    ["test_deps.edn"          "deps.edn"]
+    ["test_github_action.yml" ".github/workflows/test.yml"]
+    ["test_pom.xml"           "pom.xml"]
+    ["test_project.clj"       "project.clj"]
+    ["test_shadow-cljs.edn"   "shadow-cljs.edn"]]))
 
 (t/deftest fetch-deps-test
   (let [project-dir "target/test/fetch-deps-test"

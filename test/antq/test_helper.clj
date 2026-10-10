@@ -3,6 +3,7 @@
    [antq.record :as r]
    [antq.upgrade.clojure]
    [antq.util.os :as os]
+   [babashka.fs :as fs]
    [clojure.string :as str]
    [lambdaisland.deep-diff2 :as ddiff])
   (:import
@@ -60,3 +61,31 @@
   (if (os/windows?)
     (str/replace p "/" "\\")
     p))
+
+(defn setup-deps-scenario
+  "Sets up an isolated test scenario in `target-dir` from files under test/resources/dep
+  selected by `test-resources` which is a vector of vectors:
+
+  ```clojure
+  [[relative-source-name1 relative-dest-path1]
+   [relative-source-name2]]
+  ```
+  Omit relative-dest-path if no rename is required.
+
+  Returns a vector of all relative-dest-paths as string in OS-host syntax."
+  [target-dir test-resources]
+  (fs/delete-tree target-dir)
+  (fs/create-dirs target-dir)
+  (let [test-resources (mapv #(if (= 1 (count %))
+                                [(first %) (first %)]
+                                %)
+                             test-resources)
+        dest-paths (->> test-resources (mapv second) (map os-path) set)]
+    (doseq [[source dest] test-resources]
+      (let [dest (fs/path target-dir dest)
+            source (fs/path "test/resources/dep" source)]
+        (fs/create-dirs (fs/parent dest))
+        (if (fs/directory? source)
+          (fs/copy-tree source dest)
+          (fs/copy source dest))))
+    dest-paths))
