@@ -3,6 +3,7 @@
   (:require
    [antq.constant.project-file :as const.project-file]
    [antq.record :as r]
+   [antq.util.bb :refer [if-bb]]
    [antq.util.dep :as u.dep]
    [antq.util.maven :as u.mvn]
    [antq.util.xml :as u.xml]
@@ -11,6 +12,8 @@
    [clojure.tools.deps.extensions.pom :as ext.pom])
   (:import
    java.io.File))
+
+(if-bb (require '[babashka.deps.maven :as deps.maven]) nil)
 
 (defn extract-repos-from-xml
   [xml]
@@ -41,7 +44,9 @@
   (try
     (let [config {:mvn/repos u.mvn/default-repos}
           model (ext.pom/read-model-file file config)
-          repos ((requiring-resolve 'antq.util.aether/model-repositories) model)]
+          repos (if-bb
+                 (update-vals (deps.maven/model-repos model) #(select-keys % [:url]))
+                 ((requiring-resolve 'antq.util.aether/model-repositories) model))]
       (for [[dep-name attr] (ext.pom/model-deps model)]
         (r/map->Dependency {:project :pom
                             :type :java

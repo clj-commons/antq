@@ -1,6 +1,7 @@
 (ns ^:no-doc antq.util.maven
   (:require
    [antq.log :as log]
+   [antq.util.bb :refer [if-bb]]
    [antq.util.env :as u.env]
    [antq.util.leiningen :as u.lein]
    [antq.util.ver :as u.ver]
@@ -12,6 +13,8 @@
    (java.net
     Authenticator
     PasswordAuthentication)))
+
+(if-bb (require '[babashka.deps.maven :as deps.maven]) nil)
 
 (def default-repos
   {"central" {:url "https://repo1.maven.org/maven2/"}
@@ -60,6 +63,19 @@
          :username (:username credential-info)
          :password (:password credential-info)}))))
 
+(defn credentials
+  "Returns a map of repository id to :url, :username and :password for each
+  entry of repositories with a username and a password."
+  [repositories]
+  (into {}
+        (keep (fn [[id {:keys [url]} :as repository]]
+                (let [{:keys [username password]} (get-auth-info repository)]
+                  (when (and username password)
+                    [id {:url url
+                         :username (ensure-username-or-password username)
+                         :password (ensure-username-or-password password)}]))))
+        repositories))
+
 (defn read-pom
   "Returns the url and scm url of a POM file as a map."
   [^java.io.File file]
@@ -101,19 +117,25 @@
     (getPasswordAuthentication []
       (PasswordAuthentication. username (char-array password)))))
 
+(defn- active-proxy
+  []
+  (if-bb
+   (deps.maven/active-proxy)
+   (when-let [prxy (some-> ((requiring-resolve 'antq.util.aether/get-maven-settings) {})
+                           (.getActiveProxy))]
+     {:host (.getHost prxy)
+      :port (.getPort prxy)
+      :username (.getUsername prxy)
+      :password (.getPassword prxy)})))
+
 (defn initialize-proxy-setting!
   []
-  (when-let [prxy (some-> ((requiring-resolve 'antq.util.aether/get-maven-settings) {})
-                          (.getActiveProxy))]
-    (let [host (.getHost prxy)
-          port (.getPort prxy)
-          username (.getUsername prxy)
-          password (.getPassword prxy)]
-      (System/setProperty "http.proxyHost" host)
-      (System/setProperty "http.proxyPort" (str port))
-      (System/setProperty "https.proxyHost" host)
-      (System/setProperty "https.proxyPort" (str port))
-      (when (and username password)
-        (System/setProperty "jdk.http.auth.tunneling.disabledSchemes" "")
-        (System/setProperty "jdk.http.auth.proxying.disabledSchemes" "")
-        (Authenticator/setDefault (authenticator username password))))))
+  (when-let [{:keys [host port username password]} (active-proxy)]
+    (System/setProperty "http.proxyHost" host)
+    (System/setProperty "http.proxyPort" (str port))
+    (System/setProperty "https.proxyHost" host)
+    (System/setProperty "https.proxyPort" (str port))
+    (when (and username password)
+      (System/setProperty "jdk.http.auth.tunneling.disabledSchemes" "")
+      (System/setProperty "jdk.http.auth.proxying.disabledSchemes" "")
+      (Authenticator/setDefault (authenticator username password)))))

@@ -12,6 +12,7 @@
   lint-kondo    {:exec-fn lint-kondo/task    :doc "lint with clj-kondo"}
   lint-cljstyle {:task lint-cljstyle/-main   :doc "lint with cljstyle"}
   test-clj      {:exec-fn test-clj/task      :doc "run tests against a version of Clojure"}
+  test-bb       {:exec-fn test-bb/task       :doc "run tests against babashka"}
   test-coverage {:exec-fn test-coverage/task :doc "generate code coverage reports Clojure tests"}
   jar           {:exec-fn jar/jar            :doc "generate antq jar"}
   uberjar       {:exec-fn jar/uberjar        :doc "generate antq uberjar"
