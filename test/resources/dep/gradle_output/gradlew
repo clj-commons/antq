@@ -1,19 +1,2 @@
 #!/bin/sh
-# A fake Gradle wrapper for antq.dep.gradle-test: prints what antq's init script would print
-# for a build with a nested subproject, together with lines that the build prints itself.
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --project-dir) project_dir="$2"; shift ;;
-  esac
-  shift
-done
-echo "Configuring the build (a line that the build prints itself)"
-echo "ANTQ_REPO;;settings-repo;https://settings.example.com/maven/"
-echo "ANTQ_PROJECT;:;$project_dir/build.gradle"
-echo "ANTQ_REPO;:;root-repo;https://example.com/maven;jsessionid=1"
-echo "ANTQ_DEP;:;$project_dir/build.gradle;org.example:root:1.0.0"
-echo "ANTQ_DEP;:;$project_dir/build.gradle;org.example:root:1.0.0"
-echo "ANTQ_PROJECT;:tools;$project_dir/tools/build.gradle"
-echo "ANTQ_PROJECT;:tools:cli;$project_dir/tools/cli/build.gradle"
-echo "ANTQ_REPO;:tools:cli;settings-repo;https://override.example.com/maven/"
-echo "ANTQ_DEP;:tools:cli;$project_dir/tools/cli/build.gradle;org.example:cli:2.0.0"
+exec bb "$(dirname "$0")/gradlew.clj" "$@"

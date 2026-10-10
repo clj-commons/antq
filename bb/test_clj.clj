@@ -2,6 +2,7 @@
   (:require
    [helper.clojure-versions :as clojure-versions]
    [helper.jdk :as jdk]
+   [helper.legacy :as legacy]
    [helper.shell :as shell]
    [lread.status-line :as status]))
 
@@ -45,6 +46,7 @@
   {:org.babashka/cli {:restrict false :restrict-args false ; allow kaocha opts through
                       :spec cli-spec}}
   [{:keys [clojure-version kaocha-help]}]
+  (legacy/check-for-build-remnants)
   (let [env-jdk-version (jdk/version)
         clojure-versions (if (= "all" clojure-version)
                            (clojure-versions/all)

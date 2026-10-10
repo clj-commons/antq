@@ -4,8 +4,8 @@
    [antq.record :as r]
    [antq.util.dep :as u.dep]
    [antq.util.os :as os]
+   [babashka.fs :as fs]
    [babashka.process :as process]
-   [clojure.java.io :as io]
    [clojure.string :as str])
   (:import
    java.io.File))
@@ -59,7 +59,7 @@ gradle.beforeProject { p ->
 
 (defn- gradle-project-dir?
   [dir]
-  (some #(.isFile (io/file dir %)) project-files))
+  (some #(fs/regular-file? (fs/file dir %)) project-files))
 
 (defn find-gradle-wrapper
   "Returns the path of the Gradle wrapper for the project in `dir`.
@@ -67,19 +67,19 @@ gradle.beforeProject { p ->
   as long as they are part of the Gradle build.
   Throws if the wrapper is not executable."
   [dir]
-  (loop [dir (.getAbsoluteFile (io/file dir))]
+  (loop [dir (fs/absolutize dir)]
     (when (and dir (gradle-project-dir? dir))
-      (let [wrapper (io/file dir (gradle-wrapper-name))]
+      (let [wrapper (fs/file dir (gradle-wrapper-name))]
         (cond
-          (not (.isFile wrapper))
-          (recur (.getParentFile dir))
+          (not (fs/regular-file? wrapper))
+          (recur (fs/parent dir))
 
-          (not (.canExecute wrapper))
+          (not (fs/executable? wrapper))
           (throw (ex-info (str "Gradle wrapper is not executable: " (.getPath wrapper))
                           {:wrapper (.getPath wrapper)}))
 
           :else
-          (.getPath wrapper))))))
+          (str wrapper))))))
 
 (defn- gradle
   "Runs the project's Gradle wrapper, or the `gradle` command when there is none."
@@ -140,9 +140,9 @@ gradle.beforeProject { p ->
 (defn- build-file-path
   "Returns the path of a (sub)project's `build-file`, relative in the same way as `project-file`."
   [project-file project-dir build-file]
-  (let [relative (.relativize (.toPath (.getCanonicalFile (io/file project-dir)))
-                              (.toPath (.getCanonicalFile (io/file build-file))))]
-    (u.dep/relative-path (io/file (.getParentFile (io/file project-file)) (str relative)))))
+  (let [relative (fs/relativize (fs/canonicalize project-dir)
+                                (fs/canonicalize build-file))]
+    (u.dep/relative-path (fs/file (fs/parent project-file) (str relative)))))
 
 (defn- convert-gradle-dependency
   "e.g. dep-str: 'org.clojure:clojure:1.10.0'"
@@ -161,7 +161,7 @@ gradle.beforeProject { p ->
                   [:maybe r/?dependencies]]}
   [relative-file-path absolute-file-path]
   (try
-    (let [project-dir (.getParent (io/file absolute-file-path))
+    (let [project-dir (fs/parent absolute-file-path)
           lines (read-gradle-build project-dir)
           repos-of (repositories-by-project lines)]
       (->> lines
@@ -182,8 +182,8 @@ gradle.beforeProject { p ->
 (defn discover-project
   [dir]
   (->> project-files
-       (map #(io/file dir %))
-       (filter #(.isFile ^File %))
+       (map #(fs/file dir %))
+       (filter #(fs/regular-file? %))
        (first)))
 
 (defn load-deps
