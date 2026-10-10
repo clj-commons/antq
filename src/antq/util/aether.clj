@@ -1,5 +1,4 @@
 (ns ^:no-doc antq.util.aether
-  "Code that uses Aether or Maven classes. Only the JVM loads it."
   (:require
    [antq.log :as log]
    [antq.util.maven :as u.mvn]
@@ -37,7 +36,7 @@
   [opts]
   (let [settings ^Settings (deps.util.maven/get-settings)
         server-ids (set (map #(.getId ^Server %) (.getServers settings)))]
-    ;; Leiningen keeps credentials in :repositories, not in settings.xml
+    ;; credentials from Leiningen's :repositories
     (doseq [repo (:repositories opts)]
       (let [{:keys [id username password]} (u.mvn/get-auth-info repo)]
         (when (and username
@@ -48,7 +47,7 @@
     settings))
 
 (def ^TransferListener custom-transfer-listener
-  "Logs corrupted downloads and nothing else."
+  "Logs corrupted downloads."
   (reify TransferListener
     (transferStarted [_ _event])
     (transferCorrupted [_ event]
