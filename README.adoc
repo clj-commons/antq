@@ -15,6 +15,7 @@ https://cljdoc.org/d/{project-mvn-coords}/CURRENT[image:https://cljdoc.org/badge
 https://clojurians.slack.com/archives/C0C4PCX9FJN[image:https://img.shields.io/badge/slack-join_chat-brightgreen.svg[Join chat]]
 https://clojars.org/{project-mvn-coords}[image:https://img.shields.io/clojars/v/{project-mvn-coords}.svg[Clojars Project]]
 https://github.com/users/clj-commons/packages/container/package/antq[image:https://img.shields.io/badge/docker-automated-blue["GitHub Container Registry"]]
+https://book.babashka.org#badges[image:https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg[bb compatible]]
 
 [NOTE]
 ====
