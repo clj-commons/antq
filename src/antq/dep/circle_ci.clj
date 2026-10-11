@@ -12,13 +12,18 @@
     (->> parsed
          :orbs
          vals
-         (mapv (fn [orb-s]
-                 (let [[orb-name version] (str/split orb-s #"@" 2)]
-                   (r/map->Dependency {:name orb-name
-                                       :version version
-                                       :type :circle-ci-orb
-                                       :project :circle-ci
-                                       :file file-path})))))))
+         (reduce (fn [acc orb-def]
+                   ;; ignore "inline" and "URL" orbs; we only look at "registry" orbs
+                   (if (and (string? orb-def)
+                            (not (str/starts-with? orb-def "https://")))
+                     (let [[orb-name version] (str/split orb-def #"@" 2)]
+                       (conj acc (r/map->Dependency {:name orb-name
+                                                     :version version
+                                                     :type :circle-ci-orb
+                                                     :project :circle-ci
+                                                     :file file-path})))
+                     acc))
+                 []))))
 
 (defn load-deps
   {:malli/schema [:function

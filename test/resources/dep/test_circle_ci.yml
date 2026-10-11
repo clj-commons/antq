@@ -3,3 +3,11 @@ version: 2.1
 orbs:
   node: circleci/node@6.3.0
   docker: circleci/docker@2.8.0
+  # URL orb
+  platform: https://raw.githubusercontent.com/my-org/orbs/refs/heads/main/platform-team.yaml
+  # Inline orb
+  local:
+    executors:
+      docker_base_small:
+        docker: [{image: "cimg/base:2025.07-24.04"}]
+        resource_class: small
