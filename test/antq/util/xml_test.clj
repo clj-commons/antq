@@ -1,5 +1,6 @@
 (ns antq.util.xml-test
   (:require
+   [antq.test-report]
    [antq.util.xml :as sut]
    [clojure.data.xml :as xml]
    [clojure.java.io :as io]

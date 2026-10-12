@@ -1,6 +1,7 @@
 (ns antq.ver.java-test
   (:require
    [antq.record :as r]
+   [antq.test-report]
    [antq.util.exception :as u.ex]
    [antq.util.maven :as u.mvn]
    [antq.ver :as ver]

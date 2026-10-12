@@ -1,5 +1,6 @@
 (ns antq.util.exception-test
   (:require
+   [antq.test-report]
    [antq.util.exception :as sut]
    [clojure.test :as t])
   (:import

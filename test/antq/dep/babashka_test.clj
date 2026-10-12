@@ -4,6 +4,7 @@
    [antq.dep.babashka :as sut]
    [antq.record :as r]
    [antq.test-helper :as h]
+   [antq.test-report]
    [clojure.test :as t]))
 
 (t/deftest load-deps-test

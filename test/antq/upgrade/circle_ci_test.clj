@@ -3,6 +3,7 @@
    [antq.dep.circle-ci :as dep.circle-ci]
    [antq.record :as r]
    [antq.test-helper :as h]
+   [antq.test-report]
    [antq.upgrade :as upgrade]
    [antq.upgrade.circle-ci]
    [clojure.java.io :as io]

@@ -3,6 +3,7 @@
    [antq.dep.clojure.tool :as dep.clj.tool]
    [antq.record :as r]
    [antq.test-helper :as h]
+   [antq.test-report]
    [antq.upgrade :as upgrade]
    [antq.upgrade.clojure.tool]
    [antq.util.git :as u.git]

@@ -3,6 +3,7 @@
    [antq.constant.github-action :as const.gh-action]
    [antq.dep.github-action.third-party :as sut]
    [antq.record :as r]
+   [antq.test-report]
    [clojure.test :as t]))
 
 (defn- git-tag-dependency

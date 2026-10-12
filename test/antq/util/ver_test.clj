@@ -1,6 +1,7 @@
 (ns antq.util.ver-test
   (:require
    [antq.record :as r]
+   [antq.test-report]
    [antq.util.ver :as sut]
    [clojure.test :as t]))
 

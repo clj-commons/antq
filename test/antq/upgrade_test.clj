@@ -1,6 +1,7 @@
 (ns antq.upgrade-test
   (:require
    [antq.record :as r]
+   [antq.test-report]
    [antq.upgrade :as sut]
    [antq.util.exception :as u.ex]
    [clojure.java.io :as io]

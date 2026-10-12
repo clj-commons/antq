@@ -1,5 +1,6 @@
 (ns antq.ver.git-sha-test
   (:require
+   [antq.test-report]
    [antq.util.exception :as u.ex]
    [antq.util.git :as u.git]
    [antq.ver :as ver]

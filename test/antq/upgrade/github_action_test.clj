@@ -4,6 +4,7 @@
    [antq.dep.github-action :as dep.gha]
    [antq.record :as r]
    [antq.test-helper :as h]
+   [antq.test-report]
    [antq.upgrade :as upgrade]
    [antq.upgrade.github-action]
    [clojure.java.io :as io]

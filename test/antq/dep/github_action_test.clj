@@ -4,6 +4,7 @@
    [antq.dep.github-action :as sut]
    [antq.record :as r]
    [antq.test-helper :as h]
+   [antq.test-report]
    [clojure.java.io :as io]
    [clojure.test :as t]))
 

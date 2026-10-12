@@ -2,6 +2,7 @@
   (:require
    [antq.dep.circle-ci :as sut]
    [antq.record :as r]
+   [antq.test-report]
    [clojure.java.io :as io]
    [clojure.test :as t]))
 

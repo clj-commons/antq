@@ -3,6 +3,7 @@
    [antq.dep.leiningen :as dep.lein]
    [antq.record :as r]
    [antq.test-helper :as h]
+   [antq.test-report]
    [antq.upgrade :as upgrade]
    [antq.upgrade.leiningen]
    [clojure.edn :as edn]

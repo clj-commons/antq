@@ -3,6 +3,7 @@
    [antq.diff :as diff]
    [antq.diff.git-sha]
    [antq.record :as r]
+   [antq.test-report]
    [clojure.test :as t]))
 
 (t/deftest get-diff-url-test

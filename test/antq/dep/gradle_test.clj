@@ -3,6 +3,7 @@
    [antq.dep.gradle :as sut]
    [antq.record :as r]
    [antq.test-helper :as h]
+   [antq.test-report]
    [antq.util.os :as os]
    [babashka.fs :as fs]
    [clojure.string :as str]

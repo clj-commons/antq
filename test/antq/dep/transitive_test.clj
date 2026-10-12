@@ -2,6 +2,7 @@
   (:require
    [antq.dep.transitive :as sut]
    [antq.record :as r]
+   [antq.test-report]
    [clojure.test :as t]
    [clojure.tools.deps :as deps]))
 

@@ -1,5 +1,6 @@
 (ns antq.util.function-test
   (:require
+   [antq.test-report]
    [antq.util.function :as sut]
    [clojure.test :as t]))
 

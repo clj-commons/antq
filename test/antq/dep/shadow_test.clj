@@ -3,6 +3,7 @@
    [antq.constant.project-file :as const.project-file]
    [antq.dep.shadow :as sut]
    [antq.record :as r]
+   [antq.test-report]
    [antq.util.env :as u.env]
    [clojure.java.io :as io]
    [clojure.test :as t]))

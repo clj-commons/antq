@@ -15,7 +15,7 @@
 
 (def cli-spec
   (merge (clojure-versions/cli-opt cli-clojure-versions)
-         {:kaocha-help {:desc "Get kaocha opts help"}}))
+         {:runner-help {:desc "Get test runner opts help"}}))
 
 (def spec-cli-args
   (reduce (fn [acc [k v]]
@@ -43,16 +43,16 @@
         acc))))
 
 (defn task
-  {:org.babashka/cli {:restrict false :restrict-args false ; allow kaocha opts through
+  {:org.babashka/cli {:restrict false :restrict-args false ; allow test runner opts through
                       :spec cli-spec}}
-  [{:keys [clojure-version kaocha-help]}]
+  [{:keys [clojure-version runner-help]}]
   (legacy/check-for-build-remnants)
   (let [env-jdk-version (jdk/version)
         clojure-versions (if (= "all" clojure-version)
                            (clojure-versions/all)
                            [(clojure-versions/lookup clojure-version)])]
-    (if kaocha-help
-      (shell/clojure "-M:dev:test --help")
+    (if runner-help
+      (shell/clojure "-M:dev:test --test-help")
       (let [runner-args (strip-task-opts *command-line-args*)]
         (doseq [v clojure-versions]
           (if (and (= "all" clojure-version)

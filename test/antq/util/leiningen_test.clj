@@ -1,5 +1,6 @@
 (ns antq.util.leiningen-test
   (:require
+   [antq.test-report]
    [antq.util.env :as u.env]
    [antq.util.leiningen :as sut]
    [clojure.test :as t]))

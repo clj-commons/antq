@@ -1,5 +1,6 @@
 (ns antq.util.url-test
   (:require
+   [antq.test-report]
    [antq.util.url :as sut]
    [clojure.test :as t]))
 

@@ -1,5 +1,6 @@
 (ns antq.util.zip-test
   (:require
+   [antq.test-report]
    [antq.util.zip :as sut]
    [babashka.fs :as fs]
    [clojure.test :as t]

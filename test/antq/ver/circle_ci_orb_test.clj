@@ -1,6 +1,7 @@
 (ns antq.ver.circle-ci-orb-test
   (:require
    [antq.record :as r]
+   [antq.test-report]
    [antq.ver :as ver]
    [antq.ver.circle-ci-orb :as sut]
    [clojure.test :as t]))

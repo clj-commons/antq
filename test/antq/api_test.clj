@@ -4,6 +4,7 @@
    [antq.core :as core]
    [antq.record :as r]
    [antq.report :as report]
+   [antq.test-report]
    [antq.upgrade :as upgrade]
    [antq.util.file :as u.file]
    [clojure.test :as t]))

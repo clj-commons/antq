@@ -1,6 +1,7 @@
 (ns antq.download-test
   (:require
    [antq.download :as sut]
+   [antq.test-report]
    [antq.util.git :as u.git]
    [clojure.test :as t]
    [clojure.tools.deps :as deps]))

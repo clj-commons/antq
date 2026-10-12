@@ -2,6 +2,7 @@
   (:require
    [antq.changelog :as sut]
    [antq.record :as r]
+   [antq.test-report]
    [antq.util.dep :as u.dep]
    [antq.util.git :as u.git]
    [clojure.test :as t]))

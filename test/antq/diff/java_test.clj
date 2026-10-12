@@ -3,6 +3,7 @@
    [antq.diff :as diff]
    [antq.diff.java]
    [antq.record :as r]
+   [antq.test-report]
    [antq.util.dep :as u.dep]
    [antq.util.git :as u.git]
    [antq.util.maven :as u.mvn]

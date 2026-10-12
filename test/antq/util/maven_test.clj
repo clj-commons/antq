@@ -1,6 +1,7 @@
 (ns antq.util.maven-test
   (:require
    [antq.test-helper :as h]
+   [antq.test-report]
    [antq.util.env :as u.env]
    [antq.util.leiningen :as u.lein]
    [antq.util.maven :as sut]

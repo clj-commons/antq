@@ -1,6 +1,7 @@
 (ns antq.cli-test
   (:require
    [antq.cli :as sut]
+   [antq.test-report]
    [clojure.test :as t]
    [matcher-combinators.matchers :as m]
    [matcher-combinators.test]))

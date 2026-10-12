@@ -3,6 +3,7 @@
    [antq.diff :as diff]
    [antq.diff.github-tag]
    [antq.record :as r]
+   [antq.test-report]
    [antq.util.git :as u.git]
    [clojure.test :as t]))
 

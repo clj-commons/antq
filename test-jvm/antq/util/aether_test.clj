@@ -1,5 +1,6 @@
 (ns antq.util.aether-test
   (:require
+   [antq.test-report]
    [antq.util.aether :as sut]
    [clojure.test :as t]
    [clojure.tools.deps.util.maven :as deps.util.maven])

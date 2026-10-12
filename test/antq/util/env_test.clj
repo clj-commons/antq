@@ -1,5 +1,6 @@
 (ns antq.util.env-test
   (:require
+   [antq.test-report]
    [antq.util.env :as sut]
    [clojure.test :as t]))
 

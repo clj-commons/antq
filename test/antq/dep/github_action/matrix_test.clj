@@ -2,6 +2,7 @@
   (:require
    [antq.dep.github-action.matrix :as sut]
    [antq.record :as r]
+   [antq.test-report]
    [antq.util.dep :as u.dep]
    [clojure.test :as t]))
 

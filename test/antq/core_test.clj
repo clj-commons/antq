@@ -5,6 +5,7 @@
    [antq.log :as log]
    [antq.record :as r]
    [antq.test-helper :as h]
+   [antq.test-report]
    [antq.util.dep :as u.dep]
    [antq.util.exception :as u.ex]
    [antq.util.git :as u.git]

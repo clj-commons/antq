@@ -2,6 +2,7 @@
   (:require
    [antq.record :as r]
    [antq.test-helper :as h]
+   [antq.test-report]
    [antq.util.dep :as sut]
    [antq.util.maven :as u.mvn]
    [clojure.java.io :as io]

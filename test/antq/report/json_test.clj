@@ -3,6 +3,7 @@
    [antq.report :as report]
    [antq.report.json]
    [antq.test-helper :as h]
+   [antq.test-report]
    [clojure.data.json :as json]
    [clojure.string :as str]
    [clojure.test :as t]))

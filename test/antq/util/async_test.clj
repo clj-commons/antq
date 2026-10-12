@@ -1,5 +1,6 @@
 (ns antq.util.async-test
   (:require
+   [antq.test-report]
    [antq.util.async :as sut]
    [antq.util.exception :as u.ex]
    [clojure.core.async :as async]

@@ -3,6 +3,7 @@
    [antq.dep.shadow :as dep.shadow]
    [antq.record :as r]
    [antq.test-helper :as h]
+   [antq.test-report]
    [antq.upgrade :as upgrade]
    [antq.upgrade.shadow]
    [clojure.java.io :as io]

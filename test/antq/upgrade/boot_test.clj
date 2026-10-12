@@ -3,6 +3,7 @@
    [antq.dep.boot :as dep.boot]
    [antq.record :as r]
    [antq.test-helper :as h]
+   [antq.test-report]
    [antq.upgrade :as upgrade]
    [antq.upgrade.boot]
    [clojure.java.io :as io]

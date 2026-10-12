@@ -3,6 +3,7 @@
    [antq.constant.project-file :as const.project-file]
    [antq.dep.leiningen :as sut]
    [antq.record :as r]
+   [antq.test-report]
    [antq.util.leiningen :as u.lein]
    [clojure.java.io :as io]
    [clojure.test :as t]))

@@ -1,5 +1,6 @@
 (ns antq.util.git-test
   (:require
+   [antq.test-report]
    [antq.util.git :as sut]
    [clojure.java.shell :as sh]
    [clojure.string :as str]

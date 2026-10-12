@@ -1,6 +1,7 @@
 (ns antq.ver.github-tag-test
   (:require
    [antq.record :as r]
+   [antq.test-report]
    [antq.util.exception :as u.ex]
    [antq.util.git :as u.git]
    [antq.ver :as ver]

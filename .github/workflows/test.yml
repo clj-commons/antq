@@ -24,10 +24,10 @@ jobs:
           gradle-version: '8.14.3'
 
       - name: run unit tests
-        run: bb test-clj --clojure-version all --skip-meta integration
+        run: bb test-clj --clojure-version all --exclude :integration
 
       - name: run integration tests
-        run: bb test-clj --focus-meta integration
+        run: bb test-clj --include :integration
 
   test-bb:
     runs-on: ubuntu-latest

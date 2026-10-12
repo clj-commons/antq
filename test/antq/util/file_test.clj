@@ -1,6 +1,7 @@
 (ns antq.util.file-test
   (:require
    [antq.test-helper :as h]
+   [antq.test-report]
    [antq.util.env :as u.env]
    [antq.util.file :as sut]
    [clojure.java.io :as io]

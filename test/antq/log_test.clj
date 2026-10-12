@@ -1,6 +1,7 @@
 (ns antq.log-test
   (:require
    [antq.log :as sut]
+   [antq.test-report]
    [clojure.test :as t]))
 
 (t/deftest info-test

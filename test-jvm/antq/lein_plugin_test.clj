@@ -1,6 +1,7 @@
-(ns ^:integration antq.lein-plugin-test
+(ns antq.lein-plugin-test
   "These lein plugin integration tests installed antq to your local .m2 maven repo."
   (:require
+   [antq.test-report]
    [babashka.fs :as fs]
    [babashka.process :as p]
    [clojure.string :as str]
@@ -20,8 +21,8 @@
 (use-fixtures :once
   (fn [f]
     (try
-      ;; we install to our local .m2 repository, 
-      ;; but are careful to not conflict with some real installed antq artifact 
+      ;; we install to our local .m2 repository,
+      ;; but are careful to not conflict with some real installed antq artifact
       (p/shell {:out :string} "clojure -T:build install"
                ":version" (pr-str antq-test-version))
       (f)
@@ -75,7 +76,7 @@
   (lein-run))
 
 
-(deftest detects-outdated-deps-test
+(deftest ^:integration detects-outdated-deps-test
   ;; test assumes clojure will always be at 1.x. probably a safe assumption!
   (is (match? {:exit 1
                :out [#"\| project\.clj +\| org\.clojure/clojure +\| 1\.10\.2 +\| 1"
@@ -84,7 +85,7 @@
               (lein-scenario [:plugins [antq-coords]
                               :dependencies '[[org.clojure/clojure "1.10.2"]]]))))
 
-(deftest detects-outdated-managed-deps-test
+(deftest ^:integration detects-outdated-managed-deps-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
   (is (match? {:exit 1
                :out [#"\| project\.clj +\| com\.stuartsierra/mapgraph +\| 0\.1\.0 +\| 0\.2\.1"
@@ -94,14 +95,14 @@
                               :managed-dependencies '[[com.stuartsierra/mapgraph "0.1.0"]]
                               :dependencies '[[com.stuartsierra/mapgraph]]]))))
 
-(deftest detects-outdated-plugins-test
+(deftest ^:integration detects-outdated-plugins-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
   (is (match? {:exit 1
                :out [#"\| project\.clj +\| lein-swank/lein-swank +\| 1\.4\.1 +\| 1\.4\.5"]}
               (lein-scenario [:plugins [['lein-swank "1.4.1"]
                                         antq-coords]]))))
 
-(deftest no-updates-test
+(deftest ^:integration no-updates-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
   (is (match? {:exit 0
                :out ["All dependencies are up-to-date."]}
@@ -111,7 +112,7 @@
                               :plugins [['lein-swank "1.4.5"]
                                         antq-coords]]))))
 
-(deftest meta-exclude-test
+(deftest ^:integration meta-exclude-test
   ;; test assumes no further releases of this lib, adjust accordingly
   (is (match? {:exit 1
                :out [#"| project\.clj +\| me.raynes/fs +\| 1\.4\.1 +\| 1\.4\.4 +\|"]}
@@ -122,5 +123,5 @@
   (recreate-work-dir)
 
   (lein-project [:dependencies [^{:antq/exclude ["1.4.6" "1.4.5"]} ['me.raynes/fs "1.4.1"]]])
-  
+
   :eoc)

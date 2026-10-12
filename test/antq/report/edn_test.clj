@@ -3,6 +3,7 @@
    [antq.report :as report]
    [antq.report.edn]
    [antq.test-helper :as h]
+   [antq.test-report]
    [clojure.edn :as edn]
    [clojure.string :as str]
    [clojure.test :as t]))
