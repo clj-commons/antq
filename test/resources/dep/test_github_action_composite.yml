@@ -1,0 +1,13 @@
+name: composite
+
+runs:
+  using: composite
+  steps:
+    - uses: foo/bar@v1.0.0
+    - name: Foo
+      uses: foo/bar@v2.0.0
+    - name: Bar
+      uses: bar/baz@master
+    - uses: ./
+    - uses: git/sha@8be09192b01d78912b03852f5d6141e8c48f4179
+    - uses: git/sha-short@8be0919

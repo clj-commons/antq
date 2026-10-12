@@ -39,6 +39,28 @@
                                             const.gh-action/type-key "uses"}})}
              (set deps)))))
 
+(t/deftest extract-deps-composite-test
+  (let [deps (sut/extract-deps
+              "dep/test_github_action_composite.yml"
+              (slurp (io/resource "dep/test_github_action_composite.yml")))
+        git-tag-dependency #(git-tag-dependency (merge {:file "dep/test_github_action_composite.yml"} %))
+        git-sha-dependency #(git-sha-dependency (merge {:file "dep/test_github_action_composite.yml"} %))]
+    (t/is (sequential? deps))
+    (t/is (every? #(instance? antq.record.Dependency %) deps))
+    (t/is (= #{(git-tag-dependency {:name "foo/bar" :version "v1.0.0"
+                                    :extra {const.gh-action/type-key "uses"}})
+               (git-tag-dependency {:name "foo/bar" :version "v2.0.0"
+                                    :extra {const.gh-action/type-key "uses"}})
+               (git-tag-dependency {:name "bar/baz" :version "master"
+                                    :extra {const.gh-action/type-key "uses"}})
+               (git-sha-dependency {:name "git/sha" :version "8be09192b01d78912b03852f5d6141e8c48f4179"
+                                    :extra {:url "https://github.com/git/sha.git"
+                                            const.gh-action/type-key "uses"}})
+               (git-sha-dependency {:name "git/sha-short" :version "8be0919"
+                                    :extra {:url "https://github.com/git/sha-short.git"
+                                            const.gh-action/type-key "uses"}})}
+             (set deps)))))
+
 (t/deftest extract-deps-matrix-test
   (let [deps (sut/extract-deps
               "dep/test_github_action_matrix.yml"
@@ -62,7 +84,8 @@
                          ".github/workflows/release.yml"
                          ".github/workflows/lint.yml"
                          ".github/workflows/reviewdog.yml"
-                         ".github/workflows/test.yml"]))
+                         ".github/workflows/test.yml"
+                         ".github/actions/shared-setup/action.yml"]))
               (set (map :file deps)))))
 
   (t/is (nil? (sut/load-deps "non_existing_directory"))))
