@@ -132,6 +132,25 @@ clojure -A:deps -Tantq help/doc
 clojure -Tantq outdated :check-clojure-tools true :upgrade true
 ----
 
+[[usage-bbin]]
+=== Babashka (bbin)
+
+Install `antq` as a command with https://github.com/babashka/bbin[bbin].
+
+[source,sh]
+----
+bbin install io.github.clj-commons/antq
+antq
+----
+
+Enable shell completion in `~/.zshrc`.
+Replace `zsh` with `bash`, `fish`, `powershell` or `nushell` for other shells.
+
+[source,sh]
+----
+source <(antq org.babashka.cli/completions snippet --shell zsh)
+----
+
 [[usage-lein-as-program]]
 === Leiningen (as a `main` program)
 

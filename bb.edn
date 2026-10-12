@@ -1,5 +1,6 @@
 {:min-bb-version "1.13.226"
  :paths ["bb"]
+ :bbin/bin {antq {:main-opts ["-m" "antq.core"]}}
  :deps {lread/status-line {:git/url "https://github.com/lread/status-line.git"
                            :sha "eace48e2e0fcc65a3986d696fb0b910fa5790a1c"}
         version-clj/version-clj {:mvn/version "2.0.3"}

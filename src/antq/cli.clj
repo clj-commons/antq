@@ -292,3 +292,16 @@
        opts->args
        (into [":usage-help-style" ":clojure-tool"])
        parse-args))
+
+(defn completions-args?
+  "Returns true if args request shell completion."
+  [args]
+  (= "org.babashka.cli/completions" (first args)))
+
+(defn completions
+  "Prints a shell completion snippet or completion candidates for args."
+  [args]
+  (cli/dispatch {:spec (dissoc cli-options :no-diff :usage-help-style)
+                 :fn (fn [_])}
+                args
+                {:prog "antq"}))
