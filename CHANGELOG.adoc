@@ -9,10 +9,14 @@ We'll continue to publish releases to the existing Antq maven coordinates https:
 === Minor Breaking
 * https://github.com/clj-commons/antq/issues/376[#376]: Discovering Gradle dependencies requires invoking `gradle` or `gradlew`, which can pose some risk.
 Therefore, checking Gradle dependencies is now opt-in via `--check-gradle`.
+* Minimum Clojure version is now 1.11
+(https://github.com/lread[@lread])
 
 === Added
-* Add babashka compatibility (https://github.com/borkdude[@borkdude])
-* Add bbin install and shell completion (https://github.com/borkdude[@borkdude])
+* https://github.com/clj-commons/antq/pull/380[#380]: Add babashka compatibility
+(https://github.com/borkdude[@borkdude])
+* https://github.com/clj-commons/antq/pull/386[#386]: Add bbin install and shell completion
+(https://github.com/borkdude[@borkdude])
 * https://github.com/clj-commons/antq/pull/289[#289]: New `--no-progress` option to suppress progress indicator while analyzing deps
 (thanks, https://github.com/kirked[@kirked]!)
 * https://github.com/clj-commons/antq/issues/280[#280],
@@ -25,8 +29,6 @@ https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now
 === Changed
 * General dep bumping and maintenance after migrating antq to clj-commons :tada:
 (https://github.com/lread[@lread])
-* Minimum Clojure version is now 1.11
-(https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/304[#304]: When run as a lein plugin, antq now runs analysis in a sub-process to avoid any classpath conflicts between lein and tools.deps
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/pull/316[#316]: Read an artifact's POM from the local Maven repository through tools.deps instead of resolving its repository with Aether and fetching the POM over HTTP.
@@ -36,7 +38,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/235[#235]: Improve pre-release detection: recognize more markers as whole words (e.g. `-M1`, `milestone`, `preview`, `pre`, `CR`, `dev`), so they are no longer suggested as the latest version
 (thanks, https://github.com/aadrian[@aadrian]!)
-* Recognise Maven timestamped snapshots (e.g. `2.5-20240101.120000-1`) as snapshots
+* https://github.com/clj-commons/antq/pull/348[#348]: Recognise Maven timestamped snapshots (e.g. `2.5-20240101.120000-1`) as snapshots
 (thanks, https://github.com/aadrian[@aadrian]!)
 * https://github.com/clj-commons/antq/issues/352[#352]: Recognise early access versions (e.g. `1.1-ea`, `13-ea+14b`) as pre-releases, without mistaking a commit hash in a version (e.g. `20210520.145017.40e04ea`) for one
 (thanks, https://github.com/aadrian[@aadrian]!)
@@ -52,7 +54,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/324[#324]: No longer replacing embedded `HOME` env var matches in paths with `~`
 (https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/329[#329]: `.\foo\bar` now converts to, as intended, `foo\bar` on Windows
+* https://github.com/clj-commons/antq/issues/329[#329]: Windows: `.\foo\bar` now converts to, as intended, `foo\bar`
 (https://github.com/lread[@lread])
 * https://github.com/liquidz/antq/issues/300[#300]: Avoid a `NullPointerException` when a dependency's POM has a malformed SCM URL that uses a slash instead of a colon (e.g. `git@github.com/foo/bar.git`).
 (thanks, https://github.com/SAY-5[@SAY-5]!)
@@ -65,6 +67,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 * https://github.com/clj-commons/antq/issues/290[#290]: circleci: skip inline and URL orbs; Antq only analyzes registry orbs
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/269[#269]: Composite github actions are now checked for updates
+(thanks, https://github.com/nenadalm[@nenadalm]!)
 
 == 2.11.1276 (2025-03-15)
 // {{{
