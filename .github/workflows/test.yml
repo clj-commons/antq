@@ -5,9 +5,13 @@ jobs:
   test:
     strategy:
       matrix:
-        jdk: ['11', '17', '21']
+        jdk: ['11', '17', '21', '25', '27']
+        os: ['ubuntu', 'windows']
 
-    runs-on: ubuntu-latest
+    name: clj ${{ matrix.os }} jdk ${{ matrix.jdk }}
+
+    runs-on: ${{ matrix.os }}-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -17,17 +21,43 @@ jobs:
         with:
           jdk: ${{ matrix.jdk }}
 
-      # The runner image comes with a later version gradle that does not work with antq unit tests yet
-      - name: Install Gradle for antq
-        uses: gradle/actions/setup-gradle@v6
-        with:
-          gradle-version: '8.14.3'
-
       - name: run unit tests
-        run: bb test-clj --clojure-version all --exclude :integration
+        run: bb test-clj --clojure-version all --exclude :integration --exclude :gradle
 
       - name: run integration tests
         run: bb test-clj --include :integration
+
+  test-gradle:
+    strategy:
+      matrix:
+        jdk: ['11', '17', '21', '25', '27']
+        gradle: ['8.14.6', '9.8.1']
+        os: ['ubuntu', 'windows']
+        exclude:
+          - {gradle: '9.8.1', jdk: '11'}
+          - {gradle: '8.14.6', jdk: '25'}
+          - {gradle: '8.14.6', jdk: '27'}
+
+    name: gradle ${{ matrix.gradle }} ${{ matrix.os }} jdk ${{ matrix.jdk }}
+
+    runs-on: ${{ matrix.os }}-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup
+        uses: ./.github/actions/shared-setup
+        with:
+          jdk: ${{ matrix.jdk }}
+
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: ${{ matrix.gradle }}
+
+      - name: run gradle tests
+        run: bb test-clj --clojure-version all --include :gradle
 
   test-bb:
     runs-on: ubuntu-latest
@@ -38,10 +68,10 @@ jobs:
       - name: Setup
         uses: ./.github/actions/shared-setup
 
-      - name: Install Gradle for antq
+      - name: Install Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
-          gradle-version: '8.14.3'
+          gradle-version: '9.8.1'
 
       - name: run unit tests
         run: bb test-bb

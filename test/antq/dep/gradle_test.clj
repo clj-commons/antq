@@ -1,4 +1,4 @@
-(ns ^:gradle antq.dep.gradle-test
+(ns antq.dep.gradle-test
   (:require
    [antq.dep.gradle :as sut]
    [antq.record :as r]
@@ -38,7 +38,7 @@
   [test-name]
   (str (fs/file "target/test/gradle" test-name)))
 
-(t/deftest extract-deps-test
+(t/deftest ^:gradle extract-deps-test
   (let [test-dir (tdir "extract-deps-test")
         _ (h/setup-deps-scenario test-dir [["build.gradle"]])
         deps (sut/extract-deps
@@ -48,7 +48,7 @@
         actual-deps (set deps)]
     (t/is (match? (m/equals defined-deps) actual-deps))))
 
-(t/deftest extract-deps-without-repository-task-test
+(t/deftest ^:gradle extract-deps-without-repository-task-test
   (let [test-dir (tdir "extract-deps-without-repository-task-test")
         _ (h/setup-deps-scenario test-dir [["no_repo_gradle"]])
         deps (sut/extract-deps
@@ -61,7 +61,7 @@
       (t/is (contains? actual-deps (java-dependency {:name "nrepl/nrepl" :version "0.9.0"}))))))
 
 ;; The fixture's comments say which dependencies are listed and which are not
-(t/deftest extract-deps-multi-module-test
+(t/deftest ^:gradle extract-deps-multi-module-test
   (let [test-dir (tdir "extract-deps-multi-module-test")
         _ (h/setup-deps-scenario test-dir [["gradle_multi_module"]])
         settings-file (str (fs/path test-dir "gradle_multi_module" "settings.gradle.kts"))
@@ -92,7 +92,7 @@
     (t/testing "a build with only settings.gradle.kts in its root directory is found"
       (t/is (= 6 (count (sut/load-deps (fs/parent settings-file))))))))
 
-(t/deftest find-gradle-wrapper-test
+(t/deftest ^:gradle find-gradle-wrapper-test
   (let [test-dir (tdir "find-gradle-wrapper-test")
         _ (h/setup-deps-scenario test-dir [["gradle_wrapper"]])
         wrapper-path? #(and % (str/ends-with? % (str (h/os-path "/gradle_wrapper/gradlew")
@@ -104,7 +104,7 @@
     (t/testing "no wrapper"
       (t/is (nil? (sut/find-gradle-wrapper test-dir))))))
 
-(t/deftest extract-deps-with-gradle-wrapper-test
+(t/deftest ^:gradle extract-deps-with-gradle-wrapper-test
   (let [test-dir (tdir "extract-deps-with-gradle-wrapper-test")]
     (h/setup-deps-scenario test-dir [["gradle_wrapper"]])
     (with-redefs [sut/gradle-command "__non-existing-command__"]
@@ -121,7 +121,7 @@
 
 (when-not (os/windows?)
   ;; .bat files, I think, are always executable, so skip for Windows
-  (t/deftest non-executable-gradle-wrapper-test
+  (t/deftest ^:gradle non-executable-gradle-wrapper-test
     ;; git does not reliably keep a file non-executable, so the project is created here
     (let [test-dir (tdir "non-executable-gradle-wrapper-test")]
       (h/setup-deps-scenario test-dir [["gradle_wrapper"]])
@@ -129,7 +129,7 @@
       (t/is (thrown-with-msg? clojure.lang.ExceptionInfo #"Gradle wrapper is not executable"
               (sut/find-gradle-wrapper (fs/path test-dir "gradle_wrapper")))))))
 
-(t/deftest extract-deps-gradle-failure-test
+(t/deftest ^:gradle extract-deps-gradle-failure-test
   (let [test-dir (tdir "extract-deps-gradle-failure-test")
         _ (h/setup-deps-scenario test-dir [["gradle_failure"]])
         ex (try
@@ -143,7 +143,7 @@
       (t/is (str/includes? (ex-message ex) "FAILURE: Build failed with an exception.")))
     (t/is (= {:exit 1 :file file-path} (ex-data ex)))))
 
-(t/deftest extract-deps-gradle-output-test
+(t/deftest ^:gradle extract-deps-gradle-output-test
   (let [test-dir (tdir "extract-deps-gradle-output-test")
         _ (h/setup-deps-scenario test-dir [["gradle_output"]])
         dep (fn [file dep-name version repos]
@@ -162,7 +162,7 @@
                      {"settings-repo" {:url "https://override.example.com/maven/"}})]
                (sut/extract-deps file-path (fs/path test-dir "gradle_output" "build.gradle")))))))
 
-(t/deftest extract-deps-without-init-script-output-test
+(t/deftest ^:gradle extract-deps-without-init-script-output-test
   (t/testing "no dependencies are reported when the init script did not work"
     (let [test-dir (tdir "extract-deps-without-init-script-output-test")
           _ (h/setup-deps-scenario test-dir [["gradle_no_output"]])
@@ -175,7 +175,7 @@
                            (str "Failed to read " (h/os-path "path/to/build.gradle")
                                 ": Gradle did not print the output of antq's init script"))))))
 
-(t/deftest init-script-file-deleted-test
+(t/deftest ^:gradle init-script-file-deleted-test
   (let [test-dir (tdir "init-script-file-deleted-test")
         _ (h/setup-deps-scenario test-dir [["gradle_wrapper"]])
         init-script-files #(->> (fs/list-dir (fs/temp-dir))
@@ -189,7 +189,7 @@
     (t/testing "the temporary init script is deleted, also when Gradle fails"
       (t/is (= before (init-script-files))))))
 
-(t/deftest extract-deps-command-error-test
+(t/deftest ^:gradle extract-deps-command-error-test
   (with-redefs [sut/gradle-command "__non-existing-command__"]
     (t/is (thrown-with-msg? clojure.lang.ExceptionInfo
                             (re-pattern (str "Failed to read " (Pattern/quote file-path)))

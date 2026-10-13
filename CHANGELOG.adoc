@@ -25,6 +25,13 @@ https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/362[#362]: Gradle: all projects of a multi-module build are now read in one run, `build.gradle.kts` builds are recognized, and repositories (including those in `settings.gradle`) are found without changes to the build. antq passes a small init script to Gradle for this. Requires Gradle 8 or later
 (thanks, https://github.com/aadrian[@aadrian]!)
+* CI: Test coverage for:
+** https://github.com/clj-commons/antq/issues/323[#323]: Windows
+(https://github.com/lread[@lread])
+** https://github.com/clj-commons/antq/issues/323[#323]: JDK 11+ LTS JDKs and lastest JDK
+(https://github.com/lread[@lread])
+** https://github.com/clj-commons/antq/issues/375[#375]: Gradle 8 & Gradle 9
+(https://github.com/lread[@lread])
 
 === Changed
 * General dep bumping and maintenance after migrating antq to clj-commons :tada:
