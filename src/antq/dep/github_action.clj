@@ -8,7 +8,8 @@
    [antq.util.dep :as u.dep]
    [clj-yaml.core :as yaml]
    [clojure.java.io :as io]
-   [clojure.walk :as walk])
+   [clojure.walk :as walk]
+   [clojure.string :as str])
   (:import
    java.io.File))
 
@@ -55,16 +56,31 @@
                  :file file-path)
          @deps)))
 
+(defn- load-workflow-deps [dir]
+  (let [dir-file (io/file dir ".github" "workflows")]
+     (when (.isDirectory dir-file)
+       (->> (file-seq dir-file)
+            (filter #(and (.isFile ^File %)
+                          (re-seq #"\.ya?ml$" (.getName %))))
+            (mapcat #(extract-deps (u.dep/relative-path %)
+                                   (slurp %)))))))
+
+(defn- load-action-deps [dir]
+  (let [dir-file (io/file dir ".github" "actions")]
+    (when (.isDirectory dir-file)
+      (->> (file-seq dir-file)
+           (filter #(and (.isFile ^File %)
+                         (re-seq #"^action\.ya?ml$" (.getName %))))
+           (mapcat #(extract-deps (u.dep/relative-path %)
+                                   (slurp %)))))))
+
 (defn load-deps
   {:malli/schema [:function
                   [:=> :cat [:maybe r/?dependencies]]
                   [:=> [:cat 'string?] [:maybe r/?dependencies]]]}
   ([] (load-deps "."))
   ([dir]
-   (let [dir-file (io/file dir ".github")]
-     (when (.isDirectory dir-file)
-       (->> (file-seq dir-file)
-            (filter #(and (.isFile ^File %)
-                          (re-seq #"\.ya?ml$" (.getName %))))
-            (mapcat #(extract-deps (u.dep/relative-path %)
-                                   (slurp %))))))))
+   (not-empty
+    (concat
+     (load-workflow-deps dir)
+     (load-action-deps dir)))))
