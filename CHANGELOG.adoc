@@ -38,9 +38,9 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/235[#235]: Improve pre-release detection: recognize more markers as whole words (e.g. `-M1`, `milestone`, `preview`, `pre`, `CR`, `dev`), so they are no longer suggested as the latest version
 (thanks, https://github.com/aadrian[@aadrian]!)
-* https://github.com/clj-commons/antq/pull/348[#348]: Recognise Maven timestamped snapshots (e.g. `2.5-20240101.120000-1`) as snapshots
+* https://github.com/clj-commons/antq/pull/348[#348]: Recognize Maven timestamped snapshots (e.g. `2.5-20240101.120000-1`) as snapshots
 (thanks, https://github.com/aadrian[@aadrian]!)
-* https://github.com/clj-commons/antq/issues/352[#352]: Recognise early access versions (e.g. `1.1-ea`, `13-ea+14b`) as pre-releases, without mistaking a commit hash in a version (e.g. `20210520.145017.40e04ea`) for one
+* https://github.com/clj-commons/antq/issues/352[#352]: Recognize early access versions (e.g. `1.1-ea`, `13-ea+14b`) as pre-releases, without mistaking a commit hash in a version (e.g. `20210520.145017.40e04ea`) for one
 (thanks, https://github.com/aadrian[@aadrian]!)
 * https://github.com/clj-commons/antq/issues/353[#353]: Gradle: when Gradle cannot be run or fails, antq now stops with an error that includes Gradle's output, instead of reporting all dependencies as up-to-date
 (thanks, https://github.com/aadrian[@aadrian]!)
