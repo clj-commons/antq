@@ -11,6 +11,10 @@ We'll continue to publish releases to the existing Antq maven coordinates https:
 Therefore, checking Gradle dependencies is now opt-in via `--check-gradle`.
 * Minimum Clojure version is now 1.11
 (https://github.com/lread[@lread])
+* https://github.com/clj-commons/antq/issues/396[#396]: Long ago, Antq switched to https://clojars.org/com.github.liquidz/antq[com.github.liquidz/antq] as its official Maven coordinates.
+We will no longer also release to the legacy https://clojars.org/antq[antq/antq] Maven coordinates.
+Users using the legacy coordinates must switch if they want to keep up to date.
+(https://github.com/lread[@lread])
 
 === Added
 * https://github.com/clj-commons/antq/pull/380[#380]: Add babashka compatibility

@@ -38,7 +38,6 @@
 (defn deploy
   [m]
   (let [config (merge config m)]
-    (build-edn/deploy (assoc config :lib 'antq/antq))
     (build-edn/deploy config)))
 
 (defn update-documents
