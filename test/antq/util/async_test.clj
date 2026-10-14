@@ -3,7 +3,6 @@
    [antq.test-report]
    [antq.util.async :as sut]
    [antq.util.exception :as u.ex]
-   [clojure.core.async :as async]
    [clojure.test :as t])
   (:import
    clojure.lang.ExceptionInfo))
@@ -16,7 +15,7 @@
        (throw (Exception. "test error"))
 
        (= ::timeout x)
-       (do (async/<!! (async/timeout 500))
+       (do (Thread/sleep 500)
            x)
 
        :else

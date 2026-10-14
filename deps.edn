@@ -3,7 +3,6 @@
  {org.clojure/clojure {:mvn/version "1.12.6"}
   org.clojure/data.xml {:mvn/version "0.2.0-alpha11"}
   org.clojure/data.zip {:mvn/version "1.1.1"}
-  org.clojure/core.async {:mvn/version "1.9.865"}
   org.clojure/tools.deps {:mvn/version "0.31.1646"}
   org.clojure/data.json {:mvn/version "2.5.2"}
   babashka/fs {:mvn/version "0.5.34"}
@@ -36,8 +35,7 @@
                 org.flatland/ordered {:mvn/version "1.15.12"}
                 metosin/malli {:mvn/version "0.20.3"}
                 io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
-                lambdaisland/deep-diff2 {:mvn/version "2.14.235"}}
-   :jvm-opts ["-Dclojure.core.async.go-checking=true"]}
+                lambdaisland/deep-diff2 {:mvn/version "2.14.235"}}}
 
   :nrepl/jvm
   {:extra-deps {nrepl/nrepl {:mvn/version "1.8.0"}

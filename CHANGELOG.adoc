@@ -53,6 +53,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 (thanks, https://github.com/aadrian[@aadrian]!)
 * https://github.com/clj-commons/antq/issues/357[#357]: Improved Gradle docs: running antq without changes to the build, repositories, running from the build, limitations and troubleshooting
 (thanks, https://github.com/aadrian[@aadrian]!)
+* https://github.com/clj-commons/antq/issues/394[#394]: Remove core.async dependency (improves performance)
 
 === Fixed
 * https://github.com/clj-commons/antq/issues/231[#231]: Exclusions are now supported when antq is run as lein plugin
