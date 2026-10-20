@@ -12,3 +12,4 @@ jobs:
       - uses: ./
       - uses: git/sha@8be09192b01d78912b03852f5d6141e8c48f4179
       - uses: git/sha-short@8be0919
+      - uses: git/sha-with-version@8be09192b01d78912b03852f5d6141e8c48f4179 # v1.2.3

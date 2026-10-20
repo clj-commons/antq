@@ -43,3 +43,27 @@
                                  :extra {:url "https://github.com/git/sha.git"
                                          const.gh-action/type-key "uses"}})]
            (sut/detect [:uses "git/sha/sub-action@8be09192b01d78912b03852f5d6141e8c48f4179"]))))
+
+(t/deftest with-version-comment-test
+  (let [sha "8be09192b01d78912b03852f5d6141e8c48f4179"
+        dep (first (sut/detect [:uses (str "git/sha@" sha)]))]
+    (t/testing "a version comment pins the action to that release"
+      (t/is (= (r/map->Dependency {:type :git-tag-and-sha
+                                   :name "git/sha"
+                                   :version "v1.2.3"
+                                   :extra {:url "https://github.com/git/sha.git"
+                                           :sha sha
+                                           const.gh-action/type-key "uses"}})
+               (sut/with-version-comment dep (str "  - uses: git/sha@" sha " # v1.2.3\n"))))
+      (t/is (= "1.2"
+               (:version (sut/with-version-comment dep (str "  uses: git/sha@" sha "  #1.2")))))
+      (t/is (= "v2.0.0-rc.1"
+               (:version (sut/with-version-comment dep (str "  - uses: git/sha@" sha " # v2.0.0-rc.1\n"))))))
+
+    (t/testing "other comments leave the action following its default branch"
+      (t/is (= dep (sut/with-version-comment dep (str "  - uses: git/sha@" sha "\n"))))
+      (t/is (= dep (sut/with-version-comment dep (str "  - uses: git/sha@" sha " # main\n")))))
+
+    (t/testing "an action pinned to a tag stays as it is"
+      (let [tag-dep (first (sut/detect [:uses "foo/bar@v1.0.0"]))]
+        (t/is (= tag-dep (sut/with-version-comment tag-dep "  - uses: foo/bar@v1.0.0 # v1.0.0\n")))))))

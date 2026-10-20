@@ -4,6 +4,7 @@
    [antq.dep.github-action :as dep.gh-action]
    [antq.log :as log]
    [antq.upgrade :as upgrade]
+   [antq.util.git :as u.git]
    [antq.util.zip :as u.zip]
    [clojure.string :as str]
    [rewrite-indented.zip :as ri.zip]))
@@ -12,6 +13,27 @@
   [new-version]
   (fn [using-line]
     (str/replace using-line #"@[^\s]+" (str "@" new-version))))
+
+(defn- update-version-comment
+  [new-version]
+  (fn [using-line]
+    (str/replace using-line #"(#\s*)\S+" (str "$1" new-version))))
+
+(defn- latest-sha
+  [{:keys [latest-version extra]}]
+  (-> (u.git/tag-sha-by-ls-remote (:url extra) latest-version)
+      (subs 0 (count (:sha extra)))))
+
+(defn- current-ref
+  [dep]
+  (get-in dep [:extra :sha] (:version dep)))
+
+(defn- update-uses-line
+  [dep]
+  (if (get-in dep [:extra :sha])
+    (comp (update-version-comment (:latest-version dep))
+          (update-action-version (latest-sha dep)))
+    (update-action-version (:latest-version dep))))
 
 (defn- update-value
   [new-value]
@@ -41,10 +63,10 @@
   [loc version-checked-dep]
   (loop [loc loc]
     (if-let [loc (ri.zip/find-next-string loc (action? (:name version-checked-dep)
-                                                       (:version version-checked-dep)))]
+                                                       (current-ref version-checked-dep)))]
       (recur (cond-> loc
                (some? (ri.zip/find-ancestor-string loc #(= "steps:" %)))
-               (ri.zip/update (update-action-version (:latest-version version-checked-dep)))
+               (ri.zip/update (update-uses-line version-checked-dep))
 
                :always
                (ri.zip/next)))

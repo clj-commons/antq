@@ -20,6 +20,12 @@
                              :type :git-sha
                              :file "dep/test_github_action.yml"} m)))
 
+(defn- git-tag-and-sha-dependency
+  [m]
+  (r/map->Dependency (merge {:project :github-action
+                             :type :git-tag-and-sha
+                             :file "dep/test_github_action.yml"} m)))
+
 (t/deftest extract-deps-test
   (let [deps (sut/extract-deps
               "dep/test_github_action.yml"
@@ -37,7 +43,11 @@
                                             const.gh-action/type-key "uses"}})
                (git-sha-dependency {:name "git/sha-short" :version "8be0919"
                                     :extra {:url "https://github.com/git/sha-short.git"
-                                            const.gh-action/type-key "uses"}})}
+                                            const.gh-action/type-key "uses"}})
+               (git-tag-and-sha-dependency {:name "git/sha-with-version" :version "v1.2.3"
+                                            :extra {:url "https://github.com/git/sha-with-version.git"
+                                                    :sha "8be09192b01d78912b03852f5d6141e8c48f4179"
+                                                    const.gh-action/type-key "uses"}})}
              (set deps)))))
 
 (t/deftest extract-deps-composite-test

@@ -61,7 +61,7 @@ If you have trouble, please see link:./doc/non-supported-clojure-version.adoc[he
 | .github/workflows/*.yml
 | https://github.com/features/actions[GitHub Actions]
 | {sym-yes}
-|
+| Upgrades an action pinned to a commit SHA with a version comment, such as `actions/checkout@<sha> # v4.1.0`, to the commit of its latest release.
 
 | bb.edn
 | https://book.babashka.org/index.html#_bb_edn[Babashka]

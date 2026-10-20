@@ -7,6 +7,7 @@
    [antq.test-report]
    [antq.upgrade :as upgrade]
    [antq.upgrade.github-action]
+   [antq.util.git :as u.git]
    [clojure.java.io :as io]
    [clojure.test :as t]))
 
@@ -18,6 +19,17 @@
                       :latest-version "v9.0.0"
                       :file (io/resource "dep/test_github_action.yml")
                       :extra {const.gh-action/type-key "uses"}}))
+
+(def ^:private dummy-pinned-dep
+  (r/map->Dependency {:project :github-action
+                      :type :git-tag-and-sha
+                      :name "git/sha-with-version"
+                      :version "v1.2.3"
+                      :latest-version "v9.0.0"
+                      :file (io/resource "dep/test_github_action.yml")
+                      :extra {:url "https://github.com/git/sha-with-version.git"
+                              :sha "8be09192b01d78912b03852f5d6141e8c48f4179"
+                              const.gh-action/type-key "uses"}}))
 
 (def ^:private dummy-not-supported-dep
   (r/map->Dependency {:project :github-action
@@ -67,6 +79,21 @@
       (t/is (= #{{:name "foo/bar" :version {:- "v1.0.0" :+ "v9.0.0"}}
                  {:name "foo/bar" :version {:- "v2.0.0" :+ "v9.0.0"}}}
                (h/diff-deps from-deps to-deps)))))
+
+  (t/testing "commit SHA with version comment"
+    (with-redefs [u.git/tag-sha-by-ls-remote (constantly "0123456789abcdef0123456789abcdef01234567")]
+      (let [from-deps (->> (:file dummy-pinned-dep)
+                           (slurp)
+                           (dep.gha/extract-deps ""))
+            to-deps (->> dummy-pinned-dep
+                         (upgrade/upgrader)
+                         (dep.gha/extract-deps ""))]
+        (t/is (= #{{:name "git/sha-with-version"
+                    :version {:- "v1.2.3" :+ "v9.0.0"}
+                    :url "https://github.com/git/sha-with-version.git"
+                    :sha {:- "8be09192b01d78912b03852f5d6141e8c48f4179"
+                          :+ "0123456789abcdef0123456789abcdef01234567"}}}
+                 (h/diff-deps from-deps to-deps))))))
 
   (t/testing "not supported"
     (t/is (nil? (upgrade/upgrader dummy-not-supported-dep)))))

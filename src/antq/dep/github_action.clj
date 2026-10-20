@@ -24,6 +24,13 @@
    []
    detect-functions))
 
+(defn- complete-dep
+  [dep file-path file-content-str]
+  (-> dep
+      (d.gha.uses/with-version-comment file-content-str)
+      (assoc :project :github-action
+             :file file-path)))
+
 (defn get-type
   [dep]
   (get-in dep [:extra const.gh-action/type-key]))
@@ -50,9 +57,7 @@
                       (swap! deps concat deps*))
                     form)
                   (:runs parsed))
-    (map #(assoc %
-                 :project :github-action
-                 :file file-path)
+    (map #(complete-dep % file-path file-content-str)
          @deps)))
 
 (defn- load-workflow-deps
