@@ -13,7 +13,7 @@
   [^String name]
   (if (= 0 (.indexOf name "https://"))
     name
-    (str "https://github.com/" name ".git")))
+    (str "https://github.com/" (str/join "/" (take 2 (str/split name #"/"))) ".git")))
 
 (defn- extract-type-and-version
   [name version]

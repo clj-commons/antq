@@ -37,4 +37,9 @@
                                  :version "8be0919"
                                  :extra {:url "https://github.com/git/sha-short.git"
                                          const.gh-action/type-key "uses"}})]
-           (sut/detect [:uses "git/sha-short@8be0919"]))))
+           (sut/detect [:uses "git/sha-short@8be0919"])))
+  (t/is (= [(git-sha-dependency {:name "git/sha/sub-action"
+                                 :version "8be09192b01d78912b03852f5d6141e8c48f4179"
+                                 :extra {:url "https://github.com/git/sha.git"
+                                         const.gh-action/type-key "uses"}})]
+           (sut/detect [:uses "git/sha/sub-action@8be09192b01d78912b03852f5d6141e8c48f4179"]))))

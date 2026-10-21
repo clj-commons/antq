@@ -81,6 +81,9 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/269[#269]: Composite github actions are now checked for updates
 (thanks, https://github.com/nenadalm[@nenadalm]!)
+* https://github.com/clj-commons/antq/pull/398[#398]: GitHub Actions: an action pinned to a commit SHA that lives in a subdirectory of its repository, such as `actions/cache/restore@<sha>`, is now checked for updates.
+Before, antq looked for a repository named after the full path and could not find it.
+(thanks, https://github.com/stefanroex[@stefanroex]!)
 
 == 2.11.1276 (2025-03-15)
 // {{{
