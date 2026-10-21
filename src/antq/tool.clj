@@ -11,24 +11,25 @@
   "Point out outdated dependencies.
 
   Options:
-  - :upgrade             <boolean>
-  - :force               <boolean>
-  - :exclude             <array of string>
-  - :directory           <array of string>
-  - :focus               <array of string>
-  - :skip                <array of string>
-  - :error-format        <string>
-  - :reporter            <string>
-  - :no-progress         <boolean>
-  - :download            <boolean>
-  - :ignore-locals       <boolean>
-  - :check-clojure-tools <boolean>
-  - :check-gradle        <boolean>
-  - :no-changes          <boolean>
-  - :changes-in-table    <boolean>
-  - :transitive          <boolean>
-  - :verbose             <boolean>
-  - :help                <boolean> for full command-line style help"
+  - :upgrade                   <boolean>
+  - :force                     <boolean>
+  - :pin-github-actions-to-sha <boolean>
+  - :exclude                   <array of string>
+  - :directory                 <array of string>
+  - :focus                     <array of string>
+  - :skip                      <array of string>
+  - :error-format              <string>
+  - :reporter                  <string>
+  - :no-progress               <boolean>
+  - :download                  <boolean>
+  - :ignore-locals             <boolean>
+  - :check-clojure-tools       <boolean>
+  - :check-gradle              <boolean>
+  - :no-changes                <boolean>
+  - :changes-in-table          <boolean>
+  - :transitive                <boolean>
+  - :verbose                   <boolean>
+  - :help                      <boolean> for full command-line style help"
   [options]
   (let [options (cli/validate-tool-opts options)]
     (binding [log/*verbose* (:verbose options false)]

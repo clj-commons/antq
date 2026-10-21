@@ -112,6 +112,7 @@
                           :upgrade true
                           :verbose true
                           :force true
+                          :pin-github-actions-to-sha true
                           :download true
                           :ignore-locals true
                           :check-clojure-tools true
@@ -129,6 +130,7 @@
                                    "--upgrade"
                                    "--verbose"
                                    "--force"
+                                   "--pin-github-actions-to-sha"
                                    "--download"
                                    "--ignore-locals"
                                    "--check-clojure-tools"
@@ -199,6 +201,7 @@
                           :upgrade true
                           :verbose true
                           :force true
+                          :pin-github-actions-to-sha true
                           :download true
                           :ignore-locals true
                           :check-clojure-tools true
@@ -214,6 +217,7 @@
                                            :upgrade true
                                            :verbose true
                                            :force true
+                                           :pin-github-actions-to-sha true
                                            :download true
                                            :ignore-locals true
                                            :check-clojure-tools "FOO" ; test coercion to boolean

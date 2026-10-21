@@ -6,9 +6,10 @@
    [antq.test-helper :as h]
    [antq.test-report]
    [antq.upgrade :as upgrade]
-   [antq.upgrade.github-action]
+   [antq.upgrade.github-action :as upgrade.gha]
    [antq.util.git :as u.git]
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [clojure.test :as t]))
 
 (def ^:private dummy-dep
@@ -131,3 +132,15 @@
       (t/is (= #{{:name "greglook/cljstyle" :version {:- "7" :+ "9.0.0"}}
                  {:name "greglook/cljstyle" :version {:- "-7" :+ "9.0.0"}}}
                (h/diff-deps from-deps to-deps))))))
+
+(t/deftest pin!-test
+  (let [content (slurp (io/resource "dep/test_github_action.yml"))
+        release-shas {["https://github.com/foo/bar.git" "v1.0.0"] "1111111111111111111111111111111111111111"}]
+    (h/with-temp-file
+     [temp-file content]
+     (with-redefs [u.git/tag-sha-by-ls-remote (fn [url tag] (get release-shas [url tag]))]
+       (upgrade.gha/pin! (dep.gha/extract-deps (str temp-file) content)))
+     (t/is (= #{{:- "      - uses: foo/bar@v1.0.0"
+                 :+ "      - uses: foo/bar@1111111111111111111111111111111111111111 # v1.0.0"}}
+              (h/diff-lines (str/split-lines content)
+                            (str/split-lines (slurp temp-file))))))))
