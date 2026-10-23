@@ -12,9 +12,7 @@
   (some? (and (re-seq #"^[a-fA-F0-9]+$" s)
               (#{40 7} (count s)))))
 
-(defn name->url
-  "The repository URL of the action `name`, e.g.
-  `https://github.com/actions/cache.git` for `actions/cache/restore`."
+(defn- name->url
   [^String name]
   (if (= 0 (.indexOf name "https://"))
     name
@@ -72,11 +70,3 @@
            :version version
            :extra (assoc (:extra dep) :sha (:version dep)))
     dep))
-
-(defn pinnable?
-  "Whether `dep` is an action referenced by a release tag, e.g.
-  `actions/cache@v5`, that can be pinned to the commit of that tag."
-  [dep]
-  (and (= :github-tag (:type dep))
-       (= "uses" (get-in dep [:extra const.gh-action/type-key]))
-       (version? (:version dep))))

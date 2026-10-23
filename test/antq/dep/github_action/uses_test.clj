@@ -67,18 +67,3 @@
     (t/testing "an action pinned to a tag stays as it is"
       (let [tag-dep (first (sut/detect [:uses "foo/bar@v1.0.0"]))]
         (t/is (= tag-dep (sut/with-version-comment tag-dep "  - uses: foo/bar@v1.0.0 # v1.0.0\n")))))))
-
-(t/deftest pinnable?-test
-  (t/testing "an action referenced by a release tag"
-    (t/is (true? (sut/pinnable? (first (sut/detect [:uses "foo/bar@v1.0.0"])))))
-    (t/is (true? (sut/pinnable? (first (sut/detect [:uses "foo/bar@v5"]))))))
-
-  (t/testing "an action referenced by a branch or commit"
-    (t/is (false? (sut/pinnable? (first (sut/detect [:uses "bar/baz@master"])))))
-    (t/is (false? (sut/pinnable? (first (sut/detect [:uses "git/sha@8be09192b01d78912b03852f5d6141e8c48f4179"]))))))
-
-  (t/testing "a tool version set in an action's inputs"
-    (t/is (false? (sut/pinnable? (r/map->Dependency {:type :github-tag
-                                                     :name "graalvm/graalvm-ce-builds"
-                                                     :version "22.3.0"
-                                                     :extra {const.gh-action/type-key "DeLaGuardo/setup-graalvm"}}))))))

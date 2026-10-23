@@ -2,7 +2,6 @@
   (:require
    [antq.constant.github-action :as const.gh-action]
    [antq.dep.github-action :as dep.gh-action]
-   [antq.dep.github-action.uses :as d.gha.uses]
    [antq.log :as log]
    [antq.upgrade :as upgrade]
    [antq.util.git :as u.git]
@@ -36,10 +35,6 @@
           (update-action-version (latest-sha dep)))
     (update-action-version (:latest-version dep))))
 
-(defn- pin-action-version
-  [sha tag]
-  (update-action-version (str sha " # " tag)))
-
 (defn- update-value
   [new-value]
   (fn [line]
@@ -55,40 +50,6 @@
                          (str "uses\\s*:\\s*" action-name)))]
     #(some? (re-seq re %))))
 
-(defn- update-action-lines
-  [loc action-name ref update-line]
-  (loop [loc loc]
-    (if-let [loc (ri.zip/find-next-string loc (action? action-name ref))]
-      (recur (cond-> loc
-               (some? (ri.zip/find-ancestor-string loc #(= "steps:" %)))
-               (ri.zip/update update-line)
-
-               :always
-               (ri.zip/next)))
-      (ri.zip/move-to-root loc))))
-
-(defn- release-sha
-  [dep]
-  (u.git/tag-sha-by-ls-remote (d.gha.uses/name->url (:name dep))
-                              (:version dep)))
-
-(defn- pinned-content
-  [dep sha]
-  (-> (u.zip/of-indented-file (:file dep))
-      (update-action-lines (:name dep)
-                           (:version dep)
-                           (pin-action-version sha (:version dep)))
-      (u.zip/root-indented-string)))
-
-(defn- pin-dep!
-  [dep]
-  (if-let [sha (release-sha dep)]
-    (do (spit (:file dep) (pinned-content dep sha))
-        (log/info (format "Pinned %s '%s' to '%s' in %s."
-                          (:name dep) (:version dep) sha (:file dep))))
-    (log/warning (format "%s: tag '%s' not found, so it is not pinned."
-                         (:name dep) (:version dep)))))
-
 (defmulti upgrade-dep
   (fn [_loc version-checked-dep]
     (dep.gh-action/get-type version-checked-dep)))
@@ -100,10 +61,16 @@
 
 (defmethod upgrade-dep "uses"
   [loc version-checked-dep]
-  (update-action-lines loc
-                       (:name version-checked-dep)
-                       (current-ref version-checked-dep)
-                       (update-uses-line version-checked-dep)))
+  (loop [loc loc]
+    (if-let [loc (ri.zip/find-next-string loc (action? (:name version-checked-dep)
+                                                       (current-ref version-checked-dep)))]
+      (recur (cond-> loc
+               (some? (ri.zip/find-ancestor-string loc #(= "steps:" %)))
+               (ri.zip/update (update-uses-line version-checked-dep))
+
+               :always
+               (ri.zip/next)))
+      (ri.zip/move-to-root loc))))
 
 (defmethod upgrade-dep "DeLaGuardo/setup-clojure"
   [loc version-checked-dep]
@@ -173,10 +140,3 @@
           (u.zip/of-indented-file)
           (upgrade-dep version-checked-dep)
           (u.zip/root-indented-string)))
-
-(defn pin!
-  "Pin each action in `deps` that is referenced by a release tag, e.g.
-  `actions/cache@v5`, to the commit of that tag: `actions/cache@<sha> # v5`.
-  Rewrites the workflow files in place."
-  [deps]
-  (run! pin-dep! (into [] (comp (filter d.gha.uses/pinnable?) (distinct)) deps)))

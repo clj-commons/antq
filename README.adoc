@@ -61,7 +61,7 @@ If you have trouble, please see link:./doc/non-supported-clojure-version.adoc[he
 | .github/workflows/*.yml
 | https://github.com/features/actions[GitHub Actions]
 | {sym-yes}
-| Upgrades an action pinned to a commit SHA with a version comment, such as `actions/checkout@<sha> # v4.1.0`, to the commit of its latest release. Use <<opt-pin-github-actions-to-sha>> to pin actions referenced by a tag.
+| Upgrades an action pinned to a commit SHA with a version comment, such as `actions/checkout@<sha> # v4.1.0`, to the commit of its latest release.
 
 | bb.edn
 | https://book.babashka.org/index.html#_bb_edn[Babashka]
@@ -243,12 +243,6 @@ The `--upgrade` option does not support gradle files at this time.
 [[opt-force]]
 === --force
 Use with <<opt-upgrade>> to non-interactive upgrade.
-
-[[opt-pin-github-actions-to-sha]]
-=== --pin-github-actions-to-sha
-Pin GitHub Actions referenced by a release tag to the commit SHA of that tag, without confirmation.
-E.g. `actions/cache@v5` becomes `actions/cache@<sha> # v5`.
-Combine with <<opt-upgrade>> to also move them to their latest release.
 
 [[opt-exclude]]
 === --exclude=ARTIFACT_NAME[@VERSION] ...

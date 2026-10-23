@@ -92,10 +92,6 @@
    {:coerce boolean
     :desc "Use with upgrade for non-interactive upgrade"}
 
-   :pin-github-actions-to-sha
-   {:coerce boolean
-    :desc "Pin GitHub Actions referenced by a release tag to its commit SHA"}
-
    :download
    {:coerce boolean
     :desc "Download updated dependencies"}
@@ -249,8 +245,7 @@
        "\n"
        (format-opts {:spec cli-options :opts opts
                      ;; match order from README, exclude deprecated and undocumented options
-                     :order [:upgrade :force :pin-github-actions-to-sha
-                             :exclude :directory :focus
+                     :order [:upgrade :force :exclude :directory :focus
                              :skip :error-format :reporter :no-progress :download :ignore-locals
                              :check-clojure-tools :check-gradle :no-changes :changes-in-table :transitive
                              :verbose :help]})))

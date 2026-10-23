@@ -37,7 +37,7 @@
    [antq.upgrade.circle-ci]
    [antq.upgrade.clojure]
    [antq.upgrade.clojure.tool]
-   [antq.upgrade.github-action :as upgrade.gh-action]
+   [antq.upgrade.github-action]
    [antq.upgrade.leiningen]
    [antq.upgrade.pom]
    [antq.upgrade.shadow]
@@ -306,11 +306,6 @@
   [text]
   (str "\u001B[43;30mWARNING:\u001B[0m\u001B[33m " text "\u001B[0m"))
 
-(defn- pin-github-actions-to-sha!
-  [options deps]
-  (upgrade.gh-action/pin! (remove #(skip-artifacts? % options) deps))
-  (fetch-deps options))
-
 (defn main*
   [{:keys [opts warnings errors help]}]
   (u.maven/initialize-proxy-setting!)
@@ -336,9 +331,7 @@
         (system-exit 0))
 
       (seq deps)
-      (let [deps (cond->> deps
-                   (:pin-github-actions-to-sha opts) (pin-github-actions-to-sha! opts))
-            outdated (antq opts deps)]
+      (let [outdated (antq opts deps)]
         (report/reporter outdated opts)
         (cond-> outdated
           (:upgrade opts)
