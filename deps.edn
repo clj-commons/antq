@@ -54,7 +54,7 @@
    :main-opts ["-m" "cljstyle.main"]}
 
   :clj-kondo
-  {:deps {clj-kondo/clj-kondo {:mvn/version "2026.08.04"}}
+  {:deps {clj-kondo/clj-kondo {:mvn/version "2026.10.26"}}
    :main-opts ["-m" "clj-kondo.main"]}
 
   ;; for local usage
