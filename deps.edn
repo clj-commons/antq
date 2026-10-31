@@ -7,7 +7,7 @@
   org.clojure/data.json {:mvn/version "2.5.2"}
   babashka/fs {:mvn/version "0.5.34"}
   babashka/process {:mvn/version "0.6.25"}
-  org.babashka/cli {:mvn/version "0.12.91"}
+  org.babashka/cli {:mvn/version "0.12.92"}
   clj-commons/clj-yaml {:mvn/version "1.0.30"}
   version-clj/version-clj {:mvn/version "2.0.3"}
   rewrite-clj/rewrite-clj {:mvn/version "1.3.59"}
@@ -24,7 +24,7 @@
   :clojure-1.11 {:override-deps {org.clojure/clojure {:mvn/version "1.11.4"}}}
   :clojure-1.12 {:override-deps {org.clojure/clojure {:mvn/version "1.12.6"}}}
   ;; Candidate release is :clojure-pre-* (ex. clojure-pre-1.13.0) (if any)
-  :clojure-pre-1.13 {:override-deps {org.clojure/clojure {:mvn/version "1.13.0-alpha8"}}}
+  :clojure-pre-1.13 {:override-deps {org.clojure/clojure {:mvn/version "1.13.0-alpha11"}}}
 
   :dev
   {:extra-paths ["dev"
@@ -32,15 +32,15 @@
                  "test/resources"
                  "test-jvm"]
    :extra-deps {nubank/matcher-combinators {:mvn/version "3.11.0"}
-                org.flatland/ordered {:mvn/version "1.15.12"}
+                org.flatland/ordered {:mvn/version "1.16.13"}
                 metosin/malli {:mvn/version "0.20.3"}
                 io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
                 lambdaisland/deep-diff2 {:mvn/version "2.14.235"}}}
 
   :nrepl/jvm
   {:extra-deps {nrepl/nrepl {:mvn/version "1.8.0"}
-                cider/cider-nrepl {:mvn/version "0.63.1"}
-                refactor-nrepl/refactor-nrepl {:mvn/version "3.14.0"}}
+                cider/cider-nrepl {:mvn/version "0.64.0"}
+                refactor-nrepl/refactor-nrepl {:mvn/version "3.15.0"}}
    :jvm-opts ["-XX:-OmitStackTraceInFastThrow" "-Djdk.attach.allowAttachSelf"]
    :main-opts ["-m" "nrepl.cmdline"
                 "--middleware" "[refactor-nrepl.middleware/wrap-refactor,cider.nrepl/cider-middleware]"
@@ -54,7 +54,7 @@
    :main-opts ["-m" "cljstyle.main"]}
 
   :clj-kondo
-  {:deps {clj-kondo/clj-kondo {:mvn/version "2026.08.04"}}
+  {:deps {clj-kondo/clj-kondo {:mvn/version "2026.10.26"}}
    :main-opts ["-m" "clj-kondo.main"]}
 
   ;; for local usage
