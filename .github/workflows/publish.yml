@@ -1,0 +1,57 @@
+name: publish
+on:
+  push:
+    tags:
+      # antq has no v prefix
+      - '[0-9]+.[0-9]+*'
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  publish:
+    environment: publish
+    runs-on: ubuntu-latest
+    needs: [test]
+    permissions:
+      contents: write # to allow creation of release
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+
+    - name: Setup
+      uses: ./.github/actions/shared-setup
+
+    - name: Deploy to clojars
+      env:
+        CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
+        CLOJARS_PASSWORD: ${{ secrets.CLOJARS_PASSWORD }}
+      run: bb -ci-clojars-deploy
+
+    - name: Create GitHub Release
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: bb -ci-github-create-release
+
+    - name: Inform Cljdoc
+      run: bb -ci-cljdoc-request-build
+
+  docker-push:
+    runs-on: ubuntu-latest
+    needs: publish
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+
+    - name: Setup
+      uses: ./.github/actions/shared-setup
+
+    - name: Docker publish
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: bb -ci-docker-publish

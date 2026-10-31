@@ -10,4 +10,5 @@
    ["Running behind a proxy" {:file "doc/proxy.adoc"}]
    ["Timeouts" {:file "doc/timeout.adoc"}]
    ["Excluding dependencies" {:file "doc/exclusions.adoc"}]
-   ["Using antq as a library" {:file "doc/use-as-library.adoc"}]]]}
+   ["Using antq as a library" {:file "doc/use-as-library.adoc"}]]
+  ["Maintainer Guide" {:file "doc/maintainer-guide.adoc"}]]}

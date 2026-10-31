@@ -23,8 +23,7 @@
     (try
       ;; we install to our local .m2 repository,
       ;; but are careful to not conflict with some real installed antq artifact
-      (p/shell {:out :string} "clojure -T:build install"
-               ":version" (pr-str antq-test-version))
+      (p/shell {:out :string} "bb install --version" antq-test-version)
       (f)
       ;; take a stab at cleaning up, assume .m2 repo was not overridden in developer's config
       (finally

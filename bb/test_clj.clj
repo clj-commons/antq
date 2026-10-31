@@ -15,7 +15,9 @@
 
 (def cli-spec
   (merge (clojure-versions/cli-opt cli-clojure-versions)
-         {:runner-help {:desc "Get test runner opts help"}}))
+         {:runner-help {:coerce :boolean
+                        :desc "Get test runner opts help"
+                        :default false}}))
 
 (def spec-cli-args
   (reduce (fn [acc [k v]]
@@ -45,7 +47,7 @@
 (defn task
   {:org.babashka/cli {:restrict false :restrict-args false ; allow test runner opts through
                       :spec cli-spec}}
-  [{:keys [clojure-version runner-help]}]
+  [{:keys! [clojure-version runner-help]}]
   (legacy/check-for-build-remnants)
   (let [env-jdk-version (jdk/version)
         clojure-versions (if (= "all" clojure-version)

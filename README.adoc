@@ -1,4 +1,5 @@
 = Antq
+:lib-version: 2.11.1276
 :project-src-coords: clj-commons/antq
 :project-mvn-coords: com.github.liquidz/antq
 :workflow-url: https://github.com/{project-src-coords}/actions/workflows
@@ -90,19 +91,19 @@ See <<opt-check-clojure-tools>> option.
 === Clojure CLI (deps.edn)
 
 Run the following command to quickly try antq:
-[source,sh]
+[source,sh,subs="attributes+"]
 ----
-clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}}' \
+clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "{lib-version}"}}}' \
   -M -m antq.core
 ----
 
 Or add the following alias to your project `deps.edn` or `$HOME/.clojure/deps.edn`.
-[source,clojure]
+[source,clojure,subs="attributes+"]
 ----
 {
  :aliases
  {:outdated {;; Note that it is `:deps`, not `:extra-deps`
-             :deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}
+             :deps {com.github.liquidz/antq {:mvn/version "{lib-version}"}}
              :main-opts ["-m" "antq.core"]}}
 }
 ----
@@ -155,13 +156,13 @@ source <(antq org.babashka.cli/completions snippet --shell zsh)
 === Leiningen (as a `main` program)
 
 Add the following dependency and alias to your `project.clj` or `$HOME/.lein/profiles.clj`.
-[source,clojure]
+[source,clojure,subs="attributes+"]
 ----
 {
  :user
  {:aliases {"outdated" ["with-profile" "antq" "run" "-m" "antq.core"]}}
  :antq
- {:dependencies [[com.github.liquidz/antq "RELEASE"]]}
+ {:dependencies [[com.github.liquidz/antq "{lib-version}"]]}
  }
 ----
 Then, run `lein outdated`.
@@ -173,9 +174,9 @@ The Leiningen plugin is a newer offering. It tends to be more accurate (since it
 However it does not check any other sources (deps.edn, etc), and the `:upgrade` option will not be supported (since the plugin cannot always know if a given dependency came from a specific profile, middleware, etc).
 
 In order to use it, add the following plugin to your `project.clj` (or `$HOME/.lein/profiles.clj`):
-[source,clojure]
+[source,clojure,subs="attributes+"]
 ----
- :plugins [[com.github.liquidz/antq "RELEASE"]]
+ :plugins [[com.github.liquidz/antq "{lib-version}"]]
  ;; optional - you can add antq options here:
  :antq {}
 ----

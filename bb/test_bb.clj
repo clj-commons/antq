@@ -8,8 +8,10 @@
 
 (defn task
   {:org.babashka/cli {:restrict false :restrict-args false ; allow test runner opts through
-                      :spec {:runner-help {:desc "Get test runner opts help"}}}}
-  [{:keys [runner-help]}]
+                      :spec {:runner-help {:coerce :boolean
+                                           :desc "Get test runner opts help"
+                                           :default false}}}}
+  [{:keys! [runner-help]}]
   (legacy/check-for-build-remnants)
   (let [basis (b/create-basis {:deps-dir "" :aliases [:dev :test]})]
     (cp/add-classpath (str/join (System/getProperty "path.separator")
