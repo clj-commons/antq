@@ -32,7 +32,7 @@
                  "test/resources"
                  "test-jvm"]
    :extra-deps {nubank/matcher-combinators {:mvn/version "3.11.0"}
-                org.flatland/ordered {:mvn/version "1.15.12"}
+                org.flatland/ordered {:mvn/version "1.16.13"}
                 metosin/malli {:mvn/version "0.20.3"}
                 io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
                 lambdaisland/deep-diff2 {:mvn/version "2.14.235"}}}
