@@ -20,7 +20,9 @@
                 (assoc :latest-version (u.ver/normalize-latest-version dep)
                        ;; NOTE Add diff-url for backward compatibility
                        :diff-url (:changes-url dep))
-                (select-keys [:file :name :version :latest-version :message :diff-url :changes-url :latest-name]))]
+                (select-keys [:file :name :version :latest-version :message :diff-url :changes-url :latest-name
+                              :released-at :latest-released-at :cooldown-version :cooldown-released-at
+                              :cooldown]))]
     (pg/render-string format-string dep)))
 
 (defmethod report/reporter "format"

@@ -23,6 +23,11 @@
   - `only-newest-version?` _boolean_ keep only newest version in same file
   - `exclude-versions` _sequence of strings_ ignore version that match 
   - `parent` parent dependency name
+  - `released-at`, `latest-released-at` _string_ ISO-8601 release dates of `:version` and `:latest-version`,
+     Maven deps only (can be `nil`)
+  - `cooldown` _string_ the `:cooldown` option, e.g. `\"7d\"`, set for Maven deps when it is used
+  - `cooldown-version` _string_ newest version released at least `cooldown` ago (can be `nil`)
+  - `cooldown-released-at` _string_ ISO-8601 release date of `:cooldown-version` (can be `nil`)
 
   Arguments: 
   - `deps-map` _required_ - A map of the same form as `:deps` in `deps.edn`, e.g.,
@@ -47,6 +52,9 @@
 
   Returns a map as follows:
   `{true [upgraded-deps] false [non-upgraded deps]}`
+
+  A dependency with `:cooldown` (see `outdated-deps`) is upgraded to its `:cooldown-version`,
+  or not at all when that is `nil`.
 
   Arguments: 
   - `file-dep-pairs` _required_ - A vector of maps, e.g.,

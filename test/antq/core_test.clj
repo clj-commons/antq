@@ -6,16 +6,22 @@
    [antq.record :as r]
    [antq.test-helper :as h]
    [antq.test-report]
+   [antq.upgrade :as upgrade]
    [antq.util.dep :as u.dep]
    [antq.util.exception :as u.ex]
    [antq.util.git :as u.git]
+   [antq.util.maven :as u.maven]
    [antq.util.os :as os]
    [antq.ver :as ver]
    [babashka.fs :as fs]
    [clojure.string :as str]
    [clojure.test :as t]
    [matcher-combinators.matchers :as m]
-   [matcher-combinators.test]))
+   [matcher-combinators.test])
+  (:import
+   (java.time
+    Duration
+    Instant)))
 
 (defmethod ver/get-sorted-versions :test
   [_ _]
@@ -136,6 +142,146 @@
     (t/testing "focus containing specific version, should force it (0.5.0) even when newer exists (3.0.0)"
       (t/is (= [(test-dep {:name "alice" :version "1.0.0" :latest-version "0.5.0" :forced-version "0.5.0"})]
                (sut/outdated-deps deps {:focus ["alice@0.5.0"]}))))))
+
+(defn- days-ago
+  [n]
+  (.minus (Instant/now) (Duration/ofMinutes (long (* n 24 60)))))
+
+(t/deftest outdated-deps-cooldown-test
+  (let [dates {"4.0.0" (days-ago 1) "3.0.0" (days-ago 5) "2.0.0" (days-ago 30) "1.0.0" (days-ago 100)}
+        looked-up (atom [])
+        dep (r/map->Dependency {:type :java :name "foo/bar" :version "1.0.0"})
+        outdated (fn [options & {:keys [deps dates versions]
+                                 :or {deps [dep] dates dates versions ["4.0.0" "3.0.0" "2.0.0" "1.0.0"]}}]
+                   (reset! looked-up [])
+                   (with-redefs [ver/get-sorted-versions (fn [d _] (if (map? versions) (versions (:name d)) versions))
+                                 u.maven/release-date (fn [_ _ v] (swap! looked-up conj v) (get dates v))]
+                     (sut/outdated-deps deps options)))]
+
+    (t/testing "release dates are added without cooldown"
+      (t/is (match? [{:latest-version "4.0.0"
+                      :released-at (str (dates "1.0.0"))
+                      :latest-released-at (str (dates "4.0.0"))
+                      :cooldown m/absent
+                      :cooldown-version m/absent
+                      :cooldown-released-at m/absent}]
+                    (outdated {})))
+      (t/is (match? [{:cooldown m/absent}] (outdated {:cooldown "0d"}))))
+
+    (t/testing "the newest version outside the cooldown is picked"
+      (t/is (match? [{:latest-version "4.0.0" :cooldown "7d" :cooldown-version "2.0.0"
+                      :cooldown-released-at (str (dates "2.0.0"))}]
+                    (outdated {:cooldown "7d"})))
+      (t/is (match? [{:cooldown-version "3.0.0"}] (outdated {:cooldown "3d"})))
+      (t/testing "and older versions are not looked up"
+        (t/is (not-any? #{"2.0.0"} @looked-up))))
+
+    (t/testing "all newer versions are inside the cooldown; the current version is not picked"
+      (t/is (match? [{:latest-version "4.0.0" :cooldown-version nil :cooldown-released-at nil}]
+                    (outdated {:cooldown "50d"}))))
+
+    (t/testing "a version released exactly cooldown days ago passes"
+      (t/is (match? [{:cooldown-version "4.0.0"}]
+                    (outdated {:cooldown "7d"} :dates (assoc dates "4.0.0" (days-ago 7)))))
+      (t/is (match? [{:cooldown-version "3.0.0"}]
+                    (outdated {:cooldown "7d"} :dates (assoc dates
+                                                             "4.0.0" (.plusSeconds ^Instant (days-ago 7) 60)
+                                                             "3.0.0" (days-ago 8))))))
+
+    (t/testing "a version without release date counts as too new"
+      (t/is (match? [{:cooldown-version "2.0.0" :latest-released-at nil}]
+                    (outdated {:cooldown "3d"} :dates (dissoc dates "4.0.0" "3.0.0")))))
+
+    (t/testing "excluded versions are not picked"
+      (t/is (match? [{:cooldown-version nil}] (outdated {:cooldown "7d" :exclude ["foo/bar@2.0.0"]}))))
+
+    (t/testing "pre-releases are picked only for a pre-release, like the latest version"
+      (let [versions ["3.0.0-alpha1" "2.0.0" "2.0.0-rc1" "1.1.0" "1.0.0"]
+            dates {"3.0.0-alpha1" (days-ago 1) "2.0.0" (days-ago 2) "2.0.0-rc1" (days-ago 20) "1.1.0" (days-ago 40)}]
+        (t/is (match? [{:latest-version "2.0.0" :cooldown-version "1.1.0"}]
+                      (outdated {:cooldown "7d"} :versions versions :dates dates)))
+        (t/is (match? [{:latest-version "3.0.0-alpha1" :cooldown-version "2.0.0-rc1"}]
+                      (outdated {:cooldown "7d"} :versions versions :dates dates
+                                :deps [(assoc dep :version "2.0.0-beta1")])))))
+
+    (t/testing "a timed-out version lookup gets no dates"
+      (t/is (match? [{:latest-version u.ex/ex-timeout? :released-at m/absent :cooldown m/absent}]
+                    (outdated {:cooldown "7d"} :versions [(u.ex/ex-timeout "test")])))
+      (t/is (empty? @looked-up)))
+
+    (t/testing "dates come from the dep's own repositories"
+      (let [repos (atom nil)]
+        (with-redefs [ver/get-sorted-versions (constantly ["2.0.0" "1.0.0"])
+                      u.maven/release-date (fn [r _ _] (reset! repos r) nil)]
+          (sut/outdated-deps [(assoc dep :repositories {"private" {:url "https://repo.example.com"}})] {}))
+        (t/is (match? {"private" {:url "https://repo.example.com"} "central" map?} @repos))))
+
+    (t/testing "a version forced with --focus ignores the cooldown"
+      (t/is (match? [{:latest-version "4.0.0" :cooldown m/absent}]
+                    (outdated {:cooldown "7d" :focus ["foo/bar@4.0.0"]}))))
+
+    (t/testing "up-to-date deps are not looked up"
+      (t/is (empty? (outdated {:cooldown "7d"} :deps [(assoc dep :version "4.0.0")])))
+      (t/is (empty? @looked-up)))
+
+    (t/testing "non-Maven deps get no dates and no cooldown"
+      (t/is (match? [{:released-at m/absent :cooldown m/absent}]
+                    (outdated {:cooldown "7d"} :deps [(assoc dep :type :test)])))
+      (t/is (empty? @looked-up)))
+
+    (t/testing "--transitive: a held dep listed with its parent gives exit code 0"
+      (let [deps [(assoc dep :name "foo/parent")
+                  (assoc dep :name "foo/child" :parent "foo/parent")]
+            versions {"foo/parent" ["1.0.0"] "foo/child" ["4.0.0" "1.0.0"]}
+            exit-code #(with-redefs [sut/system-exit identity] (sut/exit %))]
+        (t/is (match? [{:name "foo/parent"} {:name "foo/child" :cooldown-version nil}]
+                      (outdated {:cooldown "7d"} :deps deps :versions versions)))
+        (t/is (= 0 (exit-code (outdated {:cooldown "7d"} :deps deps :versions versions))))
+        (t/is (= 1 (exit-code (outdated {} :deps deps :versions versions))))))))
+
+(t/deftest exit-test
+  (let [held {:latest-version "2" :cooldown "7d" :cooldown-version nil}
+        picked {:latest-version "2" :cooldown "7d" :cooldown-version "2"}
+        exit-code #(with-redefs [sut/system-exit identity] (sut/exit %))]
+    (t/is (= 0 (exit-code [])))
+    (t/is (= 0 (exit-code [held held])))
+    (t/is (= 1 (exit-code [held picked])))
+    (t/is (= 1 (exit-code [{:latest-version "2"}])))
+    (t/testing "a version forced with --focus counts even when it is not newer"
+      (t/is (= 1 (exit-code [{:type :java :version "2" :latest-version "1" :forced-version "1"}]))))
+    (t/testing "failed version lookup"
+      (t/is (= 1 (exit-code [{:latest-version nil}]))))))
+
+(defmethod upgrade/upgrader ::cooldown
+  [dep]
+  (:latest-version dep))
+
+(t/deftest main*-cooldown-test
+  (let [file (str (fs/create-temp-file))
+        dep (r/map->Dependency {:type :java :project ::cooldown :file file :version "1.0.0"})
+        deps [(assoc dep :name "main/picked") (assoc dep :name "main/held")]
+        versions {"main/picked" ["3.0.0" "2.0.0" "1.0.0"] "main/held" ["3.0.0" "1.0.0"]}
+        dates {"3.0.0" (days-ago 1) "2.0.0" (days-ago 30)}
+        run (fn [opts]
+              (spit file "")
+              (let [exit-code (atom nil)]
+                (with-redefs [u.maven/initialize-proxy-setting! (constantly nil)
+                              sut/fetch-deps (constantly deps)
+                              ver/get-sorted-versions (fn [d _] (versions (:name d)))
+                              u.maven/release-date (fn [_ _ v] (get dates v))
+                              sut/system-exit identity]
+                  (with-out-str
+                    (reset! exit-code (sut/main* {:opts (assoc opts :no-changes true :reporter "edn")}))))
+                [@exit-code (slurp file)]))]
+    (try
+      (t/testing "report only: the picked dep is outdated"
+        (t/is (= [1 ""] (run {:cooldown "7d"}))))
+      (t/testing "upgrade writes the cooldown version; a held dep gives exit code 0"
+        (t/is (= [0 "2.0.0"] (run {:cooldown "7d" :upgrade true :force true}))))
+      (t/testing "without cooldown both deps go to the latest version"
+        (t/is (= [0 "3.0.0"] (run {:upgrade true :force true}))))
+      (finally
+        (fs/delete-if-exists file)))))
 
 (defmethod ver/get-sorted-versions :test-pre-release
   [dep _]

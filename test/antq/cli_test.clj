@@ -157,6 +157,22 @@
                    :help #"(?s).*USAGE.*--upgrade.*repeat arg"}
                   (sut/parse-args ["--help"])))))
 
+(t/deftest cooldown-option-test
+  (t/is (match? {:errors m/absent :opts {:cooldown "7d"}} (sut/parse-args ["--cooldown=7d"])))
+  (t/is (match? {:errors m/absent :opts {:cooldown "0d"}} (sut/parse-args ["--cooldown" "0d"])))
+  (t/is (match? {:errors m/absent :opts {:cooldown "7d"}} (sut/validate-tool-opts {:cooldown "7d"})))
+  (t/testing "the unit d is required"
+    (t/is (match? {:errors [{:msg (str "Invalid value for option --cooldown: 7. "
+                                       "Expected a number of days with the unit d, e.g. 7d")}]}
+                  (sut/parse-args ["--cooldown=7"])))
+    (t/is (match? {:errors [{:msg #":cooldown: 7\. Expected .* 7d"}]} (sut/validate-tool-opts {:cooldown 7}))))
+  (t/testing "invalid values"
+    (t/are [arg] (match? {:errors [{:msg #"Invalid value for option --cooldown"}]} (sut/parse-args [arg]))
+      "--cooldown=-1d"
+      "--cooldown=7h"
+      "--cooldown=7 d"
+      "--cooldown=week")))
+
 (t/deftest validate-tool-opts
   (t/testing "defaults"
     (t/is (= {:opts {:directory ["."]

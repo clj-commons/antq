@@ -1,5 +1,6 @@
 (ns ^:no-doc antq.util.maven
   (:require
+   [antq.constant :as const]
    [antq.log :as log]
    [antq.util.bb :refer [if-bb]]
    [antq.util.env :as u.env]
@@ -12,7 +13,11 @@
   (:import
    (java.net
     Authenticator
-    PasswordAuthentication)))
+    HttpURLConnection
+    PasswordAuthentication
+    URI)
+   java.time.Instant
+   java.util.Base64))
 
 (if-bb (require '[babashka.deps.maven :as deps.maven]) nil)
 
@@ -109,6 +114,53 @@
 
 (def get-local-versions
   (memoize get-local-versions*))
+
+(defn pom-url
+  "Returns the URL of the POM of `version` in the repository at `repo-url`.
+  A classifier in `dep-name` (`lib$natives-linux`) is dropped: all classifiers share one POM."
+  [repo-url dep-name version]
+  (let [[group-id artifact-id] (-> (str/replace dep-name #"\$.*" "")
+                                   (str/split #"/" 2))
+        artifact-id (or artifact-id group-id)]
+    (str (str/replace repo-url #"/+$" "") "/"
+         (str/replace group-id "." "/") "/" artifact-id "/" version "/"
+         artifact-id "-" version ".pom")))
+
+(defn last-modified
+  "Returns the `Last-Modified` header of `url` as an Instant, or nil if it can't be read."
+  [url {:keys [username password]}]
+  (try
+    (let [conn ^HttpURLConnection (.openConnection (.toURL (URI. url)))
+          timeout (int const/maven-timeout-msec)]
+      (.setRequestMethod conn "HEAD")
+      (.setConnectTimeout conn timeout)
+      (.setReadTimeout conn timeout)
+      (when (and username password)
+        (.setRequestProperty conn "Authorization"
+                             (str "Basic " (.encodeToString (Base64/getEncoder)
+                                                            (.getBytes (str username ":" password) "UTF-8")))))
+      (when (= 200 (.getResponseCode conn))
+        (let [ms (.getLastModified conn)]
+          (when (pos? ms)
+            (Instant/ofEpochMilli ms)))))
+    (catch Exception _ nil)))
+
+(defn- release-date*
+  [repositories dep-name version]
+  (let [creds (credentials repositories)]
+    (or (some (fn [[id {:keys [url]}]]
+                (when url
+                  (last-modified (pom-url url dep-name version) (get creds id))))
+              repositories)
+        (do (log/warning (str "Failed to get the release date of " dep-name " " version
+                              " from the repositories " (str/join ", " (keys repositories))))
+            nil))))
+
+(def release-date
+  "Returns the release date of a version as an Instant, or nil.
+  It is the `Last-Modified` header of the version's POM in the first repository that has one.
+  Without one, logs a warning (shown with `--verbose`)."
+  (memoize release-date*))
 
 (defn authenticator
   ^Authenticator

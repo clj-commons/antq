@@ -30,7 +30,8 @@
 
 (def maven-timeout-msec
   "Timeout msec for
-   - antq.ver.java/get-versions"
+   - antq.ver.java/get-versions
+   - antq.util.maven/last-modified"
   (u.env/getlong "ANTQ_MAVEN_TIMEOUT" default-timeout-msec))
 
 (def pom-timeout-msec

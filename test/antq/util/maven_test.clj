@@ -1,5 +1,6 @@
 (ns antq.util.maven-test
   (:require
+   [antq.log :as log]
    [antq.test-helper :as h]
    [antq.test-report]
    [antq.util.env :as u.env]
@@ -7,6 +8,7 @@
    [antq.util.maven :as sut]
    [clojure.data.xml :as xml]
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [clojure.test :as t])
   (:import
    java.util.UUID))
@@ -95,3 +97,46 @@
       (with-redefs [io/file (constantly dummy-file)
                     xml/parse-str (fn [& _] (throw (ex-info "test" {})))]
         (t/is (nil? (#'sut/get-local-versions* 'com.github.liquidz/antq)))))))
+
+(t/deftest pom-url-test
+  (t/are [expected repo-url dep-name] (= expected (sut/pom-url repo-url dep-name "1.0"))
+    "https://repo.example.com/foo/bar/1.0/bar-1.0.pom" "https://repo.example.com/" "foo/bar"
+    "https://repo.example.com/foo/bar/1.0/bar-1.0.pom" "https://repo.example.com" "foo/bar"
+    "https://repo.example.com/foo/bar/1.0/bar-1.0.pom" "https://repo.example.com//" "foo/bar"
+    "https://repo.example.com/foo/foo/1.0/foo-1.0.pom" "https://repo.example.com/" "foo"
+    "https://repo.example.com/foo/bar/1.0/bar-1.0.pom" "https://repo.example.com/" "foo/bar$natives-linux"
+    "https://repo.example.com/com/github/foo/next.jdbc/1.0/next.jdbc-1.0.pom"
+    "https://repo.example.com/" "com.github.foo/next.jdbc"))
+
+(t/deftest release-date-test
+  (let [calls (atom [])
+        date (java.time.Instant/parse "2026-10-20T08:20:13Z")
+        repos (array-map "first" {:url "https://one.example.com"}
+                         "no-url" {}
+                         "second" {:url "https://two.example.com" :username "user" :password "pass"})]
+    (with-redefs [sut/last-modified (fn [url auth]
+                                      (swap! calls conj [url auth])
+                                      (when (str/starts-with? url "https://two.") date))]
+      (t/testing "the first repository that has a date wins; credentials go to their repository only"
+        (t/is (= date (sut/release-date repos "release-date/test1" "1.0")))
+        (t/is (= [["https://one.example.com/release-date/test1/1.0/test1-1.0.pom" nil]
+                  ["https://two.example.com/release-date/test1/1.0/test1-1.0.pom" {:url "https://two.example.com"
+                                                                                   :username "user"
+                                                                                   :password "pass"}]]
+                 @calls)))
+
+      (t/testing "memoized"
+        (reset! calls [])
+        (sut/release-date repos "release-date/test1" "1.0")
+        (t/is (empty? @calls)))
+
+      (t/testing "no repository has a date: a warning, shown with --verbose"
+        (let [err (fn [verbose? dep-name]
+                    (let [sw (java.io.StringWriter.)]
+                      (binding [log/*verbose* verbose?
+                                *err* sw]
+                        (t/is (nil? (sut/release-date (dissoc repos "second") dep-name "1.0"))))
+                      (str/trim (str sw))))]
+          (t/is (= "" (err false "release-date/test2")))
+          (t/is (= "Failed to get the release date of release-date/test3 1.0 from the repositories first, no-url"
+                   (err true "release-date/test3"))))))))

@@ -328,6 +328,21 @@ See details: https://github.com/clojars/clojars-web/wiki/Verified-Group-Names[Cl
 | `{{changes-url}}`
 | The changes URL in Version Control System. (Nullable)
 
+| `{{released-at}}`
+| The ISO-8601 release date of the current version, Maven dependencies only. (Nullable)
+
+| `{{latest-released-at}}`
+| The ISO-8601 release date of the latest version, Maven dependencies only. (Nullable)
+
+| `{{cooldown-version}}`
+| The newest version outside the <<opt-cooldown>> period. (Nullable)
+
+| `{{cooldown-released-at}}`
+| The ISO-8601 release date of the cooldown version. (Nullable)
+
+| `{{cooldown}}`
+| The <<opt-cooldown>> period, e.g. `7d`. (Nullable)
+
 | `{{diff-url}}`
 | WARNING: DEPRECATED. +
 Please use `{{changes-url}}` instead.
@@ -443,6 +458,36 @@ The default scan depth is `5`, but it is customizable by the environmental varia
 ====
 With this option, the number of reported dependencies tends to be very large, so it is recommended to use it with the <<opt-no-changes>> option.
 Otherwise, it may take a long time for the results to be reported.
+====
+
+[[opt-cooldown]]
+=== --cooldown=DURATION
+
+Only suggest versions released at least `DURATION` ago.
+`DURATION` is a number of days with the unit `d`, e.g. `--cooldown=7d` (`:cooldown '"7d"'` with `-T`).
+A cooldown gives time to spot a broken or compromised release before it reaches your project.
+Disabled by default and with `0d`.
+
+For Maven dependencies, the table always shows the age of the current and latest versions in an `age` column next to each.
+With this option, it also shows between the current and latest versions:
+
+* `cooldown`: the newest version released at least `DURATION` ago, or the current version if all newer versions are too new
+* `age`: the age of the cooldown version
+* `dur`: the cooldown period
+
+Like the latest version, the cooldown version is a pre-release only if the current version is one.
+
+The `json` and `edn` reporters include `:released-at`, `:latest-released-at`, `:cooldown-version`, `:cooldown-released-at` and `:cooldown`, and <<opt-error-format>> can use them too.
+
+<<opt-upgrade>> upgrades to the cooldown version and prints the newer versions it skipped.
+A dependency whose newer versions are all inside the cooldown is still reported, but does not make antq exit with `1`.
+
+[NOTE]
+====
+A release date is the `Last-Modified` header of the version's POM file, so the cooldown applies to Maven dependencies only.
+A version whose release date can't be read counts as too new; `--verbose` shows a warning for it.
+Mirrors and proxies (e.g. Nexus, Artifactory) may report when they cached a file instead of its release date, which makes the cooldown longer.
+Clojars artifacts released before February 2020 show a release date in February 2020 (Clojars didn't keep the older dates), so their age is too low.
 ====
 
 == Projects using antq
