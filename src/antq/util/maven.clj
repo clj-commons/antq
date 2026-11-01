@@ -148,14 +148,18 @@
 (defn- release-date*
   [repositories dep-name version]
   (let [creds (credentials repositories)]
-    (some (fn [[id {:keys [url]}]]
-            (when url
-              (last-modified (pom-url url dep-name version) (get creds id))))
-          repositories)))
+    (or (some (fn [[id {:keys [url]}]]
+                (when url
+                  (last-modified (pom-url url dep-name version) (get creds id))))
+              repositories)
+        (do (log/warning (str "Failed to get the release date of " dep-name " " version
+                              " from the repositories " (str/join ", " (keys repositories))))
+            nil))))
 
 (def release-date
   "Returns the release date of a version as an Instant, or nil.
-  It is the `Last-Modified` header of the version's POM in the first repository that has one."
+  It is the `Last-Modified` header of the version's POM in the first repository that has one.
+  Without one, logs a warning (shown with `--verbose`)."
   (memoize release-date*))
 
 (defn authenticator
