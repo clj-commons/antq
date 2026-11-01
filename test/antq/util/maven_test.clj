@@ -103,6 +103,7 @@
     "https://repo.example.com/foo/bar/1.0/bar-1.0.pom" "https://repo.example.com" "foo/bar"
     "https://repo.example.com/foo/bar/1.0/bar-1.0.pom" "https://repo.example.com//" "foo/bar"
     "https://repo.example.com/foo/foo/1.0/foo-1.0.pom" "https://repo.example.com/" "foo"
+    "https://repo.example.com/foo/bar/1.0/bar-1.0.pom" "https://repo.example.com/" "foo/bar$natives-linux"
     "https://repo.example.com/com/github/foo/next.jdbc/1.0/next.jdbc-1.0.pom"
     "https://repo.example.com/" "com.github.foo/next.jdbc"))
 

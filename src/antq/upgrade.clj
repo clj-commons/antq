@@ -55,10 +55,12 @@
     dep))
 
 (defn- apply-cooldown
-  "Upgrades to the cooldown version and reports the newer version that is skipped."
-  [{:as dep :keys [cooldown-days cooldown-version latest-version latest-released-at]}]
+  "With `:cooldown-days`, upgrades to `:cooldown-version` instead of `:latest-version` (no upgrade
+  when it is nil) and logs the newer version that is skipped, unless the reporter prints nothing."
+  [{:as dep :keys [cooldown-days cooldown-version latest-version latest-released-at]} options]
   (if cooldown-days
-    (do (when (not= cooldown-version latest-version)
+    (do (when (and (not= cooldown-version latest-version)
+                   (not= report/no-output-reporter (:reporter options)))
           (log/info (format "Skipped %s %s (%s, cooldown %d days)"
                             (:name dep) latest-version
                             (if latest-released-at
@@ -75,7 +77,7 @@
   (let [force? (or (:force options) false)
         download? (or (:download options) false)
         version-checked-deps (->> deps
-                                  (map apply-cooldown)
+                                  (map #(apply-cooldown % options))
                                   (filter (comp (complement u.ex/ex-timeout?)
                                                 :latest-version))
                                   (map normalize-version))]

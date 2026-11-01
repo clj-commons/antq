@@ -53,6 +53,9 @@
   Returns a map as follows:
   `{true [upgraded-deps] false [non-upgraded deps]}`
 
+  A dependency with `:cooldown-days` (see `outdated-deps`) is upgraded to its `:cooldown-version`,
+  or not at all when that is `nil`.
+
   Arguments: 
   - `file-dep-pairs` _required_ - A vector of maps, e.g.,
      `{:file \"File path to upgrade\" :dependency outdated-dependency-map}`

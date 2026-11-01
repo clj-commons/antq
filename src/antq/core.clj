@@ -146,6 +146,7 @@
         (log/info))))
 
 (defn- old-enough?
+  "True if `date` is at least `days` days ago; false if `date` is nil."
   [^Instant date days]
   (and date
        (not (.isAfter date (.minus (Instant/now) (Duration/ofDays days))))))
@@ -175,10 +176,13 @@
     dep))
 
 (defn- assoc-latest-version
+  "Adds `:latest-version`, the newest version not skipped by the options, then the release dates
+  and the cooldown version. Pre-releases count only when the current version is a pre-release,
+  for the latest version and for the cooldown version alike."
   [dep options]
   (let [vers (cond->> (:_versions dep)
                (not (ver/under-development? (:version dep)))
-               (drop-while ver/under-development?))
+               (remove ver/under-development?))
         vers (remove-skipping-versions vers dep options)]
     (-> (assoc dep :latest-version (first vers))
         (assoc-release-dates vers options))))
@@ -263,14 +267,25 @@
   [n]
   (System/exit n))
 
-(defn- held-by-cooldown?
+(defn- up-to-date?
+  "True for a dep in the `outdated-deps` result that has nothing to upgrade: held by the cooldown
+  (no version old enough), or at its latest version and only listed as the parent of an outdated
+  dep (`--transitive`)."
   [dep]
-  (and (:cooldown-days dep)
-       (nil? (:cooldown-version dep))))
+  (or (and (:cooldown-days dep)
+           (nil? (:cooldown-version dep)))
+      (and (not (:forced-version dep))
+           (ver/latest? dep))))
+
+(defn exit-code
+  "Returns the exit code for the result of `antq`: 1 if a dep can be upgraded, else 0.
+  Used by the CLI and the Leiningen plugin, so both report the same."
+  [outdated-deps]
+  (if (every? up-to-date? outdated-deps) 0 1))
 
 (defn exit
   [outdated-deps]
-  (system-exit (if (some (complement held-by-cooldown?) outdated-deps) 1 0)))
+  (system-exit (exit-code outdated-deps)))
 
 (defn fetch-deps
   [options]

@@ -474,6 +474,8 @@ With this option, it also shows between the current and latest versions:
 * `age`: the age of the cooldown version
 * `dur`: the cooldown period
 
+Like the latest version, the cooldown version is a pre-release only if the current version is one.
+
 The `json` and `edn` reporters include `:released-at`, `:latest-released-at`, `:cooldown-version`, `:cooldown-released-at` and `:cooldown-days`, and <<opt-error-format>> can use them too.
 
 <<opt-upgrade>> upgrades to the cooldown version and prints the newer versions it skipped.

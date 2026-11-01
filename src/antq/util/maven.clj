@@ -116,8 +116,11 @@
   (memoize get-local-versions*))
 
 (defn pom-url
+  "Returns the URL of the POM of `version` in the repository at `repo-url`.
+  A classifier in `dep-name` (`lib$natives-linux`) is dropped: all classifiers share one POM."
   [repo-url dep-name version]
-  (let [[group-id artifact-id] (str/split dep-name #"/" 2)
+  (let [[group-id artifact-id] (-> (str/replace dep-name #"\$.*" "")
+                                   (str/split #"/" 2))
         artifact-id (or artifact-id group-id)]
     (str (str/replace repo-url #"/+$" "") "/"
          (str/replace group-id "." "/") "/" artifact-id "/" version "/"

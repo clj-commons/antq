@@ -1,6 +1,7 @@
 (ns antq.upgrade-test
   (:require
    [antq.record :as r]
+   [antq.report :as report]
    [antq.test-report]
    [antq.upgrade :as sut]
    [antq.util.exception :as u.ex]
@@ -59,7 +60,7 @@
 (t/deftest upgrade!-cooldown-test
   (let [[temp1 temp2 temp3] temp-files
         two-days-ago (str (.minus (java.time.Instant/now) (java.time.Duration/ofDays 2)))
-        dep {:project ::test :name "foo" :latest-version "3" :cooldown-days 7}
+        dep {:project ::test :name "foo" :version "1" :latest-version "3" :cooldown-days 7}
         out (with-out-str
               (sut/upgrade! [(r/map->Dependency (assoc dep :file temp1 :cooldown-version "2"
                                                        :latest-released-at two-days-ago))
@@ -70,8 +71,15 @@
     (t/is (= "before1" (slurp temp2)))
     (t/is (= "after3" (slurp temp3)))
     (t/is (= ["Skipped foo 3 (2d old, cooldown 7 days)"
-              "Skipped bar 3 (no release date, cooldown 7 days)"]
-             (filter #(str/starts-with? % "Skipped") (str/split-lines out))))))
+              "Skipped bar 3 (no release date, cooldown 7 days)"
+              (format "Upgraded foo '1' to '2' in %s." temp1)
+              (format "Upgraded baz '1' to '3' in %s." temp3)]
+             (filter #(re-find #"^(Skipped|Upgraded)" %) (str/split-lines out))))
+
+    (t/testing "nothing is printed with the no-output reporter (antq.api)"
+      (t/is (= "" (with-out-str
+                    (sut/upgrade! [(r/map->Dependency (assoc dep :file temp2 :name "bar" :cooldown-version nil))]
+                                  {:force true :reporter report/no-output-reporter})))))))
 
 (t/deftest upgrade!-unsupported-test
   (let [[temp1] temp-files
