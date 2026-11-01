@@ -340,8 +340,8 @@ See details: https://github.com/clojars/clojars-web/wiki/Verified-Group-Names[Cl
 | `{{cooldown-released-at}}`
 | The ISO-8601 release date of the cooldown version. (Nullable)
 
-| `{{cooldown-days}}`
-| The <<opt-cooldown>> period in days. (Nullable)
+| `{{cooldown}}`
+| The <<opt-cooldown>> period, e.g. `7d`. (Nullable)
 
 | `{{diff-url}}`
 | WARNING: DEPRECATED. +
@@ -461,22 +461,23 @@ Otherwise, it may take a long time for the results to be reported.
 ====
 
 [[opt-cooldown]]
-=== --cooldown=DAYS
+=== --cooldown=DURATION
 
-Only suggest versions released at least `DAYS` days ago.
+Only suggest versions released at least `DURATION` ago.
+`DURATION` is a number of days with the unit `d`, e.g. `--cooldown=7d` (`:cooldown '"7d"'` with `-T`).
 A cooldown gives time to spot a broken or compromised release before it reaches your project.
-Disabled by default (`0`).
+Disabled by default and with `0d`.
 
 For Maven dependencies, the table always shows the age of the current and latest versions in an `age` column next to each.
 With this option, it also shows between the current and latest versions:
 
-* `cooldown`: the newest version released at least `DAYS` days ago, or the current version if all newer versions are too new
+* `cooldown`: the newest version released at least `DURATION` ago, or the current version if all newer versions are too new
 * `age`: the age of the cooldown version
 * `dur`: the cooldown period
 
 Like the latest version, the cooldown version is a pre-release only if the current version is one.
 
-The `json` and `edn` reporters include `:released-at`, `:latest-released-at`, `:cooldown-version`, `:cooldown-released-at` and `:cooldown-days`, and <<opt-error-format>> can use them too.
+The `json` and `edn` reporters include `:released-at`, `:latest-released-at`, `:cooldown-version`, `:cooldown-released-at` and `:cooldown`, and <<opt-error-format>> can use them too.
 
 <<opt-upgrade>> upgrades to the cooldown version and prints the newer versions it skipped.
 A dependency whose newer versions are all inside the cooldown is still reported, but does not make antq exit with `1`.

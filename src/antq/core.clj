@@ -45,6 +45,7 @@
    [antq.util.exception :as u.ex]
    [antq.util.file :as u.file]
    [antq.util.maven :as u.maven]
+   [antq.util.report :as u.report]
    [antq.util.ver :as u.ver]
    [antq.ver :as ver]
    [antq.ver.circle-ci-orb]
@@ -153,24 +154,25 @@
 
 (defn- assoc-release-dates
   "For outdated Maven deps, adds the release dates of the current and latest versions.
-  With `:cooldown`, also adds the newest version released at least that many days ago and its
-  release date (nil if there is none; versions without a release date are treated as too new)."
+  With `:cooldown` (e.g. `7d`), also adds the newest version released at least that long ago and
+  its release date (nil if there is none; versions without a release date are treated as too new)."
   [{:as dep :keys [version latest-version]} vers {:keys [cooldown]}]
   (if (and (= :java (:type dep))
            (string? latest-version)
            (not (ver/latest? dep)))
     (let [repos (:repositories (u.dep/repository-opts dep))
           date #(u.maven/release-date repos (:name dep) %)
-          cooldown? (and (pos-int? cooldown) (not (:forced-version dep)))
+          days (u.report/cooldown-days cooldown)
+          cooldown? (and (pos-int? days) (not (:forced-version dep)))
           pick (when cooldown?
                  (->> vers
                       (take-while #(pos? (version/version-compare % version)))
-                      (some #(when (old-enough? (date %) cooldown) %))))]
+                      (some #(when (old-enough? (date %) days) %))))]
       (cond-> (assoc dep
                      :released-at (some-> (date version) str)
                      :latest-released-at (some-> (date latest-version) str))
         cooldown?
-        (assoc :cooldown-days cooldown
+        (assoc :cooldown (str days "d")
                :cooldown-version pick
                :cooldown-released-at (some-> pick date str))))
     dep))
@@ -272,7 +274,7 @@
   (no version old enough), or at its latest version and only listed as the parent of an outdated
   dep (`--transitive`)."
   [dep]
-  (or (and (:cooldown-days dep)
+  (or (and (:cooldown dep)
            (nil? (:cooldown-version dep)))
       (and (not (:forced-version dep))
            (ver/latest? dep))))

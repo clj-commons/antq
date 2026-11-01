@@ -60,7 +60,7 @@
 (t/deftest upgrade!-cooldown-test
   (let [[temp1 temp2 temp3] temp-files
         two-days-ago (str (.minus (java.time.Instant/now) (java.time.Duration/ofDays 2)))
-        dep {:project ::test :name "foo" :version "1" :latest-version "3" :cooldown-days 7}
+        dep {:project ::test :name "foo" :version "1" :latest-version "3" :cooldown "7d"}
         out (with-out-str
               (sut/upgrade! [(r/map->Dependency (assoc dep :file temp1 :cooldown-version "2"
                                                        :latest-released-at two-days-ago))
@@ -70,8 +70,8 @@
     (t/is (= "after2" (slurp temp1)))
     (t/is (= "before1" (slurp temp2)))
     (t/is (= "after3" (slurp temp3)))
-    (t/is (= ["Skipped foo 3 (2d old, cooldown 7 days)"
-              "Skipped bar 3 (no release date, cooldown 7 days)"
+    (t/is (= ["Skipped foo 3 (2d old, cooldown 7d)"
+              "Skipped bar 3 (no release date, cooldown 7d)"
               (format "Upgraded foo '1' to '2' in %s." temp1)
               (format "Upgraded baz '1' to '3' in %s." temp3)]
              (filter #(re-find #"^(Skipped|Upgraded)" %) (str/split-lines out))))

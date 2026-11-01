@@ -25,8 +25,8 @@
   - `parent` parent dependency name
   - `released-at`, `latest-released-at` _string_ ISO-8601 release dates of `:version` and `:latest-version`,
      Maven deps only (can be `nil`)
-  - `cooldown-days` _integer_ the `:cooldown` option, set for Maven deps when it is used
-  - `cooldown-version` _string_ newest version released at least `cooldown-days` ago (can be `nil`)
+  - `cooldown` _string_ the `:cooldown` option, e.g. `\"7d\"`, set for Maven deps when it is used
+  - `cooldown-version` _string_ newest version released at least `cooldown` ago (can be `nil`)
   - `cooldown-released-at` _string_ ISO-8601 release date of `:cooldown-version` (can be `nil`)
 
   Arguments: 
@@ -53,7 +53,7 @@
   Returns a map as follows:
   `{true [upgraded-deps] false [non-upgraded deps]}`
 
-  A dependency with `:cooldown-days` (see `outdated-deps`) is upgraded to its `:cooldown-version`,
+  A dependency with `:cooldown` (see `outdated-deps`) is upgraded to its `:cooldown-version`,
   or not at all when that is `nil`.
 
   Arguments: 

@@ -162,51 +162,51 @@
       (t/is (match? [{:latest-version "4.0.0"
                       :released-at (str (dates "1.0.0"))
                       :latest-released-at (str (dates "4.0.0"))
-                      :cooldown-days m/absent
+                      :cooldown m/absent
                       :cooldown-version m/absent
                       :cooldown-released-at m/absent}]
                     (outdated {})))
-      (t/is (match? [{:cooldown-days m/absent}] (outdated {:cooldown 0}))))
+      (t/is (match? [{:cooldown m/absent}] (outdated {:cooldown "0d"}))))
 
     (t/testing "the newest version outside the cooldown is picked"
-      (t/is (match? [{:latest-version "4.0.0" :cooldown-days 7 :cooldown-version "2.0.0"
+      (t/is (match? [{:latest-version "4.0.0" :cooldown "7d" :cooldown-version "2.0.0"
                       :cooldown-released-at (str (dates "2.0.0"))}]
-                    (outdated {:cooldown 7})))
-      (t/is (match? [{:cooldown-version "3.0.0"}] (outdated {:cooldown 3})))
+                    (outdated {:cooldown "7d"})))
+      (t/is (match? [{:cooldown-version "3.0.0"}] (outdated {:cooldown "3d"})))
       (t/testing "and older versions are not looked up"
         (t/is (not-any? #{"2.0.0"} @looked-up))))
 
     (t/testing "all newer versions are inside the cooldown; the current version is not picked"
       (t/is (match? [{:latest-version "4.0.0" :cooldown-version nil :cooldown-released-at nil}]
-                    (outdated {:cooldown 50}))))
+                    (outdated {:cooldown "50d"}))))
 
     (t/testing "a version released exactly cooldown days ago passes"
       (t/is (match? [{:cooldown-version "4.0.0"}]
-                    (outdated {:cooldown 7} :dates (assoc dates "4.0.0" (days-ago 7)))))
+                    (outdated {:cooldown "7d"} :dates (assoc dates "4.0.0" (days-ago 7)))))
       (t/is (match? [{:cooldown-version "3.0.0"}]
-                    (outdated {:cooldown 7} :dates (assoc dates
-                                                          "4.0.0" (.plusSeconds ^Instant (days-ago 7) 60)
-                                                          "3.0.0" (days-ago 8))))))
+                    (outdated {:cooldown "7d"} :dates (assoc dates
+                                                             "4.0.0" (.plusSeconds ^Instant (days-ago 7) 60)
+                                                             "3.0.0" (days-ago 8))))))
 
     (t/testing "a version without release date counts as too new"
       (t/is (match? [{:cooldown-version "2.0.0" :latest-released-at nil}]
-                    (outdated {:cooldown 3} :dates (dissoc dates "4.0.0" "3.0.0")))))
+                    (outdated {:cooldown "3d"} :dates (dissoc dates "4.0.0" "3.0.0")))))
 
     (t/testing "excluded versions are not picked"
-      (t/is (match? [{:cooldown-version nil}] (outdated {:cooldown 7 :exclude ["foo/bar@2.0.0"]}))))
+      (t/is (match? [{:cooldown-version nil}] (outdated {:cooldown "7d" :exclude ["foo/bar@2.0.0"]}))))
 
     (t/testing "pre-releases are picked only for a pre-release, like the latest version"
       (let [versions ["3.0.0-alpha1" "2.0.0" "2.0.0-rc1" "1.1.0" "1.0.0"]
             dates {"3.0.0-alpha1" (days-ago 1) "2.0.0" (days-ago 2) "2.0.0-rc1" (days-ago 20) "1.1.0" (days-ago 40)}]
         (t/is (match? [{:latest-version "2.0.0" :cooldown-version "1.1.0"}]
-                      (outdated {:cooldown 7} :versions versions :dates dates)))
+                      (outdated {:cooldown "7d"} :versions versions :dates dates)))
         (t/is (match? [{:latest-version "3.0.0-alpha1" :cooldown-version "2.0.0-rc1"}]
-                      (outdated {:cooldown 7} :versions versions :dates dates
+                      (outdated {:cooldown "7d"} :versions versions :dates dates
                                 :deps [(assoc dep :version "2.0.0-beta1")])))))
 
     (t/testing "a timed-out version lookup gets no dates"
-      (t/is (match? [{:latest-version u.ex/ex-timeout? :released-at m/absent :cooldown-days m/absent}]
-                    (outdated {:cooldown 7} :versions [(u.ex/ex-timeout "test")])))
+      (t/is (match? [{:latest-version u.ex/ex-timeout? :released-at m/absent :cooldown m/absent}]
+                    (outdated {:cooldown "7d"} :versions [(u.ex/ex-timeout "test")])))
       (t/is (empty? @looked-up)))
 
     (t/testing "dates come from the dep's own repositories"
@@ -217,16 +217,16 @@
         (t/is (match? {"private" {:url "https://repo.example.com"} "central" map?} @repos))))
 
     (t/testing "a version forced with --focus ignores the cooldown"
-      (t/is (match? [{:latest-version "4.0.0" :cooldown-days m/absent}]
-                    (outdated {:cooldown 7 :focus ["foo/bar@4.0.0"]}))))
+      (t/is (match? [{:latest-version "4.0.0" :cooldown m/absent}]
+                    (outdated {:cooldown "7d" :focus ["foo/bar@4.0.0"]}))))
 
     (t/testing "up-to-date deps are not looked up"
-      (t/is (empty? (outdated {:cooldown 7} :deps [(assoc dep :version "4.0.0")])))
+      (t/is (empty? (outdated {:cooldown "7d"} :deps [(assoc dep :version "4.0.0")])))
       (t/is (empty? @looked-up)))
 
     (t/testing "non-Maven deps get no dates and no cooldown"
-      (t/is (match? [{:released-at m/absent :cooldown-days m/absent}]
-                    (outdated {:cooldown 7} :deps [(assoc dep :type :test)])))
+      (t/is (match? [{:released-at m/absent :cooldown m/absent}]
+                    (outdated {:cooldown "7d"} :deps [(assoc dep :type :test)])))
       (t/is (empty? @looked-up)))
 
     (t/testing "--transitive: a held dep listed with its parent gives exit code 0"
@@ -235,13 +235,13 @@
             versions {"foo/parent" ["1.0.0"] "foo/child" ["4.0.0" "1.0.0"]}
             exit-code #(with-redefs [sut/system-exit identity] (sut/exit %))]
         (t/is (match? [{:name "foo/parent"} {:name "foo/child" :cooldown-version nil}]
-                      (outdated {:cooldown 7} :deps deps :versions versions)))
-        (t/is (= 0 (exit-code (outdated {:cooldown 7} :deps deps :versions versions))))
+                      (outdated {:cooldown "7d"} :deps deps :versions versions)))
+        (t/is (= 0 (exit-code (outdated {:cooldown "7d"} :deps deps :versions versions))))
         (t/is (= 1 (exit-code (outdated {} :deps deps :versions versions))))))))
 
 (t/deftest exit-test
-  (let [held {:latest-version "2" :cooldown-days 7 :cooldown-version nil}
-        picked {:latest-version "2" :cooldown-days 7 :cooldown-version "2"}
+  (let [held {:latest-version "2" :cooldown "7d" :cooldown-version nil}
+        picked {:latest-version "2" :cooldown "7d" :cooldown-version "2"}
         exit-code #(with-redefs [sut/system-exit identity] (sut/exit %))]
     (t/is (= 0 (exit-code [])))
     (t/is (= 0 (exit-code [held held])))
@@ -275,9 +275,9 @@
                 [@exit-code (slurp file)]))]
     (try
       (t/testing "report only: the picked dep is outdated"
-        (t/is (= [1 ""] (run {:cooldown 7}))))
+        (t/is (= [1 ""] (run {:cooldown "7d"}))))
       (t/testing "upgrade writes the cooldown version; a held dep gives exit code 0"
-        (t/is (= [0 "2.0.0"] (run {:cooldown 7 :upgrade true :force true}))))
+        (t/is (= [0 "2.0.0"] (run {:cooldown "7d" :upgrade true :force true}))))
       (t/testing "without cooldown both deps go to the latest version"
         (t/is (= [0 "3.0.0"] (run {:upgrade true :force true}))))
       (finally

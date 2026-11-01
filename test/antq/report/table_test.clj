@@ -61,10 +61,10 @@
 (t/deftest reporter-cooldown-test
   (let [deps [(h/test-dep {:file "a" :name "foo" :version "1" :latest-version "3"
                            :released-at (days-ago 40) :latest-released-at (days-ago 2)
-                           :cooldown-days 7 :cooldown-version "2" :cooldown-released-at (days-ago 9)})
+                           :cooldown "7d" :cooldown-version "2" :cooldown-released-at (days-ago 9)})
               (h/test-dep {:file "a" :name "bar" :version "1" :latest-version "2"
                            :released-at (days-ago 9) :latest-released-at nil
-                           :cooldown-days 7 :cooldown-version nil :cooldown-released-at nil})
+                           :cooldown "7d" :cooldown-version nil :cooldown-released-at nil})
               (h/test-dep {:file "a" :name "baz" :version "1" :latest-version "2"})]]
     (t/is (= [["file" "name" "current" "age" "cooldown" "age" "dur" "latest" "age"]
               ["a" "bar" "1" "9d" "1" "9d" "7d" "2" ""]

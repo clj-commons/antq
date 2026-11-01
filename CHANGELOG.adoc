@@ -32,7 +32,7 @@ https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now
 * https://github.com/clj-commons/antq/issues/297[#297]: GitHub Actions: antq now upgrades an action pinned to a commit SHA with a version comment, such as `actions/checkout@<sha> # v4.1.0`, to the commit of its latest release and updates the comment.
 Before, it moved such a pin to the newest commit on the default branch.
 (thanks, https://github.com/stefanroex[@stefanroex]!)
-* https://github.com/clj-commons/antq/issues/299[#299]: New `--cooldown=DAYS` option to only suggest Maven versions released at least that many days ago.
+* https://github.com/clj-commons/antq/issues/299[#299]: New `--cooldown` option, e.g. `--cooldown=7d`, to only suggest Maven versions released at least that long ago.
 The table also shows the age of the current and latest versions of Maven dependencies.
 (thanks, https://github.com/aadrian[@aadrian]!)
 * CI: Test coverage for:

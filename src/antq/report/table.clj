@@ -26,7 +26,7 @@
   {:current-age "age"
    :latest-age "age"
    :cooldown-version "cooldown"
-   :cooldown-days "dur"
+   :cooldown "dur"
    :cooldown-age "age"})
 
 (defn- column-label
@@ -59,7 +59,7 @@
   (let [ages? (some (some-fn :current-age :latest-age) deps)
         columns (concat [:file :name :current]
                         (when ages? [:current-age])
-                        (when (some :cooldown-days deps) [:cooldown-version :cooldown-age :cooldown-days])
+                        (when (some :cooldown deps) [:cooldown-version :cooldown-age :cooldown])
                         [:latest]
                         (when ages? [:latest-age])
                         (when (:changes-in-table options) [:changes-url]))
@@ -90,13 +90,12 @@
            (map #(update % :file u.file/normalize-path))
            ;; A dep held by the cooldown stays on its current version
            (map #(cond-> %
-                   (and (:cooldown-days %) (nil? (:cooldown-version %)))
+                   (and (:cooldown %) (nil? (:cooldown-version %)))
                    (assoc :cooldown-version (:version %)
                           :cooldown-released-at (:released-at %))))
            (map #(assoc % :current-age (some-> (:released-at %) u.report/age)
                         :latest-age (some-> (:latest-released-at %) u.report/age)
-                        :cooldown-age (some-> (:cooldown-released-at %) u.report/age)
-                        :cooldown-days (some-> (:cooldown-days %) (str "d"))))
+                        :cooldown-age (some-> (:cooldown-released-at %) u.report/age)))
            (map #(let [latest-key (if (seq (:latest-name %))
                                     :latest-name
                                     :latest-version)]

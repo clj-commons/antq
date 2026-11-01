@@ -14,6 +14,13 @@
       (str hours "h")
       (str (quot hours 24) "d"))))
 
+(defn cooldown-days
+  "Returns the number of days of a cooldown like `7d`, or nil if `cooldown` isn't one.
+  Days are the only unit for now."
+  [cooldown]
+  (when (string? cooldown)
+    (some-> (re-matches #"(\d+)d" cooldown) second parse-long)))
+
 (defn skip-duplicated-file-name
   {:malli/schema [:=> [:cat r/?dependencies] r/?dependencies]}
   [sorted-deps]

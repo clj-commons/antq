@@ -24,7 +24,7 @@
                (:exit (edn/read-string (slurp result-file))))]
     (try
       (t/testing "a dep held by the cooldown gives exit code 0"
-        (t/is (= 0 (exit [['lein-plugin/held "1.0.0"]] {:cooldown 7})))
+        (t/is (= 0 (exit [['lein-plugin/held "1.0.0"]] {:cooldown "7d"})))
         (t/is (= 1 (exit [['lein-plugin/held "1.0.0"]] {}))))
       (finally
         (fs/delete-if-exists result-file)))))

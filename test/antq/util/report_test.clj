@@ -17,6 +17,19 @@
     "120d" (* 120 24)
     "0h" -5))
 
+(t/deftest cooldown-days-test
+  (t/are [expected cooldown] (= expected (sut/cooldown-days cooldown))
+    7 "7d"
+    0 "0d"
+    14 "014d"
+    nil "7"
+    nil "7h"
+    nil "-1d"
+    nil "d"
+    nil "99999999999999999999d"
+    nil 7
+    nil nil))
+
 (t/deftest skip-duplicated-file-name-test
   (t/is (= [{:file "foo"}
             {:file "bar"}

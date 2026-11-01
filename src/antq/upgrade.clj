@@ -55,18 +55,18 @@
     dep))
 
 (defn- apply-cooldown
-  "With `:cooldown-days`, upgrades to `:cooldown-version` instead of `:latest-version` (no upgrade
+  "With `:cooldown`, upgrades to `:cooldown-version` instead of `:latest-version` (no upgrade
   when it is nil) and logs the newer version that is skipped, unless the reporter prints nothing."
-  [{:as dep :keys [cooldown-days cooldown-version latest-version latest-released-at]} options]
-  (if cooldown-days
+  [{:as dep :keys [cooldown cooldown-version latest-version latest-released-at]} options]
+  (if cooldown
     (do (when (and (not= cooldown-version latest-version)
                    (not= report/no-output-reporter (:reporter options)))
-          (log/info (format "Skipped %s %s (%s, cooldown %d days)"
+          (log/info (format "Skipped %s %s (%s, cooldown %s)"
                             (:name dep) latest-version
                             (if latest-released-at
                               (str (u.report/age latest-released-at) " old")
                               "no release date")
-                            cooldown-days)))
+                            cooldown)))
         (assoc dep :latest-version cooldown-version))
     dep))
 

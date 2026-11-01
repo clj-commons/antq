@@ -1,5 +1,6 @@
 (ns ^:no-doc antq.cli
   (:require
+   [antq.util.report :as u.report]
    [babashka.cli :as cli]
    [clojure.string :as str]))
 
@@ -129,10 +130,13 @@
     :desc "Skip progress reporting"}
 
    :cooldown
-   {:ref "<days>"
-    :coerce :long
-    :validate nat-int?
-    :desc "Only suggest Maven versions released at least this many days ago"}
+   {:ref "<duration>"
+    :coerce :string
+    :validate {:pred u.report/cooldown-days
+               :ex-msg (fn [{:keys [flag value]}]
+                         (str "Invalid value for option " flag ": " value
+                              ". Expected a number of days with the unit d, e.g. 7d"))}
+    :desc "Only suggest Maven versions released at least this long ago, e.g. 7d"}
 
    :usage-help-style
    {:coerce :keyword

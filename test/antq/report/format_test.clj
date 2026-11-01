@@ -35,16 +35,16 @@
                  "::error file={{file}}::{{name}},{{version}},{{latest-version}},{{latest-name}}. {{changes-url}}")))))
 
     (t/testing "release dates and cooldown"
-      (t/is (= "foo 2026-10-01T00:00:00Z 2026-10-20T00:00:00Z 2 2026-10-10T00:00:00Z 7"
+      (t/is (= "foo 2026-10-01T00:00:00Z 2026-10-20T00:00:00Z 2 2026-10-10T00:00:00Z 7d"
                (str/trim
                 (with-out-str
                   (reporter [(h/test-dep {:name "foo" :version "1" :latest-version "3"
                                           :released-at "2026-10-01T00:00:00Z"
                                           :latest-released-at "2026-10-20T00:00:00Z"
                                           :cooldown-version "2" :cooldown-released-at "2026-10-10T00:00:00Z"
-                                          :cooldown-days 7})]
+                                          :cooldown "7d"})]
                             (str "{{name}} {{released-at}} {{latest-released-at}} {{cooldown-version}} "
-                                 "{{cooldown-released-at}} {{cooldown-days}}")))))))
+                                 "{{cooldown-released-at}} {{cooldown}}")))))))
 
     (t/testing "backward compatibility"
       (t/is (= "https://example.com"
