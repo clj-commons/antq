@@ -487,6 +487,7 @@ A dependency whose newer versions are all inside the cooldown is still reported,
 A release date is the `Last-Modified` header of the version's POM file, so the cooldown applies to Maven dependencies only.
 A version whose release date can't be read counts as too new; `--verbose` shows a warning for it.
 Mirrors and proxies (e.g. Nexus, Artifactory) may report when they cached a file instead of its release date, which makes the cooldown longer.
+Clojars artifacts released before February 2020 show a release date in February 2020 (Clojars didn't keep the older dates), so their age is too low.
 ====
 
 == Projects using antq
