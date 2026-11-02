@@ -34,7 +34,11 @@
         (t/is (= [{:reporter report/no-output-reporter}
                   (map #(assoc % :repositories test-repositories)
                        expected-deps)]
-                 (sut/outdated-deps test-deps-map {:repositories test-repositories})))))))
+                 (sut/outdated-deps test-deps-map {:repositories test-repositories})))))
+
+    (t/testing "an invalid cooldown throws"
+      (t/is (thrown-with-msg? clojure.lang.ExceptionInfo #"Invalid value for option :cooldown: \"7\"\. Expected"
+              (sut/outdated-deps test-deps-map {:cooldown "7"}))))))
 
 (t/deftest upgrade-deps!-test
   (let [test-dep (r/map->Dependency {:type :java

@@ -168,6 +168,11 @@
                     (outdated {})))
       (t/is (match? [{:cooldown m/absent}] (outdated {:cooldown "0d"}))))
 
+    (t/testing "an invalid cooldown throws"
+      (t/are [cooldown] (thrown-with-msg? clojure.lang.ExceptionInfo #"Invalid value for option :cooldown: .* e\.g\. 7d"
+                          (outdated {:cooldown cooldown}))
+        "7" 7 "7days" ""))
+
     (t/testing "the newest version outside the cooldown is picked"
       (t/is (match? [{:latest-version "4.0.0" :cooldown "7d" :cooldown-version "2.0.0"
                       :cooldown-released-at (str (dates "2.0.0"))}]

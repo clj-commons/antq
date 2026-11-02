@@ -211,8 +211,18 @@
     (assoc dep :_versions (:_versions dep-with-vers))
     dep))
 
+(defn- validate-cooldown!
+  "Throws for a `:cooldown` that isn't like `7d`. The CLI checks it earlier; this covers
+  `antq.api` and the Lein plugin."
+  [{:keys [cooldown]}]
+  (when (and (some? cooldown)
+             (not (u.report/cooldown-days cooldown)))
+    (throw (ex-info (u.report/invalid-cooldown-message ":cooldown" (pr-str cooldown))
+                    {:cooldown cooldown}))))
+
 (defn outdated-deps
   [deps options]
+  (validate-cooldown! options)
   (let [forced-artifacts (forced-artifact-version-map options)
         org-deps (cond->> deps
                    (:transitive options)

@@ -35,7 +35,9 @@
 
   - `options` _optional_ - A [CLI options](/README.adoc#options) map which can also include:
      - `:repositories` A map of the same form as `:mvn/repos` in `deps.edn`, e.g.,
-        `{\"clojars\" {:url \"https://clojars.org/repo\"}}`"
+        `{\"clojars\" {:url \"https://clojars.org/repo\"}}`
+
+  Throws an `ExceptionInfo` for an invalid `:cooldown`, e.g. `\"7\"`."
   ([deps-map]
    (outdated-deps deps-map {}))
   ([deps-map {:as options :keys [repositories file-path] :or {file-path ""}}]

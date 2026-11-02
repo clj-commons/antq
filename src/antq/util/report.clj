@@ -21,6 +21,12 @@
   (when (string? cooldown)
     (some-> (re-matches #"(\d+)d" cooldown) second parse-long)))
 
+(defn invalid-cooldown-message
+  "Returns the error message for the invalid cooldown `value` of `option`."
+  [option value]
+  (str "Invalid value for option " option ": " value
+       ". Expected a number of days with the unit d, e.g. 7d"))
+
 (defn skip-duplicated-file-name
   {:malli/schema [:=> [:cat r/?dependencies] r/?dependencies]}
   [sorted-deps]

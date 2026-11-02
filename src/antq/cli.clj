@@ -134,8 +134,7 @@
     :coerce :string
     :validate {:pred u.report/cooldown-days
                :ex-msg (fn [{:keys [flag value]}]
-                         (str "Invalid value for option " flag ": " value
-                              ". Expected a number of days with the unit d, e.g. 7d"))}
+                         (u.report/invalid-cooldown-message flag value))}
     :desc "Adds cooldown reporting, suggesting (and, with --upgrade, upgrading to) versions released at least <duration> ago, e.g. 7d. Applies to Maven dependencies only."}
 
    :usage-help-style
