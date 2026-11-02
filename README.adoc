@@ -464,7 +464,7 @@ Otherwise, it may take a long time for the results to be reported.
 === --cooldown=DURATION
 
 Only suggest versions released at least `DURATION` ago.
-`DURATION` is a number of days with the unit `d`, e.g. `--cooldown=7d` (`:cooldown '"7d"'` with `-T`).
+`DURATION` is a number of days with the unit `d`, e.g. `--cooldown=7d` (`:cooldown '"7d"'` when running <<usage-clojure-tool, as a clojure tool>>).
 A cooldown gives time to spot a broken or compromised release before it reaches your project.
 Disabled by default and with `0d`.
 
@@ -476,6 +476,7 @@ With this option, it also shows between the current and latest versions:
 * `dur`: the cooldown period
 
 Like the latest version, the cooldown version is a pre-release only if the current version is one.
+It is never a SNAPSHOT version: a SNAPSHOT has no release date and can be replaced at any time.
 
 The `json` and `edn` reporters include `:released-at`, `:latest-released-at`, `:cooldown-version`, `:cooldown-released-at` and `:cooldown`, and <<opt-error-format>> can use them too.
 

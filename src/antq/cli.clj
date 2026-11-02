@@ -136,7 +136,7 @@
                :ex-msg (fn [{:keys [flag value]}]
                          (str "Invalid value for option " flag ": " value
                               ". Expected a number of days with the unit d, e.g. 7d"))}
-    :desc "Only suggest Maven versions released at least this long ago, e.g. 7d"}
+    :desc "Adds cooldown reporting, suggesting (and, with --upgrade, upgrading to) versions released at least <duration> ago, e.g. 7d. Applies to Maven dependencies only."}
 
    :usage-help-style
    {:coerce :keyword
