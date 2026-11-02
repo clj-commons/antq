@@ -119,8 +119,10 @@
                                       (when (str/starts-with? url "https://two.") date))]
       (t/testing "the first repository that has a date wins; credentials go to their repository only"
         (t/is (= date (sut/release-date repos "release-date/test1" "1.0")))
-        (t/is (= [["https://one.example.com/release-date/test1/1.0/test1-1.0.pom" nil]
-                  ["https://two.example.com/release-date/test1/1.0/test1-1.0.pom" {:url "https://two.example.com"
+        (t/is (= [["https://one.example.com/release-date/test1/1.0/test1-1.0.pom" {:id "first"
+                                                                                   :url "https://one.example.com"}]
+                  ["https://two.example.com/release-date/test1/1.0/test1-1.0.pom" {:id "second"
+                                                                                   :url "https://two.example.com"
                                                                                    :username "user"
                                                                                    :password "pass"}]]
                  @calls)))

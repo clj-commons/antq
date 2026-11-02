@@ -145,21 +145,34 @@
             (Instant/ofEpochMilli ms)))))
     (catch Exception _ nil)))
 
+(defn- resolved-repositories
+  "Returns maps with `:id`, `:url`, `:username` and `:password` to look up `dep-name` in.
+  babashka has no Maven resolver, so it keeps the credentials from `repositories` only."
+  [repositories dep-name version]
+  (if-bb
+   (let [creds (credentials repositories)]
+     (map (fn [[id {:keys [url]}]]
+            (assoc (get creds id) :id id :url url))
+          repositories))
+   ((requiring-resolve 'antq.util.aether/resolved-repositories)
+    dep-name version {:repositories (into {} (filter (comp :url val)) repositories)})))
+
 (defn- release-date*
   [repositories dep-name version]
-  (let [creds (credentials repositories)]
-    (or (some (fn [[id {:keys [url]}]]
-                (when url
-                  (last-modified (pom-url url dep-name version) (get creds id))))
-              repositories)
-        (do (log/warning (str "Failed to get the release date of " dep-name " " version
-                              " from the repositories " (str/join ", " (keys repositories))))
-            nil))))
+  (or (some (fn [{:keys [url] :as repo}]
+              (when url
+                (last-modified (pom-url url dep-name version) repo)))
+            (resolved-repositories repositories dep-name version))
+      (do (log/warning (str "Failed to get the release date of " dep-name " " version
+                            " from the repositories " (str/join ", " (keys repositories))))
+          nil)))
 
 (def release-date
   "Returns the release date of a version as an Instant, or nil.
   It is the `Last-Modified` header of the version's POM in the first repository that has one.
-  Without one, logs a warning (shown with `--verbose`)."
+  Without one, logs a warning (shown with `--verbose`).
+  On the JVM, the repositories are taken as tools.deps resolves them: central and clojars first,
+  mirrors and credentials from settings.xml applied."
   (memoize release-date*))
 
 (defn authenticator
