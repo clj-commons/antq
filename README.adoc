@@ -458,6 +458,7 @@ The default scan depth is `5`, but it is customizable by the environmental varia
 ====
 With this option, the number of reported dependencies tends to be very large, so it is recommended to use it with the <<opt-no-changes>> option.
 Otherwise, it may take a long time for the results to be reported.
+Reading release dates adds to this time: antq reads them for the current and latest versions of each outdated Maven dependency, and with <<opt-cooldown>> also for newer versions until one is old enough.
 ====
 
 [[opt-cooldown]]
