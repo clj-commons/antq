@@ -209,6 +209,18 @@
                       (outdated {:cooldown "7d"} :versions versions :dates dates
                                 :deps [(assoc dep :version "2.0.0-beta1")])))))
 
+    (t/testing "a SNAPSHOT is never picked, even with a release date"
+      (let [versions ["3.0.0-SNAPSHOT" "2.1.0" "2.0.0-SNAPSHOT"]
+            dates {"3.0.0-SNAPSHOT" (days-ago 20) "2.1.0" (days-ago 30)}]
+        (t/are [current] (match? [{:latest-version "3.0.0-SNAPSHOT" :cooldown-version "2.1.0"}]
+                                 (outdated {:cooldown "7d"} :versions versions :dates dates
+                                           :deps [(assoc dep :version current)]))
+          "2.0.0-SNAPSHOT"
+          "2.0.0-20240101.120000-1")
+        (t/is (match? [{:cooldown-version nil}]
+                      (outdated {:cooldown "7d"} :versions versions :dates (dissoc dates "2.1.0")
+                                :deps [(assoc dep :version "2.0.0-SNAPSHOT")])))))
+
     (t/testing "a timed-out version lookup gets no dates"
       (t/is (match? [{:latest-version u.ex/ex-timeout? :released-at m/absent :cooldown m/absent}]
                     (outdated {:cooldown "7d"} :versions [(u.ex/ex-timeout "test")])))

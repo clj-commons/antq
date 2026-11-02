@@ -155,7 +155,8 @@
 (defn- assoc-release-dates
   "For outdated Maven deps, adds the release dates of the current and latest versions.
   With `:cooldown` (e.g. `7d`), also adds the newest version released at least that long ago and
-  its release date (nil if there is none; versions without a release date are treated as too new)."
+  its release date (nil if there is none; versions without a release date are treated as too new).
+  A SNAPSHOT is never picked, even if a repository reports a date for it: it can be replaced at any time."
   [{:as dep :keys [version latest-version]} vers {:keys [cooldown]}]
   (if (and (= :java (:type dep))
            (string? latest-version)
@@ -167,6 +168,7 @@
           pick (when cooldown?
                  (->> vers
                       (take-while #(pos? (version/version-compare % version)))
+                      (remove ver/snapshot?)
                       (some #(when (old-enough? (date %) days) %))))]
       (cond-> (assoc dep
                      :released-at (some-> (date version) str)
