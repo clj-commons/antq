@@ -17,6 +17,9 @@
     RepositorySystem)
    (org.eclipse.aether.artifact
     Artifact)
+   (org.eclipse.aether.repository
+    AuthenticationContext
+    RemoteRepository)
    (org.eclipse.aether.resolution
     VersionRangeRequest)
    (org.eclipse.aether.transfer
@@ -68,6 +71,26 @@
      :session session
      :artifact artifact
      :remote-repos remote-repos}))
+
+(defn- credentials
+  [session ^RemoteRepository repo]
+  (when-let [ctx (AuthenticationContext/forRepository session repo)]
+    (try
+      {:username (.get ctx AuthenticationContext/USERNAME)
+       :password (.get ctx AuthenticationContext/PASSWORD)}
+      (finally
+        (AuthenticationContext/close ctx)))))
+
+(defn resolved-repositories
+  "Returns the repositories as tools.deps resolves `name`: central and clojars first, mirrors
+  and credentials from settings.xml applied. Maps with `:id`, `:url`, `:username` and `:password`."
+  [name version opts]
+  (let [{:keys [session remote-repos]} (repository-system name version opts)]
+    (map (fn [^RemoteRepository repo]
+           (assoc (credentials session repo)
+                  :id (.getId repo)
+                  :url (.getUrl repo)))
+         remote-repos)))
 
 (defn get-versions
   [name opts]

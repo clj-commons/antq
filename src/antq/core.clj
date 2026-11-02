@@ -41,9 +41,11 @@
    [antq.upgrade.leiningen]
    [antq.upgrade.pom]
    [antq.upgrade.shadow]
+   [antq.util.dep :as u.dep]
    [antq.util.exception :as u.ex]
    [antq.util.file :as u.file]
    [antq.util.maven :as u.maven]
+   [antq.util.report :as u.report]
    [antq.util.ver :as u.ver]
    [antq.ver :as ver]
    [antq.ver.circle-ci-orb]
@@ -54,7 +56,10 @@
    [clojure.string :as str]
    [version-clj.core :as version])
   (:import
-   clojure.lang.ExceptionInfo))
+   clojure.lang.ExceptionInfo
+   (java.time
+    Duration
+    Instant)))
 
 (def ^:private disallowed-unverified-deps-map
   {"antq/antq" "com.github.liquidz/antq"
@@ -141,14 +146,50 @@
         (first)
         (log/info))))
 
+(defn- old-enough?
+  "True if `date` is at least `days` days ago; false if `date` is nil."
+  [^Instant date days]
+  (and date
+       (not (.isAfter date (.minus (Instant/now) (Duration/ofDays days))))))
+
+(defn- assoc-release-dates
+  "For outdated Maven deps, adds the release dates of the current and latest versions.
+  With `:cooldown` (e.g. `7d`), also adds the newest version released at least that long ago and
+  its release date (nil if there is none; versions without a release date are treated as too new).
+  A SNAPSHOT is never picked, even if a repository reports a date for it: it can be replaced at any time."
+  [{:as dep :keys [version latest-version]} vers {:keys [cooldown]}]
+  (if (and (= :java (:type dep))
+           (string? latest-version)
+           (not (ver/latest? dep)))
+    (let [repos (:repositories (u.dep/repository-opts dep))
+          date #(u.maven/release-date repos (:name dep) %)
+          days (u.report/cooldown-days cooldown)
+          cooldown? (and (pos-int? days) (not (:forced-version dep)))
+          pick (when cooldown?
+                 (->> vers
+                      (take-while #(pos? (version/version-compare % version)))
+                      (remove ver/snapshot?)
+                      (some #(when (old-enough? (date %) days) %))))]
+      (cond-> (assoc dep
+                     :released-at (some-> (date version) str)
+                     :latest-released-at (some-> (date latest-version) str))
+        cooldown?
+        (assoc :cooldown (str days "d")
+               :cooldown-version pick
+               :cooldown-released-at (some-> pick date str))))
+    dep))
+
 (defn- assoc-latest-version
+  "Adds `:latest-version`, the newest version not skipped by the options, then the release dates
+  and the cooldown version. Pre-releases count only when the current version is a pre-release,
+  for the latest version and for the cooldown version alike."
   [dep options]
   (let [vers (cond->> (:_versions dep)
                (not (ver/under-development? (:version dep)))
-               (drop-while ver/under-development?))
-        vers (remove-skipping-versions vers dep options)
-        latest-version (first vers)]
-    (assoc dep :latest-version latest-version)))
+               (remove ver/under-development?))
+        vers (remove-skipping-versions vers dep options)]
+    (-> (assoc dep :latest-version (first vers))
+        (assoc-release-dates vers options))))
 
 (defn- dissoc-no-longer-used-keys
   [dep]
@@ -172,8 +213,18 @@
     (assoc dep :_versions (:_versions dep-with-vers))
     dep))
 
+(defn- validate-cooldown!
+  "Throws for a `:cooldown` that isn't like `7d`. The CLI checks it earlier; this covers
+  `antq.api` and the Lein plugin."
+  [{:keys [cooldown]}]
+  (when (and (some? cooldown)
+             (not (u.report/cooldown-days cooldown)))
+    (throw (ex-info (u.report/invalid-cooldown-message ":cooldown" (pr-str cooldown))
+                    {:cooldown cooldown}))))
+
 (defn outdated-deps
   [deps options]
+  (validate-cooldown! options)
   (let [forced-artifacts (forced-artifact-version-map options)
         org-deps (cond->> deps
                    (:transitive options)
@@ -190,9 +241,9 @@
         _ (report/deinit-progress uniq-deps options)
         assoc-latest-version* #(assoc-latest-version % options)
         version-checked-deps (->> org-deps
-                                  (pmap #(complete-versions-by % uniq-deps-with-vers))
-                                  (map (comp dissoc-no-longer-used-keys
-                                             assoc-latest-version*)))
+                                  (pmap (comp dissoc-no-longer-used-keys
+                                              assoc-latest-version*
+                                              #(complete-versions-by % uniq-deps-with-vers))))
         parent-dep-names (->> version-checked-deps
                               (remove ver/latest?)
                               (keep :parent)
@@ -230,9 +281,25 @@
   [n]
   (System/exit n))
 
+(defn- up-to-date?
+  "True for a dep in the `outdated-deps` result that has nothing to upgrade: held by the cooldown
+  (no version old enough), or at its latest version and only listed as the parent of an outdated
+  dep (`--transitive`)."
+  [dep]
+  (or (and (:cooldown dep)
+           (nil? (:cooldown-version dep)))
+      (and (not (:forced-version dep))
+           (ver/latest? dep))))
+
+(defn exit-code
+  "Returns the exit code for the result of `antq`: 1 if a dep can be upgraded, else 0.
+  Used by the CLI and the Leiningen plugin, so both report the same."
+  [outdated-deps]
+  (if (every? up-to-date? outdated-deps) 0 1))
+
 (defn exit
   [outdated-deps]
-  (system-exit (if (seq outdated-deps) 1 0)))
+  (system-exit (exit-code outdated-deps)))
 
 (defn fetch-deps
   [options]

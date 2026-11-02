@@ -34,4 +34,4 @@
                                                       :exclude-versions (seq (dep.lein/exclude-version-range dep))})))))
                       (antq.core/antq options))]
     (report/reporter outdated options)
-    (spit result-file (pr-str {:exit (if (seq outdated) 1 0)}))))
+    (spit result-file (pr-str {:exit (antq.core/exit-code outdated)}))))

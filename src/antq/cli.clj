@@ -1,5 +1,6 @@
 (ns ^:no-doc antq.cli
   (:require
+   [antq.util.report :as u.report]
    [babashka.cli :as cli]
    [clojure.string :as str]))
 
@@ -128,6 +129,14 @@
    {:coerce boolean
     :desc "Skip progress reporting"}
 
+   :cooldown
+   {:ref "<duration>"
+    :coerce :string
+    :validate {:pred u.report/cooldown-days
+               :ex-msg (fn [{:keys [flag value]}]
+                         (u.report/invalid-cooldown-message flag value))}
+    :desc "Adds cooldown reporting, suggesting (and, with --upgrade, upgrading to) versions released at least <duration> ago, e.g. 7d. Applies to Maven dependencies only."}
+
    :usage-help-style
    {:coerce :keyword
     :default :cli
@@ -248,7 +257,7 @@
                      :order [:upgrade :force :exclude :directory :focus
                              :skip :error-format :reporter :no-progress :download :ignore-locals
                              :check-clojure-tools :check-gradle :no-changes :changes-in-table :transitive
-                             :verbose :help]})))
+                             :cooldown :verbose :help]})))
 
 (defn parse-args
   "Parses command line `args` and returns a map of:

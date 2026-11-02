@@ -58,7 +58,7 @@
   [out]
   (->> out
        str/split-lines
-       (remove (fn [l] (re-find #"^(SLF4J:|Retrieving|Downloading|\[|\| :f|\|-| *$)" l)))))
+       (remove (fn [l] (re-find #"^(SLF4J:|Retrieving|Downloading|\[|\| file |\|-| *$)" l)))))
 
 (defn- lein-run
   []
@@ -79,7 +79,7 @@
 (deftest ^:integration detects-outdated-deps-test
   ;; test assumes clojure will always be at 1.x. probably a safe assumption!
   (is (match? {:exit 1
-               :out [#"\| project\.clj +\| org\.clojure/clojure +\| 1\.10\.2 +\| 1"
+               :out [#"\| project\.clj +\| org\.clojure/clojure +\| 1\.10\.2 +\| [^|]+\| 1"
                      "Available changes:"
                      #"- https://github.com/clojure/clojure/blob/clojure-1.*/changes\.md"]}
               (lein-scenario [:plugins [antq-coords]
@@ -88,7 +88,7 @@
 (deftest ^:integration detects-outdated-managed-deps-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
   (is (match? {:exit 1
-               :out [#"\| project\.clj +\| com\.stuartsierra/mapgraph +\| 0\.1\.0 +\| 0\.2\.1"
+               :out [#"\| project\.clj +\| com\.stuartsierra/mapgraph +\| 0\.1\.0 +\| [^|]+\| 0\.2\.1"
                      "Available changes:"
                      "- https://github.com/stuartsierra/mapgraph/blob/0.2.1/CHANGES.md"]}
               (lein-scenario [:plugins [antq-coords]
@@ -98,7 +98,7 @@
 (deftest ^:integration detects-outdated-plugins-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
   (is (match? {:exit 1
-               :out [#"\| project\.clj +\| lein-swank/lein-swank +\| 1\.4\.1 +\| 1\.4\.5"]}
+               :out [#"\| project\.clj +\| lein-swank/lein-swank +\| 1\.4\.1 +\| [^|]+\| 1\.4\.5"]}
               (lein-scenario [:plugins [['lein-swank "1.4.1"]
                                         antq-coords]]))))
 
@@ -115,7 +115,7 @@
 (deftest ^:integration meta-exclude-test
   ;; test assumes no further releases of this lib, adjust accordingly
   (is (match? {:exit 1
-               :out [#"| project\.clj +\| me.raynes/fs +\| 1\.4\.1 +\| 1\.4\.4 +\|"]}
+               :out [#"\| project\.clj +\| me.raynes/fs +\| 1\.4\.1 +\| [^|]+\| 1\.4\.4 +\|"]}
               (lein-scenario [:plugins [antq-coords]
                               :dependencies [^{:antq/exclude ["1.4.6" "1.4.5"]} ['me.raynes/fs "1.4.1"]]]))))
 
