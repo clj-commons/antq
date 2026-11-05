@@ -46,12 +46,18 @@
         (u.ver/timestamped-snapshot? s))
     false))
 
+;; XXX: this doesn't handle (yet) config like this:
+;; {"something" {:url "https://some.thing"
+;;               :username [:env/user :gpg]
+;;               :password [:env/pass :gpg]}}
 (defn ensure-username-or-password
   [x]
-  (if (string? x)
-    x
-    (or (u.lein/env x)
-        (str x))))
+  (cond
+    (string? x) x
+    (sequential? x) (or (some #(if (string? %) % (u.lein/env %)) x)
+                        (str x))
+    :else (or (u.lein/env x)
+              (str x))))
 
 (defn- get-auth-info
   [repository]

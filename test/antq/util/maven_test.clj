@@ -22,12 +22,20 @@
             :password :env/four}
    "serv5" {:url "https://five.example.com"
             :creds :gpg}
+   "serv6" {:url "https://six.example.com"
+            :username [:env/missing :env/six_user]
+            :password [:env/six_pass]}
+   "serv7" {:url "https://seven.example.com"
+            :username [:env/missing "fallback"]
+            :password [:env/six_pass]}
    ;; no username and password
    "dummy" {:url "https://dummy.example.com"}})
 
 (def ^:private dummy-env
   {"LEIN_PASSWORD" "lein-pass"
-   "FOUR" "env-four"})
+   "FOUR" "env-four"
+   "SIX_USER" "six-user"
+   "SIX_PASS" "six-pass"})
 
 (def ^:private test-pom-file
   (io/file (io/resource "util/maven/pom.xml")))
@@ -68,7 +76,9 @@
                                                    :password "gpg-pass"})]
     (t/is (= {"serv3" {:url "https://three.example.com" :username "three-user" :password "three-pass"}
               "serv4" {:url "https://four.example.com" :username "lein-pass" :password "env-four"}
-              "serv5" {:url "https://five.example.com" :username "gpg-user" :password "gpg-pass"}}
+              "serv5" {:url "https://five.example.com" :username "gpg-user" :password "gpg-pass"}
+              "serv6" {:url "https://six.example.com" :username "six-user" :password "six-pass"}
+              "serv7" {:url "https://seven.example.com" :username "fallback" :password "six-pass"}}
              (sut/credentials dummy-repos)))))
 
 (t/deftest read-pom-test

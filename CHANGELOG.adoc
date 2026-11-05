@@ -67,6 +67,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 (thanks, https://github.com/nenadalm[@nenadalm]!)
 
 === Fixed
+* https://github.com/clj-commons/antq/pull/408[#408]: Improved support for vector-based lein credential config
 * https://github.com/clj-commons/antq/issues/231[#231]: Exclusions are now supported when antq is run as lein plugin
 (thanks, https://github.com/marcobiscaro2112[@marcobiscaro2112]!)
 * https://github.com/clj-commons/antq/issues/320[#320]: Progress bar should no longer be sporadically garbled
