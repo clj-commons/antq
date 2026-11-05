@@ -4,6 +4,7 @@
    [antq.util.zip :as sut]
    [babashka.fs :as fs]
    [clojure.test :as t]
+   [matcher-combinators.test]
    [rewrite-clj.zip :as z]))
 
 (t/deftest move-to-root-test
@@ -34,10 +35,11 @@
     (fs/with-temp-dir [d]
       (let [f (fs/file d "shadow-cljs.edn")]
         (spit f content)
-        (t/is (= content (-> f
-                             sut/of-edn-file
-                             z/down z/down z/right
-                             sut/root-edn-string))
+        (t/is (match? content
+                      (-> f
+                          sut/of-edn-file
+                          z/down z/down z/right
+                          sut/root-edn-string))
               content)))))
 
 (t/deftest indented-update-preserves-windows-line-endings-test
@@ -46,8 +48,9 @@
     (fs/with-temp-dir [d]
       (let [f (fs/file d "shadow-cljs.edn")]
         (spit f content)
-        (t/is (= content (-> f
-                             sut/of-indented-file
-                             z/down z/down
-                             sut/root-indented-string))
+        (t/is (match? content
+                      (-> f
+                          sut/of-indented-file
+                          z/down z/down
+                          sut/root-indented-string))
               (pr-str content))))))

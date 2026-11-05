@@ -6,7 +6,8 @@
    [antq.util.git :as u.git]
    [antq.ver :as ver]
    [antq.ver.git-tag-and-sha]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.test]))
 
 (defn- dep
   [m]
@@ -21,9 +22,9 @@
                                              "v2.0.0-alpha2"
                                              "v2.0.0"
                                              "1.0.0"]))]
-    (t/is (= ["v3.0.0" "v2.0.0" "v2.0.0-alpha2" "v2.0.0-alpha1" "1.0.0"]
-             (ver/get-sorted-versions (dep {:extra {:url "https://example.com"}})
-                                      {}))))
+    (t/is (match? ["v3.0.0" "v2.0.0" "v2.0.0-alpha2" "v2.0.0-alpha1" "1.0.0"]
+                  (ver/get-sorted-versions (dep {:extra {:url "https://example.com"}})
+                                           {}))))
 
   (t/testing "url is nil"
     (t/is (empty? (ver/get-sorted-versions (dep {})

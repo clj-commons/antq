@@ -4,7 +4,8 @@
    [antq.test-report]
    [antq.ver :as ver]
    [antq.ver.circle-ci-orb :as sut]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.test]))
 
 (defn- dep
   [m]
@@ -21,7 +22,7 @@
 (t/deftest get-sorted-versions-test
   (with-redefs [sut/orb-id orb-id
                 sut/orb-versions orb-versions]
-    (t/is (= ["3.0.0" "2.0.0" "1.0.0"]
-             (ver/get-sorted-versions (dep {:name "circleci/node"
-                                            :version "1.0.0"})
-                                      {})))))
+    (t/is (match? ["3.0.0" "2.0.0" "1.0.0"]
+                  (ver/get-sorted-versions (dep {:name "circleci/node"
+                                                 :version "1.0.0"})
+                                           {})))))

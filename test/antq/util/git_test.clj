@@ -4,7 +4,8 @@
    [antq.util.git :as sut]
    [clojure.java.shell :as sh]
    [clojure.string :as str]
-   [clojure.test :as t])
+   [clojure.test :as t]
+   [matcher-combinators.test])
   (:import
    java.util.UUID))
 
@@ -34,8 +35,8 @@
   (with-redefs [sh/sh (constantly {:exit 0
                                    :out dummy-ls-remote-tag-out
                                    :err ""})]
-    (t/is (= ["v1" "v2"]
-             (#'sut/tags-by-ls-remote* (dummy-url))))))
+    (t/is (match? ["v1" "v2"]
+                  (#'sut/tags-by-ls-remote* (dummy-url))))))
 
 (t/deftest head-sha-by-ls-remote*-test
   (with-redefs [sh/sh (constantly {:exit 0

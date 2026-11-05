@@ -9,7 +9,9 @@
    [babashka.fs :as fs]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [clojure.test :as t])
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test])
   (:import
    java.io.File))
 
@@ -52,9 +54,10 @@
                    (upgrade/upgrader)
                    (spit tmp-file))
             to-deps (dep.pom/extract-deps "" tmp-file)]
-        (t/is (= #{{:name "foo/core" :version {:- "1.0.0" :+ "9.0.0"}}
-                   {:name "foo/core" :version {:- "1.1.0" :+ "9.0.0"}}}
-                 (h/diff-deps from-deps to-deps))))
+        (t/is (match?
+               (m/nested-equals #{{:name "foo/core" :version {:- "1.0.0" :+ "9.0.0"}}
+                                  {:name "foo/core" :version {:- "1.1.0" :+ "9.0.0"}}})
+               (h/diff-deps from-deps to-deps))))
       (finally
         (.delete tmp-file)))))
 
@@ -68,15 +71,17 @@
                    (upgrade/upgrader)
                    (spit tmp-file))
             to-deps (dep.pom/extract-deps "" tmp-file)]
-        (t/is (= #{{:name "org.clojure/clojure" :version {:- "1.4.0" :+ "9.0.0"}}}
-                 (h/diff-deps from-deps to-deps)))
+        (t/is (match?
+               (m/nested-equals #{{:name "org.clojure/clojure" :version {:- "1.4.0" :+ "9.0.0"}}})
+               (h/diff-deps from-deps to-deps)))
 
         (t/testing "properties should be updated"
-          (t/is (= #{{:- "    <clojure.version>1.4.0</clojure.version>"
-                      :+ "    <clojure.version>9.0.0</clojure.version>"}}
-                   (h/diff-lines
-                    (str/split-lines (slurp (:file dummy-prop-java-dep)))
-                    (str/split-lines (slurp tmp-file)))))))
+          (t/is (match?
+                 (m/nested-equals #{{:- "    <clojure.version>1.4.0</clojure.version>"
+                                     :+ "    <clojure.version>9.0.0</clojure.version>"}})
+                 (h/diff-lines
+                  (str/split-lines (slurp (:file dummy-prop-java-dep)))
+                  (str/split-lines (slurp tmp-file)))))))
       (finally
         (.delete tmp-file)))))
 
@@ -94,8 +99,9 @@
                    (upgrade/upgrader)
                    (spit tmp-file))
             to-deps (dep.pom/extract-deps "" tmp-file)]
-        (t/is (= #{{:name "com.bar/bar" :version {:- "1.0.0" :+ "9.0.0"}}}
-                 (h/diff-deps from-deps to-deps))))
+        (t/is (match?
+               (m/nested-equals #{{:name "com.bar/bar" :version {:- "1.0.0" :+ "9.0.0"}}})
+               (h/diff-deps from-deps to-deps))))
       (finally
         (.delete tmp-file)))))
 

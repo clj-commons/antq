@@ -4,7 +4,9 @@
    [antq.record :as r]
    [antq.test-report]
    [antq.util.dep :as u.dep]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test]))
 
 ;; dummy multimethod to confirm u.dep/normalize-by-name
 (defmethod u.dep/normalize-version-by-name "foo"
@@ -22,19 +24,23 @@
    (r/map->Dependency {:name "baz" :version 10})])
 
 (t/deftest expand-matrixed-value-test
-  (t/is (= #{(r/map->Dependency {:name "foo" :version "1" :only-newest-version? true})
-             (r/map->Dependency {:name "foo" :version "two" :only-newest-version? true})
-             (r/map->Dependency {:name "bar" :version "9"})
-             (r/map->Dependency {:name "baz" :version 10})}
-           (set (sut/expand-matrix-value
-                 dummy-parsed-yaml
-                 :job1
-                 dummy-deps))))
-  (t/is (= #{(r/map->Dependency {:name "foo" :version "3" :only-newest-version? true})
-             (r/map->Dependency {:name "foo" :version "4" :only-newest-version? true})
-             (r/map->Dependency {:name "bar" :version "9"})
-             (r/map->Dependency {:name "baz" :version 10})}
-           (set (sut/expand-matrix-value
-                 dummy-parsed-yaml
-                 :job2
-                 dummy-deps)))))
+  (t/is (match?
+         (m/nested-equals
+          #{(r/map->Dependency {:name "foo" :version "1" :only-newest-version? true})
+            (r/map->Dependency {:name "foo" :version "two" :only-newest-version? true})
+            (r/map->Dependency {:name "bar" :version "9"})
+            (r/map->Dependency {:name "baz" :version 10})})
+         (set (sut/expand-matrix-value
+               dummy-parsed-yaml
+               :job1
+               dummy-deps))))
+  (t/is (match?
+         (m/nested-equals
+          #{(r/map->Dependency {:name "foo" :version "3" :only-newest-version? true})
+            (r/map->Dependency {:name "foo" :version "4" :only-newest-version? true})
+            (r/map->Dependency {:name "bar" :version "9"})
+            (r/map->Dependency {:name "baz" :version 10})})
+         (set (sut/expand-matrix-value
+               dummy-parsed-yaml
+               :job2
+               dummy-deps)))))

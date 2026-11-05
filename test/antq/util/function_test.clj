@@ -2,7 +2,9 @@
   (:require
    [antq.test-report]
    [antq.util.function :as sut]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test]))
 
 (defn- test-fn*
   [m counter-atom]
@@ -12,13 +14,16 @@
   (let [test-fn (sut/memoize-by test-fn* :name)
         counter (atom 0)]
     (t/testing "Should be counted because the result is not cached"
-      (t/is (= {:name "alice" :count 1}
-               (test-fn {:name "alice"} counter))))
+      (t/is (match?
+             (m/nested-equals {:name "alice" :count 1})
+             (test-fn {:name "alice"} counter))))
 
     (t/testing "Should not be counted because the result is cached"
-      (t/is (= {:name "alice" :count 1}
-               (test-fn {:name "alice"} counter))))
+      (t/is (match?
+             (m/nested-equals {:name "alice" :count 1})
+             (test-fn {:name "alice"} counter))))
 
     (t/testing "Should be counted because the result is not cached"
-      (t/is (= {:name "bob" :count 2}
-               (test-fn {:name "bob"} counter))))))
+      (t/is (match?
+             (m/nested-equals {:name "bob" :count 2})
+             (test-fn {:name "bob"} counter))))))

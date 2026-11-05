@@ -9,7 +9,9 @@
    [clojure.data.xml :as xml]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [clojure.test :as t])
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test])
   (:import
    java.util.UUID))
 
@@ -47,18 +49,23 @@
     "s3://foo/bar" "s3p://foo/bar"))
 
 (t/deftest normalize-repos-test
-  (t/is (= sut/default-repos
-           (sut/normalize-repos sut/default-repos)))
-  (t/is (= {"foo" {:url "s3://bar"}}
-           (sut/normalize-repos {"foo" {:url "s3://bar"}})))
-  (t/is (= {"foo" {:invalid "invalid"}}
-           (sut/normalize-repos {"foo" {:invalid "invalid"}})))
+  (t/is (match?
+         (m/nested-equals sut/default-repos)
+         (sut/normalize-repos sut/default-repos)))
+  (t/is (match?
+         (m/nested-equals {"foo" {:url "s3://bar"}})
+         (sut/normalize-repos {"foo" {:url "s3://bar"}})))
+  (t/is (match?
+         (m/nested-equals {"foo" {:invalid "invalid"}})
+         (sut/normalize-repos {"foo" {:invalid "invalid"}})))
 
   (t/testing "replace s3p:// to s3://"
-    (t/is (= {"foo" {:url "s3://bar"}}
-             (sut/normalize-repos {"foo" {:url "s3p://bar"}})))
-    (t/is (= {"foo" {:url "s3://bar" :no-auth true}}
-             (sut/normalize-repos {"foo" {:url "s3p://bar" :no-auth true}})))))
+    (t/is (match?
+           (m/nested-equals {"foo" {:url "s3://bar"}})
+           (sut/normalize-repos {"foo" {:url "s3p://bar"}})))
+    (t/is (match?
+           (m/nested-equals {"foo" {:url "s3://bar" :no-auth true}})
+           (sut/normalize-repos {"foo" {:url "s3p://bar" :no-auth true}})))))
 
 (t/deftest snapshot?-test
   (t/are [expected in] (= expected (sut/snapshot? in))
@@ -74,30 +81,35 @@
   (with-redefs [u.env/getenv #(get dummy-env %)
                 u.lein/get-credential (constantly {:username "gpg-user"
                                                    :password "gpg-pass"})]
-    (t/is (= {"serv3" {:url "https://three.example.com" :username "three-user" :password "three-pass"}
-              "serv4" {:url "https://four.example.com" :username "lein-pass" :password "env-four"}
-              "serv5" {:url "https://five.example.com" :username "gpg-user" :password "gpg-pass"}
-              "serv6" {:url "https://six.example.com" :username "six-user" :password "six-pass"}
-              "serv7" {:url "https://seven.example.com" :username "fallback" :password "six-pass"}}
-             (sut/credentials dummy-repos)))))
+    (t/is (match?
+           (m/nested-equals
+            {"serv3" {:url "https://three.example.com" :username "three-user" :password "three-pass"}
+             "serv4" {:url "https://four.example.com" :username "lein-pass" :password "env-four"}
+             "serv5" {:url "https://five.example.com" :username "gpg-user" :password "gpg-pass"}
+             "serv6" {:url "https://six.example.com" :username "six-user" :password "six-pass"}
+             "serv7" {:url "https://seven.example.com" :username "fallback" :password "six-pass"}})
+           (sut/credentials dummy-repos)))))
 
 (t/deftest read-pom-test
-  (t/is (= {:url "https://github.com/clj-commons/antq"
-            :scm-url "https://github.com/clj-commons/antq"}
-           (sut/read-pom test-pom-file)))
+  (t/is (match?
+         (m/nested-equals
+          {:url "https://github.com/clj-commons/antq"
+           :scm-url "https://github.com/clj-commons/antq"})
+         (sut/read-pom test-pom-file)))
 
   (t/testing "surrounding whitespace is trimmed"
     (h/with-temp-file [f "<project><url>\n  https://example.com\n</url></project>"]
-                      (t/is (= {:url "https://example.com" :scm-url nil}
-                               (sut/read-pom f))))))
+                      (t/is (match?
+                             (m/nested-equals {:url "https://example.com" :scm-url nil})
+                             (sut/read-pom f))))))
 
 (t/deftest get-local-versions-test
   (let [dummy-file (io/file (io/resource "util/maven/maven-metadata-local.xml"))
         non-existing-file (io/file "/tmp" (str (UUID/randomUUID)))]
     (t/testing "valid maven-metadata-local.xml"
       (with-redefs [io/file (constantly dummy-file)]
-        (t/is (= ["8.0.0" "9.0.0"]
-                 (#'sut/get-local-versions* 'com.github.liquidz/antq)))))
+        (t/is (match? ["8.0.0" "9.0.0"]
+                      (#'sut/get-local-versions* 'com.github.liquidz/antq)))))
 
     (t/testing "non-existing file"
       (with-redefs [io/file (constantly non-existing-file)]
@@ -129,13 +141,15 @@
                                       (when (str/starts-with? url "https://two.") date))]
       (t/testing "the first repository that has a date wins; credentials go to their repository only"
         (t/is (= date (sut/release-date repos "release-date/test1" "1.0")))
-        (t/is (= [["https://one.example.com/release-date/test1/1.0/test1-1.0.pom" {:id "first"
-                                                                                   :url "https://one.example.com"}]
-                  ["https://two.example.com/release-date/test1/1.0/test1-1.0.pom" {:id "second"
-                                                                                   :url "https://two.example.com"
-                                                                                   :username "user"
-                                                                                   :password "pass"}]]
-                 @calls)))
+        (t/is (match?
+               (m/nested-equals
+                [["https://one.example.com/release-date/test1/1.0/test1-1.0.pom" {:id "first"
+                                                                                  :url "https://one.example.com"}]
+                 ["https://two.example.com/release-date/test1/1.0/test1-1.0.pom" {:id "second"
+                                                                                  :url "https://two.example.com"
+                                                                                  :username "user"
+                                                                                  :password "pass"}]])
+               @calls)))
 
       (t/testing "memoized"
         (reset! calls [])

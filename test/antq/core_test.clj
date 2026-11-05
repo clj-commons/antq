@@ -71,43 +71,43 @@
 (t/deftest remove-skipping-versions-test
   (let [dep (r/map->Dependency {:name "foo"})]
     (t/testing "there are no target to remove"
-      (t/is (= ["1" "2" "3"]
-               (sut/remove-skipping-versions ["1" "2" "3"] dep {})))
-      (t/is (= ["1" "2" "3"]
-               (sut/remove-skipping-versions ["1" "2" "3"] dep {:exclude ["foo@4"]}))))
+      (t/is (match? ["1" "2" "3"]
+                    (sut/remove-skipping-versions ["1" "2" "3"] dep {})))
+      (t/is (match? ["1" "2" "3"]
+                    (sut/remove-skipping-versions ["1" "2" "3"] dep {:exclude ["foo@4"]}))))
 
     (t/testing "only dep's name is matched"
-      (t/is (= ["1" "2" "3"]
-               (sut/remove-skipping-versions ["1" "2" "3"] dep {:exclude ["foo"]}))))
+      (t/is (match? ["1" "2" "3"]
+                    (sut/remove-skipping-versions ["1" "2" "3"] dep {:exclude ["foo"]}))))
 
     (t/testing "only version number is matched"
-      (t/is (= ["1" "2" "3"]
-               (sut/remove-skipping-versions ["1" "2" "3"] dep {:exclude ["bar@2"]}))))
+      (t/is (match? ["1" "2" "3"]
+                    (sut/remove-skipping-versions ["1" "2" "3"] dep {:exclude ["bar@2"]}))))
 
     (t/testing "dep's name and version number are matched"
-      (t/is (= ["1" "3"]
-               (sut/remove-skipping-versions ["1" "2" "3"] dep {:exclude ["foo@2"]})))
-      (t/is (= ["1"]
-               (sut/remove-skipping-versions ["1" "2" "3"] dep {:exclude ["foo@2"
-                                                                          "foo@3"]})))
-      (t/is (= []
-               (sut/remove-skipping-versions ["1" "2" "3"] dep {:exclude ["foo@1"
-                                                                          "foo@2"
-                                                                          "foo@3"]}))))
+      (t/is (match? ["1" "3"]
+                    (sut/remove-skipping-versions ["1" "2" "3"] dep {:exclude ["foo@2"]})))
+      (t/is (match? ["1"]
+                    (sut/remove-skipping-versions ["1" "2" "3"] dep {:exclude ["foo@2"
+                                                                               "foo@3"]})))
+      (t/is (match? []
+                    (sut/remove-skipping-versions ["1" "2" "3"] dep {:exclude ["foo@1"
+                                                                               "foo@2"
+                                                                               "foo@3"]}))))
 
     (t/testing "version range"
       (let [vers ["1.0.0" "1.0.1" "1.1.0" "1.1.1" "1.2.0" "2.0.0"]]
-        (t/is (= ["2.0.0"]
-                 (sut/remove-skipping-versions vers dep {:exclude ["foo@1.x"]})))
-        (t/is (= ["1.1.0" "1.1.1" "1.2.0" "2.0.0"]
-                 (sut/remove-skipping-versions vers dep {:exclude ["foo@1.0.x"]})))
-        (t/is (= ["1.0.0" "1.0.1" "1.1.0" "1.1.1"]
-                 (sut/remove-skipping-versions vers dep {:exclude ["foo@1.2.x"
-                                                                   "foo@2.x"]})))
-        (t/is (= ["1.0.0" "1.0.1" "1.1.0" "1.1.1" "1.2.0"]
-                 (sut/remove-skipping-versions vers dep {:exclude ["foo@2.x"]})))
-        (t/is (= ["1.0.0" "1.0.1" "1.1.0" "1.1.1" "1.2.0" "2.0.0"]
-                 (sut/remove-skipping-versions vers dep {:exclude ["foo@9.x"]})))))))
+        (t/is (match? ["2.0.0"]
+                      (sut/remove-skipping-versions vers dep {:exclude ["foo@1.x"]})))
+        (t/is (match? ["1.1.0" "1.1.1" "1.2.0" "2.0.0"]
+                      (sut/remove-skipping-versions vers dep {:exclude ["foo@1.0.x"]})))
+        (t/is (match? ["1.0.0" "1.0.1" "1.1.0" "1.1.1"]
+                      (sut/remove-skipping-versions vers dep {:exclude ["foo@1.2.x"
+                                                                        "foo@2.x"]})))
+        (t/is (match? ["1.0.0" "1.0.1" "1.1.0" "1.1.1" "1.2.0"]
+                      (sut/remove-skipping-versions vers dep {:exclude ["foo@2.x"]})))
+        (t/is (match? ["1.0.0" "1.0.1" "1.1.0" "1.1.1" "1.2.0" "2.0.0"]
+                      (sut/remove-skipping-versions vers dep {:exclude ["foo@9.x"]})))))))
 
 (t/deftest using-release-version?-test
   (t/are [expected in] (= expected (sut/using-release-version?
@@ -128,20 +128,28 @@
               (test-dep {:name "bob" :version "2.0.0"})
               (test-dep {:name "charlie" :version "3.0.0"})]]
 
-    (t/is (= [(test-dep {:name "alice" :version "1.0.0" :latest-version "3.0.0"})
-              (test-dep {:name "bob" :version "2.0.0" :latest-version "3.0.0"})]
-             (sut/outdated-deps deps {})))
+    (t/is (match?
+           (m/nested-equals
+            [(test-dep {:name "alice" :version "1.0.0" :latest-version "3.0.0"})
+             (test-dep {:name "bob" :version "2.0.0" :latest-version "3.0.0"})])
+           (sut/outdated-deps deps {})))
 
     (t/testing "alice@3.0.0 should be excluded"
-      (t/is (= [(test-dep {:name "alice" :version "1.0.0" :latest-version "2.0.0"})
-                (test-dep {:name "bob" :version "2.0.0" :latest-version "3.0.0"})]
-               (sut/outdated-deps deps {:exclude ["alice@3.0.0"]}))))
+      (t/is (match?
+             (m/nested-equals
+              [(test-dep {:name "alice" :version "1.0.0" :latest-version "2.0.0"})
+               (test-dep {:name "bob" :version "2.0.0" :latest-version "3.0.0"})])
+             (sut/outdated-deps deps {:exclude ["alice@3.0.0"]}))))
     (t/testing "alice is focused so only this dep should be kept"
-      (t/is (= [(test-dep {:name "alice" :version "1.0.0" :latest-version "3.0.0"})]
-               (sut/outdated-deps deps {:focus ["alice"]}))))
+      (t/is (match?
+             (m/nested-equals
+              [(test-dep {:name "alice" :version "1.0.0" :latest-version "3.0.0"})])
+             (sut/outdated-deps deps {:focus ["alice"]}))))
     (t/testing "focus containing specific version, should force it (0.5.0) even when newer exists (3.0.0)"
-      (t/is (= [(test-dep {:name "alice" :version "1.0.0" :latest-version "0.5.0" :forced-version "0.5.0"})]
-               (sut/outdated-deps deps {:focus ["alice@0.5.0"]}))))))
+      (t/is (match?
+             (m/nested-equals
+              [(test-dep {:name "alice" :version "1.0.0" :latest-version "0.5.0" :forced-version "0.5.0"})])
+             (sut/outdated-deps deps {:focus ["alice@0.5.0"]}))))))
 
 (defn- days-ago
   [n]
@@ -159,13 +167,14 @@
                      (sut/outdated-deps deps options)))]
 
     (t/testing "release dates are added without cooldown"
-      (t/is (match? [{:latest-version "4.0.0"
-                      :released-at (str (dates "1.0.0"))
-                      :latest-released-at (str (dates "4.0.0"))
-                      :cooldown m/absent
-                      :cooldown-version m/absent
-                      :cooldown-released-at m/absent}]
-                    (outdated {})))
+      (t/is (match?
+             [{:latest-version "4.0.0"
+               :released-at (str (dates "1.0.0"))
+               :latest-released-at (str (dates "4.0.0"))
+               :cooldown m/absent
+               :cooldown-version m/absent
+               :cooldown-released-at m/absent}]
+             (outdated {})))
       (t/is (match? [{:cooldown m/absent}] (outdated {:cooldown "0d"}))))
 
     (t/testing "an invalid cooldown throws"
@@ -292,11 +301,11 @@
                 [@exit-code (slurp file)]))]
     (try
       (t/testing "report only: the picked dep is outdated"
-        (t/is (= [1 ""] (run {:cooldown "7d"}))))
+        (t/is (match? [1 ""] (run {:cooldown "7d"}))))
       (t/testing "upgrade writes the cooldown version; a held dep gives exit code 0"
-        (t/is (= [0 "2.0.0"] (run {:cooldown "7d" :upgrade true :force true}))))
+        (t/is (match? [0 "2.0.0"] (run {:cooldown "7d" :upgrade true :force true}))))
       (t/testing "without cooldown both deps go to the latest version"
-        (t/is (= [0 "3.0.0"] (run {:upgrade true :force true}))))
+        (t/is (match? [0 "3.0.0"] (run {:upgrade true :force true}))))
       (finally
         (fs/delete-if-exists file)))))
 
@@ -310,16 +319,19 @@
   (let [dep #(r/map->Dependency {:type :test-pre-release :name %1 :version %2})
         outdated #(sut/outdated-deps [(dep %1 %2)] {})]
     (t/testing "a pre-release is not suggested for a release"
-      (t/is (= [] (outdated "flow" "3.0.0")))
-      (t/is (= [(assoc (dep "flow" "2.0.0") :latest-version "3.0.0")]
-               (outdated "flow" "2.0.0")))
-      (t/is (= [] (outdated "spock" "2.3-groovy-4.0")))
-      (t/is (= [(assoc (dep "spock" "2.2-groovy-4.0") :latest-version "2.3-groovy-4.0")]
-               (outdated "spock" "2.2-groovy-4.0"))))
+      (t/is (match? [] (outdated "flow" "3.0.0")))
+      (t/is (match?
+             (m/nested-equals [(assoc (dep "flow" "2.0.0") :latest-version "3.0.0")])
+             (outdated "flow" "2.0.0")))
+      (t/is (match? [] (outdated "spock" "2.3-groovy-4.0")))
+      (t/is (match?
+             (m/nested-equals [(assoc (dep "spock" "2.2-groovy-4.0") :latest-version "2.3-groovy-4.0")])
+             (outdated "spock" "2.2-groovy-4.0"))))
 
     (t/testing "a newer pre-release is suggested for a pre-release"
-      (t/is (= [(assoc (dep "flow" "4.0.0-pre1") :latest-version "4.0.0-pre5")]
-               (outdated "flow" "4.0.0-pre1"))))))
+      (t/is (match?
+             (m/nested-equals [(assoc (dep "flow" "4.0.0-pre1") :latest-version "4.0.0-pre5")])
+             (outdated "flow" "4.0.0-pre1"))))))
 
 (t/deftest assoc-changes-url-test
   (let [dummy-dep {:type :java :name "foo/bar" :version "1" :latest-version "2"}]
@@ -327,27 +339,32 @@
       (with-redefs [u.dep/get-scm-url (constantly "https://github.com/foo/bar")
                     u.git/tags-by-ls-remote (constantly ["v1" "v2"])
                     changelog/get-root-file-names (constantly ["CHANGELOG.md"])]
-        (t/is (= (assoc dummy-dep :changes-url "https://github.com/foo/bar/blob/v2/CHANGELOG.md")
-                 (sut/assoc-changes-url dummy-dep)))
+        (t/is (match?
+               (m/nested-equals (assoc dummy-dep :changes-url "https://github.com/foo/bar/blob/v2/CHANGELOG.md"))
+               (sut/assoc-changes-url dummy-dep)))
 
-        (t/is (= (assoc dummy-dep :type :test)
-                 (sut/assoc-changes-url (assoc dummy-dep :type :test))))))
+        (t/is (match?
+               (m/nested-equals (assoc dummy-dep :type :test))
+               (sut/assoc-changes-url (assoc dummy-dep :type :test))))))
 
     (t/testing "diff"
       (with-redefs [u.dep/get-scm-url (constantly "https://github.com/foo/bar")
                     u.git/tags-by-ls-remote (constantly ["v1" "v2"])
                     changelog/get-root-file-names (constantly [])]
-        (t/is (= (assoc dummy-dep :changes-url "https://github.com/foo/bar/compare/v1...v2")
-                 (sut/assoc-changes-url dummy-dep)))
+        (t/is (match?
+               (m/nested-equals (assoc dummy-dep :changes-url "https://github.com/foo/bar/compare/v1...v2"))
+               (sut/assoc-changes-url dummy-dep)))
 
-        (t/is (= (assoc dummy-dep :type :test)
-                 (sut/assoc-changes-url (assoc dummy-dep :type :test)))))))
+        (t/is (match?
+               (m/nested-equals (assoc dummy-dep :type :test))
+               (sut/assoc-changes-url (assoc dummy-dep :type :test)))))))
 
   (t/testing "timed out to fetch diffs"
     (let [dummy-dep {:type :java :name "foo/bar" :version "1" :latest-version "2"}]
       (with-redefs [u.dep/get-scm-url (fn [& _] (throw (u.ex/ex-timeout "test")))]
-        (t/is (= dummy-dep
-                 (sut/assoc-changes-url dummy-dep))))))
+        (t/is (match?
+               (m/nested-equals dummy-dep)
+               (sut/assoc-changes-url dummy-dep))))))
 
   (t/testing "timed out dependencies"
     (let [timed-out-dep {:type :java
@@ -355,25 +372,28 @@
                          :version "1"
                          :latest-version (u.ex/ex-timeout "test")}]
       (with-redefs [u.dep/get-scm-url (fn [& _] (throw (Exception. "must not be called")))]
-        (t/is (= timed-out-dep
-                 (sut/assoc-changes-url timed-out-dep)))))))
+        (t/is (match?
+               (m/nested-equals  timed-out-dep)
+               (sut/assoc-changes-url timed-out-dep)))))))
 
 (t/deftest unverified-deps-test
   (let [dummy-deps [{:type :java :name "antq/antq"}
                     {:type :java :name "seancorfield/next.jdbc"}
                     {:type :java :name "dummy/dummy"}
                     {:type :UNKNOWN :name "antq/antq"}]]
-    (t/is (= [{:type :java
-               :name "antq/antq"
-               :version "antq/antq"
-               :latest-version nil
-               :latest-name "com.github.liquidz/antq"}
-              {:type :java
-               :name "seancorfield/next.jdbc"
-               :version "seancorfield/next.jdbc"
-               :latest-version nil
-               :latest-name "com.github.seancorfield/next.jdbc"}]
-             (sut/unverified-deps dummy-deps)))))
+    (t/is (match?
+           (m/nested-equals
+            [{:type :java
+              :name "antq/antq"
+              :version "antq/antq"
+              :latest-version nil
+              :latest-name "com.github.liquidz/antq"}
+             {:type :java
+              :name "seancorfield/next.jdbc"
+              :version "seancorfield/next.jdbc"
+              :latest-version nil
+              :latest-name "com.github.seancorfield/next.jdbc"}])
+           (sut/unverified-deps dummy-deps)))))
 
 (defn- dep-files
   [project-dir deps]
@@ -507,10 +527,12 @@
               (r/map->Dependency {:name "dummy" :version "3"})]
         res (sut/mark-only-newest-version-flag deps)]
     (t/is (= 3 (count res)))
-    (t/is (= #{(r/map->Dependency {:name "org.clojure/clojure" :version "1" :only-newest-version? true})
-               (r/map->Dependency {:name "org.clojure/clojure" :version "2" :only-newest-version? true})
-               (r/map->Dependency {:name "dummy" :version "3" :only-newest-version? nil})}
-             (set res)))))
+    (t/is (match?
+           (m/nested-equals
+            #{(r/map->Dependency {:name "org.clojure/clojure" :version "1" :only-newest-version? true})
+              (r/map->Dependency {:name "org.clojure/clojure" :version "2" :only-newest-version? true})
+              (r/map->Dependency {:name "dummy" :version "3" :only-newest-version? nil})})
+           (set res)))))
 
 (t/deftest unify-deps-having-only-newest-version-flag-test
   (let [deps [(r/map->Dependency {:name "foo" :version "1.8.0" :file "deps.edn" :only-newest-version? true})
@@ -524,11 +546,13 @@
               (r/map->Dependency {:name "bar" :version "1.9.0" :file "project.clj" :only-newest-version? false})]
         res (sut/unify-deps-having-only-newest-version-flag deps)]
     (t/is (= 4 (count res)))
-    (t/is (= #{(r/map->Dependency {:name "foo" :version "1.10.2" :file "deps.edn" :only-newest-version? true})
-               (r/map->Dependency {:name "foo" :version "1.9.0" :file "project.clj" :only-newest-version? true})
-               (r/map->Dependency {:name "bar" :version "1.8.0" :file "project.clj" :only-newest-version? false})
-               (r/map->Dependency {:name "bar" :version "1.9.0" :file "project.clj" :only-newest-version? false})}
-             (set res)))))
+    (t/is (match?
+           (m/nested-equals
+            #{(r/map->Dependency {:name "foo" :version "1.10.2" :file "deps.edn" :only-newest-version? true})
+              (r/map->Dependency {:name "foo" :version "1.9.0" :file "project.clj" :only-newest-version? true})
+              (r/map->Dependency {:name "bar" :version "1.8.0" :file "project.clj" :only-newest-version? false})
+              (r/map->Dependency {:name "bar" :version "1.9.0" :file "project.clj" :only-newest-version? false})})
+           (set res)))))
 
 (t/deftest latest-test
   (t/is (= "3.0.0"
@@ -539,7 +563,10 @@
 (t/deftest forced-artifacts-test
   (t/testing "default"
     (t/is (= {} (sut/forced-artifact-version-map {:focus ["foo"]})))
-    (t/is (= {"foo" "2.0.0"} (sut/forced-artifact-version-map {:focus ["foo@2.0.0"]})))
-    (t/is (= {"foo" "2.0.0"
-              "foo/zbar2" "2"}
-             (sut/forced-artifact-version-map {:focus ["foo@2.0.0" "foo" "foo/bar" "foo/zbar2@2"]})))))
+    (t/is (match?
+           (m/equals {"foo" "2.0.0"})
+           (sut/forced-artifact-version-map {:focus ["foo@2.0.0"]})))
+    (t/is (match?
+           (m/equals {"foo" "2.0.0"
+                      "foo/zbar2" "2"})
+           (sut/forced-artifact-version-map {:focus ["foo@2.0.0" "foo" "foo/bar" "foo/zbar2@2"]})))))

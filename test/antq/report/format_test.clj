@@ -5,7 +5,8 @@
    [antq.test-helper :as h]
    [antq.test-report]
    [clojure.string :as str]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.test]))
 
 (defn- reporter
   [deps error-format]
@@ -24,15 +25,15 @@
                               dummy-deps
                               "::error file={{file}}::{{message}}"))))
 
-    (t/is (= ["::error file=a::foo,1,2,. "
-              "::error file=b::bar,1,Failed to fetch,. "
-              "::error file=c::baz,1,3,. https://example.com"
-              "::error file=d::old,1,Failed to fetch,new. "]
-             (str/split-lines
-              (with-out-str
-                (reporter
-                 dummy-deps
-                 "::error file={{file}}::{{name}},{{version}},{{latest-version}},{{latest-name}}. {{changes-url}}")))))
+    (t/is (match? ["::error file=a::foo,1,2,. "
+                   "::error file=b::bar,1,Failed to fetch,. "
+                   "::error file=c::baz,1,3,. https://example.com"
+                   "::error file=d::old,1,Failed to fetch,new. "]
+                  (str/split-lines
+                   (with-out-str
+                     (reporter
+                      dummy-deps
+                      "::error file={{file}}::{{name}},{{version}},{{latest-version}},{{latest-name}}. {{changes-url}}")))))
 
     (t/testing "release dates and cooldown"
       (t/is (= "foo 2026-10-01T00:00:00Z 2026-10-20T00:00:00Z 2 2026-10-10T00:00:00Z 7d"

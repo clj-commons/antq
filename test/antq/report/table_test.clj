@@ -5,7 +5,8 @@
    [antq.test-helper :as h]
    [antq.test-report]
    [clojure.string :as str]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.test]))
 
 (defn- reporter
   ([deps]
@@ -46,17 +47,17 @@
   (let [dep (h/test-dep {:file "a" :name "foo" :version "1" :latest-version "2"
                          :changes-url "here"})]
     (t/testing "no release dates, no age or cooldown columns"
-      (t/is (= [["file" "name" "current" "latest"]
-                ["a" "foo" "1" "2"]]
-               (take 2 (table [dep])))))
+      (t/is (match? [["file" "name" "current" "latest"]
+                     ["a" "foo" "1" "2"]]
+                    (take 2 (table [dep])))))
     (t/testing "ages next to their versions"
-      (t/is (= [["file" "name" "current" "age" "latest" "age"]
-                ["a" "foo" "1" "40d" "2" "2d"]]
-               (take 2 (table [(assoc dep :released-at (days-ago 40) :latest-released-at (days-ago 2))])))))
+      (t/is (match? [["file" "name" "current" "age" "latest" "age"]
+                     ["a" "foo" "1" "40d" "2" "2d"]]
+                    (take 2 (table [(assoc dep :released-at (days-ago 40) :latest-released-at (days-ago 2))])))))
     (t/testing "changes in table"
-      (t/is (= [["file" "name" "current" "latest" "changes-url"]
-                ["a" "foo" "1" "2" "here"]]
-               (take 2 (table [dep] {:changes-in-table true})))))))
+      (t/is (match? [["file" "name" "current" "latest" "changes-url"]
+                     ["a" "foo" "1" "2" "here"]]
+                    (take 2 (table [dep] {:changes-in-table true})))))))
 
 (t/deftest reporter-cooldown-test
   (let [deps [(h/test-dep {:file "a" :name "foo" :version "1" :latest-version "3"
@@ -66,8 +67,8 @@
                            :released-at (days-ago 9) :latest-released-at nil
                            :cooldown "7d" :cooldown-version nil :cooldown-released-at nil})
               (h/test-dep {:file "a" :name "baz" :version "1" :latest-version "2"})]]
-    (t/is (= [["file" "name" "current" "age" "cooldown" "age" "dur" "latest" "age"]
-              ["a" "bar" "1" "9d" "1" "9d" "7d" "2" ""]
-              ["" "baz" "1" "" "" "" "" "2" ""]
-              ["" "foo" "1" "40d" "2" "9d" "7d" "3" "2d"]]
-             (take 4 (table deps))))))
+    (t/is (match? [["file" "name" "current" "age" "cooldown" "age" "dur" "latest" "age"]
+                   ["a" "bar" "1" "9d" "1" "9d" "7d" "2" ""]
+                   ["" "baz" "1" "" "" "" "" "2" ""]
+                   ["" "foo" "1" "40d" "2" "9d" "7d" "3" "2d"]]
+                  (take 4 (table deps))))))
