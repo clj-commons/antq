@@ -8,7 +8,9 @@
    [antq.upgrade.clojure.tool]
    [antq.util.git :as u.git]
    [clojure.java.io :as io]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test]))
 
 (def ^:private dummy-dep
   (r/map->Dependency {:project :clojure-tool
@@ -30,9 +32,11 @@
                        (upgrade/upgrader)
                        (dep.clj.tool/extract-deps "")
                        (vector))]
-      (t/is (= #{{:name "com.github.liquidz/antq"
-                  :version {:- "1.5.1" :+ "9.9.9"}
-                  :url "https://github.com/clj-commons/antq.git"
-                  :sha {:- "bc28de64fb36b395da4267e8d7916d1a9e167bcd"
-                        :+ "9876543"}}}
-               (h/diff-deps from-deps to-deps))))))
+      (t/is (match?
+             (m/nested-equals
+              #{{:name "com.github.liquidz/antq"
+                 :version {:- "1.5.1" :+ "9.9.9"}
+                 :url "https://github.com/clj-commons/antq.git"
+                 :sha {:- "bc28de64fb36b395da4267e8d7916d1a9e167bcd"
+                       :+ "9876543"}}})
+             (h/diff-deps from-deps to-deps))))))

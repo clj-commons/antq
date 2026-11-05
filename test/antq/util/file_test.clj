@@ -5,7 +5,8 @@
    [antq.util.env :as u.env]
    [antq.util.file :as sut]
    [clojure.java.io :as io]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.test]))
 
 (t/deftest normalize-path-test
   (t/testing "HOME"
@@ -35,11 +36,11 @@
 (t/deftest distinct-directory-test
   (let [absolute-path (.getAbsolutePath (io/file "."))
         relative-path (sut/normalize-path absolute-path)]
-    (t/is (= ["a" "b" "c"]
-             (sut/distinct-directory ["a" "b" "c"])))
-    (t/is (= ["."]
-             (sut/distinct-directory ["." absolute-path relative-path])))
-    (t/is (= [absolute-path]
-             (sut/distinct-directory [absolute-path relative-path "."])))
-    (t/is (= ["a" absolute-path]
-             (sut/distinct-directory ["a" absolute-path relative-path])))))
+    (t/is (match? ["a" "b" "c"]
+                  (sut/distinct-directory ["a" "b" "c"])))
+    (t/is (match? ["."]
+                  (sut/distinct-directory ["." absolute-path relative-path])))
+    (t/is (match? [absolute-path]
+                  (sut/distinct-directory [absolute-path relative-path "."])))
+    (t/is (match? ["a" absolute-path]
+                  (sut/distinct-directory ["a" absolute-path relative-path])))))

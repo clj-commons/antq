@@ -5,7 +5,9 @@
    [antq.record :as r]
    [antq.test-report]
    [clojure.java.io :as io]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test]))
 
 (def ^:private file-path
   "path/to/pom.xml")
@@ -24,11 +26,13 @@
               (io/file (io/resource "dep/test_pom.xml")))]
     (t/is (sequential? deps))
     (t/is (every? #(instance? antq.record.Dependency %) deps))
-    (t/is (= #{(dependency {:name "foo/core" :version "1.0.0"})
-               (dependency {:name "foo/core" :version "1.1.0"})
-               (dependency {:name "bar/bar" :version "2.0.0"})
-               (dependency {:name "baz/baz" :version "3.0.0"})}
-             (set deps)))))
+    (t/is (match?
+           (m/nested-equals
+            #{(dependency {:name "foo/core" :version "1.0.0"})
+              (dependency {:name "foo/core" :version "1.1.0"})
+              (dependency {:name "bar/bar" :version "2.0.0"})
+              (dependency {:name "baz/baz" :version "3.0.0"})})
+           (set deps)))))
 
 (t/deftest extract-deps-with-properties-test
   (let [deps (sut/extract-deps
@@ -39,17 +43,21 @@
                                 [:repositories "central"]
                                 {:url "https://repo.maven.apache.org/maven2"}))]
     (t/is (sequential? deps))
-    (t/is (= #{(dependency' {:name "org.clojure/clojure" :version "1.4.0"})
-               (dependency' {:name "org.tcrawley/dynapath" :version "1.0.0"})}
-             (set deps)))))
+    (t/is (match?
+           (m/nested-equals
+            #{(dependency' {:name "org.clojure/clojure" :version "1.4.0"})
+              (dependency' {:name "org.tcrawley/dynapath" :version "1.0.0"})})
+           (set deps)))))
 
 (t/deftest extract-deps-with-parent-child-pom-test
   (let [deps (sut/extract-deps
               file-path
               (io/file (io/resource "dep/child_pom/child/pom.xml")))]
-    (t/is (= [(assoc (dependency {:name "org.clojure/clojure" :version "1.5.0"})
-                     :repositories {"central" {:url "https://repo.maven.apache.org/maven2"}})]
-             deps))))
+    (t/is (match?
+           (m/nested-equals
+            [(assoc (dependency {:name "org.clojure/clojure" :version "1.5.0"})
+                    :repositories {"central" {:url "https://repo.maven.apache.org/maven2"}})])
+           deps))))
 
 (t/deftest load-deps-test
   (with-redefs [const.project-file/maven "test_pom.xml"]

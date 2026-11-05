@@ -9,7 +9,9 @@
    [antq.upgrade.github-action]
    [antq.util.git :as u.git]
    [clojure.java.io :as io]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test]))
 
 (def ^:private dummy-dep
   (r/map->Dependency {:project :github-action
@@ -76,9 +78,10 @@
                                :file temp-file)
                         (upgrade/upgrader)
                         (dep.gha/extract-deps "")))]
-      (t/is (= #{{:name "foo/bar" :version {:- "v1.0.0" :+ "v9.0.0"}}
-                 {:name "foo/bar" :version {:- "v2.0.0" :+ "v9.0.0"}}}
-               (h/diff-deps from-deps to-deps)))))
+      (t/is (match?
+             (m/nested-equals #{{:name "foo/bar" :version {:- "v1.0.0" :+ "v9.0.0"}}
+                                {:name "foo/bar" :version {:- "v2.0.0" :+ "v9.0.0"}}})
+             (h/diff-deps from-deps to-deps)))))
 
   (t/testing "commit SHA with version comment"
     (with-redefs [u.git/tag-sha-by-ls-remote (constantly "0123456789abcdef0123456789abcdef01234567")]
@@ -88,12 +91,14 @@
             to-deps (->> dummy-pinned-dep
                          (upgrade/upgrader)
                          (dep.gha/extract-deps ""))]
-        (t/is (= #{{:name "git/sha-with-version"
-                    :version {:- "v1.2.3" :+ "v9.0.0"}
-                    :url "https://github.com/git/sha-with-version.git"
-                    :sha {:- "8be09192b01d78912b03852f5d6141e8c48f4179"
-                          :+ "0123456789abcdef0123456789abcdef01234567"}}}
-                 (h/diff-deps from-deps to-deps))))))
+        (t/is (match?
+               (m/nested-equals
+                #{{:name "git/sha-with-version"
+                   :version {:- "v1.2.3" :+ "v9.0.0"}
+                   :url "https://github.com/git/sha-with-version.git"
+                   :sha {:- "8be09192b01d78912b03852f5d6141e8c48f4179"
+                         :+ "0123456789abcdef0123456789abcdef01234567"}}})
+               (h/diff-deps from-deps to-deps))))))
 
   (t/testing "not supported"
     (t/is (nil? (upgrade/upgrader dummy-not-supported-dep)))))
@@ -106,9 +111,11 @@
           to-deps (->> dummy-clj-kondo-dep
                        (upgrade/upgrader)
                        (dep.gha/extract-deps ""))]
-      (t/is (= #{{:name "clj-kondo/clj-kondo" :version {:- "5" :+ "9.0.0"}}
-                 {:name "clj-kondo/clj-kondo" :version {:- "-5" :+ "9.0.0"}}}
-               (h/diff-deps from-deps to-deps)))))
+      (t/is (match?
+             (m/nested-equals
+              #{{:name "clj-kondo/clj-kondo" :version {:- "5" :+ "9.0.0"}}
+                {:name "clj-kondo/clj-kondo" :version {:- "-5" :+ "9.0.0"}}})
+             (h/diff-deps from-deps to-deps)))))
 
   (t/testing "graalvm"
     (let [from-deps (->> (:file dummy-graalvm-dep)
@@ -117,9 +124,11 @@
           to-deps (->> dummy-graalvm-dep
                        (upgrade/upgrader)
                        (dep.gha/extract-deps ""))]
-      (t/is (= #{{:name "graalvm/graalvm-ce-builds" :version {:- "6" :+ "9.0.0"}}
-                 {:name "graalvm/graalvm-ce-builds" :version {:- "-6" :+ "9.0.0"}}}
-               (h/diff-deps from-deps to-deps)))))
+      (t/is (match?
+             (m/nested-equals
+              #{{:name "graalvm/graalvm-ce-builds" :version {:- "6" :+ "9.0.0"}}
+                {:name "graalvm/graalvm-ce-builds" :version {:- "-6" :+ "9.0.0"}}})
+             (h/diff-deps from-deps to-deps)))))
 
   (t/testing "cljstyle"
     (let [from-deps (->> (:file dummy-cljstyle-dep)
@@ -128,6 +137,8 @@
           to-deps (->> dummy-cljstyle-dep
                        (upgrade/upgrader)
                        (dep.gha/extract-deps ""))]
-      (t/is (= #{{:name "greglook/cljstyle" :version {:- "7" :+ "9.0.0"}}
-                 {:name "greglook/cljstyle" :version {:- "-7" :+ "9.0.0"}}}
-               (h/diff-deps from-deps to-deps))))))
+      (t/is (match?
+             (m/nested-equals
+              #{{:name "greglook/cljstyle" :version {:- "7" :+ "9.0.0"}}
+                {:name "greglook/cljstyle" :version {:- "-7" :+ "9.0.0"}}})
+             (h/diff-deps from-deps to-deps))))))

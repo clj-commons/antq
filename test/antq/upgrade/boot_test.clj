@@ -7,7 +7,9 @@
    [antq.upgrade :as upgrade]
    [antq.upgrade.boot]
    [clojure.java.io :as io]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test]))
 
 (def ^:private dummy-java-dep
   (r/map->Dependency {:project :boot
@@ -38,8 +40,9 @@
         to-deps (->> dummy-java-dep
                      (upgrade/upgrader)
                      (dep.boot/extract-deps ""))]
-    (t/is (= #{{:name "bar/bar" :version {:- "2.0.0" :+ "9.0.0"}}}
-             (h/diff-deps from-deps to-deps)))))
+    (t/is (match?
+           (m/nested-equals #{{:name "bar/bar" :version {:- "2.0.0" :+ "9.0.0"}}})
+           (h/diff-deps from-deps to-deps)))))
 
 (t/deftest upgrade-meta-dep-test
   (let [from-deps (->> dummy-meta-dep
@@ -49,8 +52,9 @@
         to-deps (->> dummy-meta-dep
                      (upgrade/upgrader)
                      (dep.boot/extract-deps ""))]
-    (t/is (= #{{:name "with/meta" :version {:- "4.0.0" :+ "9.0.0"}}}
-             (h/diff-deps from-deps to-deps)))))
+    (t/is (match?
+           (m/nested-equals #{{:name "with/meta" :version {:- "4.0.0" :+ "9.0.0"}}})
+           (h/diff-deps from-deps to-deps)))))
 
 (t/deftest upgrade-excluded-dep-test
   (let [original (->> dummy-excluded-dep

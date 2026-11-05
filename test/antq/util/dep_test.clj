@@ -6,7 +6,9 @@
    [antq.util.dep :as sut]
    [antq.util.maven :as u.mvn]
    [clojure.java.io :as io]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test]))
 
 (t/deftest compare-deps-test
   (t/testing "positive"
@@ -59,17 +61,23 @@
            (sut/name-candidates ""))))
 
 (t/deftest repository-opts-test
-  (t/is (= {:repositories u.mvn/default-repos
-            :snapshots? false}
-           (sut/repository-opts (r/map->Dependency {:version "1.0.0"}))))
-  (t/is (= {:repositories (assoc u.mvn/default-repos
-                                 "foo" {:url "s3://foo"})
-            :snapshots? true}
-           (sut/repository-opts (r/map->Dependency {:repositories {"foo" {:url "s3p://foo"}}
-                                                    :version "1.0.0-SNAPSHOT"}))))
-  (t/is (= {:repositories u.mvn/default-repos
-            :snapshots? true}
-           (sut/repository-opts (r/map->Dependency {:version "1.0.0-20240101.120000-1"})))))
+  (t/is (match?
+         (m/nested-equals
+          {:repositories u.mvn/default-repos
+           :snapshots? false})
+         (sut/repository-opts (r/map->Dependency {:version "1.0.0"}))))
+  (t/is (match?
+         (m/nested-equals
+          {:repositories (assoc u.mvn/default-repos
+                                "foo" {:url "s3://foo"})
+           :snapshots? true})
+         (sut/repository-opts (r/map->Dependency {:repositories {"foo" {:url "s3p://foo"}}
+                                                  :version "1.0.0-SNAPSHOT"}))))
+  (t/is (match?
+         (m/nested-equals
+          {:repositories u.mvn/default-repos
+           :snapshots? true})
+         (sut/repository-opts (r/map->Dependency {:version "1.0.0-20240101.120000-1"})))))
 
 (t/deftest normalize-path-test
   (t/are [expected input] (= (h/os-path expected) (sut/normalize-path input))

@@ -9,7 +9,8 @@
    [clojure.data.json :as json]
    [clojure.java.shell :as sh]
    [clojure.string :as str]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.test]))
 
 (defn- dep
   [m]
@@ -43,12 +44,12 @@
 (t/deftest get-sorted-versions-test
   (reset! @#'sut/failed-to-fetch-from-api false)
   (with-redefs [slurp (constantly dummy-json)]
-    (t/is (= ["v3.0.0" "v2.0.0" "v2.0.0-alpha2" "v2.0.0-alpha1" "1.0.0"]
-             (get-sorted-versions {:name "foo/bar"}))))
+    (t/is (match? ["v3.0.0" "v2.0.0" "v2.0.0-alpha2" "v2.0.0-alpha1" "1.0.0"]
+                  (get-sorted-versions {:name "foo/bar"}))))
 
   (t/testing "response should be cached"
-    (t/is (= ["v3.0.0" "v2.0.0" "v2.0.0-alpha2" "v2.0.0-alpha1" "1.0.0"]
-             (get-sorted-versions {:name "foo/bar"})))))
+    (t/is (match? ["v3.0.0" "v2.0.0" "v2.0.0-alpha2" "v2.0.0-alpha1" "1.0.0"]
+                  (get-sorted-versions {:name "foo/bar"})))))
 
 (t/deftest get-sorted-versions-fallback-test
   (reset! @#'sut/failed-to-fetch-from-api false)
@@ -78,8 +79,8 @@
         (t/is (false? @api-errored))
         (t/is (false? @(deref #'sut/failed-to-fetch-from-api))))
 
-      (t/is (= ["v3.0" "v2.0" "v2.0-beta1" "1.0"]
-               (get-sorted-versions {:name "bar/baz"})))
+      (t/is (match? ["v3.0" "v2.0" "v2.0-beta1" "1.0"]
+                    (get-sorted-versions {:name "bar/baz"})))
 
       (t/testing "post"
         (t/is (true? @api-errored))

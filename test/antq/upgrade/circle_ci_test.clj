@@ -7,7 +7,9 @@
    [antq.upgrade :as upgrade]
    [antq.upgrade.circle-ci]
    [clojure.java.io :as io]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test]))
 
 (def ^:private node-dep
   (r/map->Dependency {:project :circle-ci
@@ -31,5 +33,6 @@
                                :file temp-file)
                         (upgrade/upgrader)
                         (dep.circle-ci/extract-deps "")))]
-      (t/is (= #{{:name "circleci/node" :version {:- "6.3.0" :+ "7.0.0"}}}
-               (h/diff-deps from-deps to-deps))))))
+      (t/is (match?
+             (m/nested-equals #{{:name "circleci/node" :version {:- "6.3.0" :+ "7.0.0"}}})
+             (h/diff-deps from-deps to-deps))))))

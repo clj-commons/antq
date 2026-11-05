@@ -4,7 +4,9 @@
    [antq.record :as r]
    [antq.test-report]
    [clojure.java.io :as io]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test]))
 
 (defn- circle-ci-orb-dependency
   [m]
@@ -17,6 +19,8 @@
                                (slurp (io/resource "dep/test_circle_ci.yml")))]
     (t/is (sequential? deps))
     (t/is (every? #(instance? antq.record.Dependency %) deps))
-    (t/is (= #{(circle-ci-orb-dependency {:name "circleci/node" :version "6.3.0"})
-               (circle-ci-orb-dependency {:name "circleci/docker" :version "2.8.0"})}
-             (set deps)))))
+    (t/is (match?
+           (m/nested-equals
+            #{(circle-ci-orb-dependency {:name "circleci/node" :version "6.3.0"})
+              (circle-ci-orb-dependency {:name "circleci/docker" :version "2.8.0"})})
+           (set deps)))))

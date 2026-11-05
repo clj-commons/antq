@@ -110,13 +110,15 @@
     (with-redefs [sut/gradle-command "__non-existing-command__"]
       (doseq [path ["build.gradle"
                     "sub/build.gradle"]]
-        (t/is (= [(r/map->Dependency {:project :gradle
-                                      :type :java
-                                      :file (h/os-path file-path)
-                                      :name "org.example/from-wrapper"
-                                      :version "1.0.0"
-                                      :repositories {"wrapper-repo" {:url "https://example.com/maven/"}}})]
-                 (sut/extract-deps file-path (fs/path test-dir "gradle_wrapper" path)))
+        (t/is (match?
+               (m/nested-equals
+                [(r/map->Dependency {:project :gradle
+                                     :type :java
+                                     :file (h/os-path file-path)
+                                     :name "org.example/from-wrapper"
+                                     :version "1.0.0"
+                                     :repositories {"wrapper-repo" {:url "https://example.com/maven/"}}})])
+               (sut/extract-deps file-path (fs/path test-dir "gradle_wrapper" path)))
               path)))))
 
 (when-not (os/windows?)
@@ -154,13 +156,15 @@
                                   :version version
                                   :repositories repos}))]
     (t/testing "lines that the build prints itself are ignored, a dependency declared twice is listed once"
-      (t/is (= [(dep file-path "org.example/root" "1.0.0"
-                     {"settings-repo" {:url "https://settings.example.com/maven/"}
-                      "root-repo" {:url "https://example.com/maven;jsessionid=1"}})
-                ;; a project's own repository replaces a settings repository with the same name
-                (dep "path/to/tools/cli/build.gradle" "org.example/cli" "2.0.0"
-                     {"settings-repo" {:url "https://override.example.com/maven/"}})]
-               (sut/extract-deps file-path (fs/path test-dir "gradle_output" "build.gradle")))))))
+      (t/is (match?
+             (m/nested-equals
+              [(dep file-path "org.example/root" "1.0.0"
+                    {"settings-repo" {:url "https://settings.example.com/maven/"}
+                     "root-repo" {:url "https://example.com/maven;jsessionid=1"}})
+               ;; a project's own repository replaces a settings repository with the same name
+               (dep "path/to/tools/cli/build.gradle" "org.example/cli" "2.0.0"
+                    {"settings-repo" {:url "https://override.example.com/maven/"}})])
+             (sut/extract-deps file-path (fs/path test-dir "gradle_output" "build.gradle")))))))
 
 (t/deftest ^:gradle extract-deps-without-init-script-output-test
   (t/testing "no dependencies are reported when the init script did not work"
@@ -187,7 +191,7 @@
     (t/is (thrown? clojure.lang.ExceptionInfo
             (sut/extract-deps file-path (fs/path test-dir "build.gradle"))))
     (t/testing "the temporary init script is deleted, also when Gradle fails"
-      (t/is (= before (init-script-files))))))
+      (t/is (match? before (init-script-files))))))
 
 (t/deftest ^:gradle extract-deps-command-error-test
   (with-redefs [sut/gradle-command "__non-existing-command__"]

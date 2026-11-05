@@ -8,7 +8,9 @@
    [antq.upgrade.leiningen]
    [clojure.edn :as edn]
    [clojure.java.io :as io]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test]))
 
 (t/deftest upgrade-dep-test
   (let [java-dep (r/map->Dependency {:project :leiningen
@@ -22,21 +24,25 @@
                        (dep.lein/extract-deps ""))
         upgraded (upgrade/upgrader java-dep)
         to-deps (dep.lein/extract-deps "" upgraded)]
-    (t/is (= #{{:name "foo/core" :version {:- "1.0.0" :+ "9.0.0"}}
-               {:name "foo/core" :version {:- "1.1.0" :+ "9.0.0"}}}
-             (h/diff-deps from-deps to-deps)))
+    (t/is (match?
+           (m/nested-equals
+            #{{:name "foo/core" :version {:- "1.0.0" :+ "9.0.0"}}
+              {:name "foo/core" :version {:- "1.1.0" :+ "9.0.0"}}})
+           (h/diff-deps from-deps to-deps)))
 
     (let [upgraded-sexpr (edn/read-string upgraded)
           profiles (->> upgraded-sexpr
                         (drop-while #(not= :profiles %))
                         (second))]
       (t/testing "same name deps should be upgraded"
-        (t/is (= '[:dependencies [[foo/core "9.0.0"]]]
-                 (:same-name profiles))))
+        (t/is (match?
+               (m/nested-equals '[:dependencies [[foo/core "9.0.0"]]])
+               (:same-name profiles))))
 
       (t/testing "excluded deps should not be upgraded"
-        (t/is (= '[:dependencies [[foo/core "0.0.1"]]]
-                 (:same-name-but-excluded profiles)))))))
+        (t/is (match?
+               (m/nested-equals '[:dependencies [[foo/core "0.0.1"]]])
+               (:same-name-but-excluded profiles)))))))
 
 (t/deftest upgrade-meta-dep-test
   (let [meta-dep (r/map->Dependency {:project :leiningen
@@ -51,8 +57,9 @@
         to-deps (->> meta-dep
                      (upgrade/upgrader)
                      (dep.lein/extract-deps ""))]
-    (t/is (= #{{:name "bar/bar" :version {:- "2.0.0" :+ "8.0.0"}}}
-             (h/diff-deps from-deps to-deps)))))
+    (t/is (match?
+           (m/nested-equals #{{:name "bar/bar" :version {:- "2.0.0" :+ "8.0.0"}}})
+           (h/diff-deps from-deps to-deps)))))
 
 (t/deftest upgrade-plugin-dep-test
   (let [meta-dep (r/map->Dependency {:project :leiningen
@@ -67,5 +74,6 @@
         to-deps (->> meta-dep
                      (upgrade/upgrader)
                      (dep.lein/extract-deps ""))]
-    (t/is (= #{{:name "plug/plug" :version {:- "4.0.0" :+ "7.0.0"}}}
-             (h/diff-deps from-deps to-deps)))))
+    (t/is (match?
+           (m/nested-equals #{{:name "plug/plug" :version {:- "4.0.0" :+ "7.0.0"}}})
+           (h/diff-deps from-deps to-deps)))))
