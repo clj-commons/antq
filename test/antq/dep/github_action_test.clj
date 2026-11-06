@@ -97,7 +97,7 @@
     (t/is (match? (set (map h/os-path
                             [".github/workflows/coverage.yml"
                              ".github/workflows/dependencies.yml"
-                             ".github/workflows/release.yml"
+                             ".github/workflows/publish.yml"
                              ".github/workflows/lint.yml"
                              ".github/workflows/reviewdog.yml"
                              ".github/workflows/test.yml"

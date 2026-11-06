@@ -32,7 +32,7 @@
     (shell/clojure "-M:clj-kondo --skip-lint --copy-configs --dependencies --lint" clj-cp bb-cp)))
 
 (defn- check-cache
-  [{:keys [rebuild]}]
+  [{:keys! [rebuild]}]
   (status/line :head "clj-kondo: cache check")
   (if-let [rebuild-reason (cond
                             rebuild
@@ -53,9 +53,9 @@
   [opts]
   (check-cache opts)
   (status/line :head "clj-kondo: linting")
-  (let [{:keys [exit]}
+  (let [{:keys! [exit]}
         (shell/clojure {:continue true}
-                       "-M:clj-kondo --parallel --lint src test bb bb.edn deps.edn build.clj")]
+                       "-M:clj-kondo --parallel --lint src test bb bb.edn deps.edn")]
     (cond
       (= 2 exit) (status/die exit "clj-kondo found one or more lint errors")
       (= 3 exit) (status/die exit "clj-kondo found one or more lint warnings")
@@ -63,7 +63,8 @@
 
 (def cli-opts
   {:spec {:rebuild {:coerce :boolean
-                    :desc "Force rebuild of clj-kondo lint cache"}}})
+                    :desc "Force rebuild of clj-kondo lint cache"
+                    :default false}}})
 
 (defn task
   {:org.babashka/cli cli-opts}

@@ -1,0 +1,130 @@
+= Maintainer Guide
+:toclevels: 5
+:toc:
+
+== Audience
+You are a maintainer of this project.
+
+== Versions
+
+Our scheme is `major.minor.<release count>` (historically has also been `major.minor.<commit count>`).
+
+Versions are tracked in simple plain text files:
+
+* `resources/com.github.liquidz/antq/VERSION` - current version - optionally edit `major.minor` as you see fit, `<release count>` is auto-managed.
+* `resources/com.github.liquidz/antq/RELEASED_VERSION` - last released version - automatically updated by release workflow
+
+Git version tag format is prefix-less and matches version, ex: `1.2.3`.
+Same scheme is used for published docker image tag.
+
+Flow:
+
+|===
+| state | VERSION | RELEASED_VERSION | git tag
+
+| before release
+| 1.2.3-SNAPSHOT
+| 1.2.2
+| 1.2.2
+
+| at release commit
+| 1.2.3
+| 1.2.3
+| 1.2.3
+
+| after release commit
+| 1.2.4-SNAPSHOT
+| 1.2.3
+| 1.2.3
+|===
+
+We do not, at this time, release -SNAPSHOT versions to clojars.
+
+This scheme allows us to support returning a reasonable version when a user is referencing the Antq lib from an arbitrary git sha on GitHub.
+
+== Publishing a New Release
+Is invoked from the command line via:
+
+[source,shell]
+----
+bb publish
+----
+
+TIP: To run validations without publishing, run `bb pubcheck`
+
+TIP: To validate without pushing an actual release, use `bb publish --no-push`.
+Output will instruct you on how to undo the git tag and commits.
+
+[TIP]
+====
+Should the local portion of publish fail unexpectedly before the push, you'll need to clean up manually:
+
+* a release tag might have been created, delete it via `git tag -d <git tag>`
+* up to 2 commits may have been created, delete them via `git reset <sha before commits> --hard`
+====
+
+TIP: To skip the confirmation prompt: `bb publish --yes`.
+
+The publish task locally validates:
+
+* local git
+** you are not on a fork
+** you are on the default branch
+** do not have any uncommitted code
+** do not have any unpushed commits
+** local head sha matches remote head sha
+* version sanity
+** current version is a SNAPSHOT
+** released version is not a SNAPSHOT
+** last release tag matches released version
+* changelog
+** Has an "Unreleased" section with content
+
+Then also locally:
+
+. un``SNAPSHOT`` current version (our scheme is `major.minor.<release count>`)
+. apply to:
+.. `resources/com.github.liquidz/antq/VERSION`
+.. `resources/com.github.liquidz/antq/RELEASED_VERSION`
+.. `README.adoc`
+.. `CHANGELOG.adoc`
+. git commit these changed files
+. git tag with release tag `<version>`
+. prep for ongoing dev work after release:
+.. add new Unreleased section to `CHANGELOG.adoc`
+.. bump `<release count>` & `SNAPSHOT` version in `resources/com.github.liquidz/antq/VERSION`
+.. git commits these files
+. push new commits
+. push version tag
+
+Then up on CI, the CI publish workflow is only triggered when it sees a release tag:
+
+. CI `test` workflow is invoked
+. a release jar is published to clojars
+. a GitHub release is created
+. cljdoc is informed of the new release
+. An Antq docker image is built and uploaded to GitHub packages
+
+== Relevant Sources
+
+. `bb.edn` - tasks entry point
+. `resources/com.github.liquidz/antq/VERSION` - current version
+. `resources/com.github.liquidz/antq/RELEASED_VERSION` - last released version
+. `bb/build_config.clj` - build configuration
+. `bb/publish.clj` - client side work
+. `bb/ci_publish.clj` - ci side work
+
+CI - We use GitHub Actions for this project
+
+. `.github/workflows/publish.yml`
+
+== CI Config
+
+Clojars secrets are protected under the `publish` environment which is only referenced by `publish.yml`.
+
+== Expected Oddities
+
+When publishing, you will see both the `test` workflow triggered and the `publish` workflow triggered (which also invokes the `test` workflow).
+
+This extra running of the `test` workflow is GitHub Actions responding to changes committed as part of the publishing work.
+Annoying, but harmless.

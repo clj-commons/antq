@@ -78,10 +78,6 @@
                "--test-ns-path=test-jvm"
                "--codecov"]}
 
-  :build
-  {:deps {com.github.liquidz/build.edn {:mvn/version "0.11.266"}}
-   :ns-default build}
-
   ;; -X
   :latest
   {:extra-deps {org.slf4j/slf4j-nop {:mvn/version "2.0.20"}}
