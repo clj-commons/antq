@@ -15,6 +15,8 @@ Therefore, checking Gradle dependencies is now opt-in via `--check-gradle`.
 We will no longer also release to the legacy https://clojars.org/antq[antq/antq] Maven coordinates.
 Users using the legacy coordinates must switch if they want to keep up to date.
 (https://github.com/lread[@lread])
+* Antq published a docker image with each release to https://github.com/users/liquidz/packages/container/package/antq[https://github.com/users/*liquidz*/packages/container/package/antq].
+Because Antq is now under the clj-commons GitHub org, this docker image will now be published to  https://github.com/users/clj-commons/packages/container/package/antq[https://github.com/users/*clj-commons*/packages/container/package/antq].
 
 === Added
 * https://github.com/clj-commons/antq/pull/380[#380]: Add babashka compatibility
@@ -68,6 +70,7 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 
 === Fixed
 * https://github.com/clj-commons/antq/pull/408[#408]: Improved support for vector-based lein credential config
+(thanks, https://github.com/lukaszkorecki[@lukaszkorecki]!)
 * https://github.com/clj-commons/antq/issues/231[#231]: Exclusions are now supported when antq is run as lein plugin
 (thanks, https://github.com/marcobiscaro2112[@marcobiscaro2112]!)
 * https://github.com/clj-commons/antq/issues/320[#320]: Progress bar should no longer be sporadically garbled
