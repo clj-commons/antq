@@ -5,7 +5,7 @@
     (.println ^java.io.PrintWriter *err* "antq requires Clojure 1.11 or later.")
     (System/exit 1)))
 
-(ns ^:no-doc antq.core
+(ns antq.core
   (:gen-class)
   (:require
    [antq.changelog :as changelog]
@@ -75,7 +75,7 @@
   (zipmap [:name :version]
           (str/split (str artifact) #"@" 2)))
 
-(defn forced-artifact-version-map
+(defn ^:no-doc forced-artifact-version-map
   "Forced artifacts are coming from focus param and contain specific version targeted with @"
   [options]
   (->> (:focus options)
@@ -84,7 +84,7 @@
        (map (juxt :name :version))
        (into {})))
 
-(defn skip-artifacts?
+(defn ^:no-doc skip-artifacts?
   [dep options]
   (let [exclude-artifacts (set (:exclude options []))
         focus-artifacts (->> []
@@ -99,7 +99,7 @@
       :else
       (contains? exclude-artifacts (:name dep)))))
 
-(defn remove-skipping-versions
+(defn ^:no-doc remove-skipping-versions
   [versions dep options]
   (let [dep-name (:name dep)
         skip-vers (->> (:exclude options)
@@ -112,11 +112,11 @@
               (some #(u.ver/in-range? % target-version) skip-vers))
             versions)))
 
-(defn using-release-version?
+(defn ^:no-doc using-release-version?
   [dep]
   (contains? #{"RELEASE" "master" "main" "latest"} (:version dep)))
 
-(defn mark-forced-version
+(defn- mark-forced-version
   "If dependency is in focused artifacts, sets `:forced-version` information"
   [dep forced-artifacts]
   (if-let [forced-version (get forced-artifacts (:name dep))]
@@ -131,20 +131,6 @@
     (when-not (:no-progress options)
       (report/run-progress dep options))
     res))
-
-(defn latest
-  [arg-map]
-  (let [dep-name (case (:type arg-map)
-                   :java (let [[group-id artifact-id] (str/split (str (:name arg-map "")) #"/" 2)]
-                           (str group-id "/" (or artifact-id group-id)))
-                   (str (:name arg-map)))
-        dep-type (:type arg-map :java)]
-    (-> (r/map->Dependency
-         {:type dep-type
-          :name dep-name})
-        (ver/get-sorted-versions {})
-        (first)
-        (log/info))))
 
 (defn- old-enough?
   "True if `date` is at least `days` days ago; false if `date` is nil."
@@ -195,7 +181,7 @@
   [dep]
   (dissoc dep :_versions))
 
-(defn distinct-deps
+(defn- distinct-deps
   [deps]
   (->> deps
        (map #(select-keys % [:type :name :version :repositories :extra :forced-version]))
@@ -204,7 +190,7 @@
                (dissoc % :version)))
        distinct))
 
-(defn complete-versions-by
+(defn- complete-versions-by
   [dep deps-with-vers]
   (if-let [dep-with-vers (some #(and (= (:type dep) (:type %))
                                      (= (:name dep) (:name %))
@@ -222,7 +208,7 @@
     (throw (ex-info (u.report/invalid-cooldown-message ":cooldown" (pr-str cooldown))
                     {:cooldown cooldown}))))
 
-(defn outdated-deps
+(defn ^:no-doc outdated-deps
   [deps options]
   (validate-cooldown! options)
   (let [forced-artifacts (forced-artifact-version-map options)
@@ -253,7 +239,7 @@
                        (ver/latest? %)
                        (not (contains? parent-dep-names (:name %))))))))
 
-(defn assoc-changes-url
+(defn ^:no-doc assoc-changes-url
   [{:as version-checked-dep :keys [version latest-version]}]
   (if-let [url (try
                  (when (and version latest-version
@@ -267,7 +253,7 @@
     (assoc version-checked-dep :changes-url url)
     version-checked-dep))
 
-(defn unverified-deps
+(defn ^:no-doc unverified-deps
   [deps]
   (keep #(when-let [verified-name (and (= :java (:type %))
                                        (get disallowed-unverified-deps-map (:name %)))]
@@ -291,17 +277,17 @@
       (and (not (:forced-version dep))
            (ver/latest? dep))))
 
-(defn exit-code
+(defn ^:no-doc exit-code
   "Returns the exit code for the result of `antq`: 1 if a dep can be upgraded, else 0.
   Used by the CLI and the Leiningen plugin, so both report the same."
   [outdated-deps]
   (if (every? up-to-date? outdated-deps) 0 1))
 
-(defn exit
+(defn ^:no-doc exit
   [outdated-deps]
   (system-exit (exit-code outdated-deps)))
 
-(defn fetch-deps
+(defn ^:no-doc fetch-deps
   [options]
   (let [skip (set (:skip options))]
     (mapcat #(concat
@@ -324,7 +310,7 @@
               (when (:check-clojure-tools options) (dep.clj.tool/load-deps)))
             (distinct (:directory options)))))
 
-(defn mark-only-newest-version-flag
+(defn ^:no-doc mark-only-newest-version-flag
   [deps]
   (map #(cond-> %
           (contains? only-newest-version-dep-names (:name %))
@@ -336,7 +322,7 @@
   (map #(dissoc % :only-newest-version?)
        deps))
 
-(defn unify-deps-having-only-newest-version-flag
+(defn ^:no-doc unify-deps-having-only-newest-version-flag
   "Keep only the newest version in the same file if `:only-newest-version?` flag is marked."
   [deps]
   (let [other-deps (remove :only-newest-version? deps)]
@@ -349,7 +335,7 @@
                      first)))
          (concat other-deps))))
 
-(defn antq
+(defn ^:no-doc antq
   [options deps]
   (let [deps (->> deps
                   (mark-only-newest-version-flag)
@@ -373,7 +359,7 @@
   [text]
   (str "\u001B[43;30mWARNING:\u001B[0m\u001B[33m " text "\u001B[0m"))
 
-(defn main*
+(defn ^:no-doc main*
   [{:keys [opts warnings errors help]}]
   (u.maven/initialize-proxy-setting!)
   (let [opts (cond-> (update opts :directory u.file/distinct-directory)
@@ -413,8 +399,27 @@
       (do (log/info "No project file")
           (system-exit 1)))))
 
+(defn latest
+  "Entrypoint for finding last version of a library via -X cli usage.
+
+  See [docs](/doc/latest-version-of-a-specific-library.adoc)."
+  [arg-map]
+  (let [dep-name (case (:type arg-map)
+                   :java (let [[group-id artifact-id] (str/split (str (:name arg-map "")) #"/" 2)]
+                           (str group-id "/" (or artifact-id group-id)))
+                   (str (:name arg-map)))
+        dep-type (:type arg-map :java)]
+    (-> (r/map->Dependency
+         {:type dep-type
+          :name dep-name})
+        (ver/get-sorted-versions {})
+        (first)
+        (log/info))))
+
 (defn -main
-  "Entrypoint for clojure -M cli usage"
+  "Entrypoint for clojure -M cli usage.
+
+  See [docs](/README.adoc#usage-clojure-cli)."
   [& args]
   (if (antq.cli/completions-args? args)
     (antq.cli/completions args)
