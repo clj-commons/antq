@@ -1,4 +1,4 @@
-(ns ^:no-doc antq.tool
+(ns antq.tool
   (:require
    [antq.cli :as cli]
    [antq.core :as core]
@@ -8,7 +8,7 @@
   ;; docstring is presented as part of help for tool
   ;; clojure -A:deps -Tantq help/doc, but we also generate dynamic usage help
   ;; via `help` below and via `:help true` are if passed in here
-  "Point out outdated dependencies.
+  "Entrypoint for -X/-T cli tool usage
 
   Options:
   - :upgrade             <boolean>
@@ -29,7 +29,9 @@
   - :transitive          <boolean>
   - :cooldown            <string> e.g. \"7d\"
   - :verbose             <boolean>
-  - :help                <boolean> for full command-line style help"
+  - :help                <boolean> for full command-line style help
+
+  See [docs](/README.adoc#usage-clojure-tool)."
   [options]
   (let [options (cli/validate-tool-opts options)]
     (binding [log/*verbose* (:verbose options false)]
@@ -39,6 +41,6 @@
                                        n)]
         (core/main* options)))))
 
-(defn help
+(defn ^:no-doc help
   [& _]
   (log/info (cli/usage-help {:opts {:usage-help-style :clojure-tool}})))
