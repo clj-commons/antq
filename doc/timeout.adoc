@@ -1,16 +1,16 @@
 = Timeouts
 
 Antq has timeouts for acquiring various information.
-These timeouts are customizable by following environmental variables.
+These timeouts are customizable by following environmental variables:
 
 [%autowidth]
 |===
-| Name | Default | Unit | For 
+| Name | Default | Unit | For
 
 | `ANTQ_DEFAULT_TIMEOUT`
 | `10000`
 | milliseconds
-| 
+|
 
 | `ANTQ_LS_REMOTE_TIMEOUT`
 | `ANTQ_DEFAULT_TIMEOUT`

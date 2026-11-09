@@ -1,12 +1,12 @@
-= Using antq as a library
+= Using Antq as a library
 
 Antq is a tool to point out your outdated dependencies, but you can also use it as a library.
 
 == antq.api
 
-The link:https://cljdoc.org/d/com.github.liquidz/antq/CURRENT/api/antq.api[`antq.api`] namespace is our only supported public API when using antq as library and eposes the following functions:
+The https://cljdoc.org/d/com.github.liquidz/antq/CURRENT/api/antq.api[`antq.api`] namespace is our only supported public API when using antq as library and exposes the following functions:
 
 * `outdated-deps`
 ** Returns a map of outdated dependencies
 * `upgrade-deps!`
-** Upgrade version strings in specified files.
+** Upgrades version strings in specified files.
