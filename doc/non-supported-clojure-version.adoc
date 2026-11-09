@@ -1,29 +1,30 @@
-= Antq on projects that use an old version of Clojure 
+= Antq on projects that use an old version of Clojure
+// lib-version is auto-updated by publish workflow
+:lib-version: 2.11.1276
 
-Antq requires a minimum of Clojure 1.11
-You can still use antq on these older projects; follow the steps below. 
+Antq requires a minimum of Clojure v1.11.
+You can still use antq on projects that use an older version of Clojure by following the steps below.
 
 == Clojure CLI
 
 Use `:deps`, not `:extra-deps`.
-This will use the default Clojure cli version, instead of the older Clojure version on which your project depends.
+This will use the default Clojure CLI version, instead of the older Clojure version on which your project depends.
 
-TIP: This assumes your installed Clojure cli version is 1.11 or later.
+TIP: This assumes your installed Clojure CLI version is 1.11 or later.
 
-[source,clojure]
+[source,clojure,subs="attributes+"]
 ----
-{:aliases {:outdated {:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}
+{:aliases {:outdated {:deps {com.github.liquidz/antq {:mvn/version "{lib-version}"}}
                       :main-opts ["-m" "antq.core"]}}}
 ----
 
+If you must use `:extra-deps`, add an antq-supported version of Clojure explicitly in an alias that uses antq as follows.
 
-If you must use `:extra-deps`, add an antq supported version of Clojure explicitly in an alias that uses antq as follows.
-
-[source,clojure]
+[source,clojure,subs="attributes+"]
 ----
 {:aliases {:outdated {:extra-deps {;; Use 1.11 or later only for antq
-                                   org.clojure/clojure {:mvn/version "1.12.5"}
-                                   com.github.liquidz/antq {:mvn/version "RELEASE"}}
+                                   org.clojure/clojure {:mvn/version "1.12.6"}
+                                   com.github.liquidz/antq {:mvn/version "{lib-version}"}}
                       :main-opts ["-m" "antq.core"]}}}
 ----
 
@@ -32,11 +33,11 @@ Then, run `clojure -M:outdated`.
 == Leiningen
 
 You can run antq as a plugin.
-Running as plugin will ignore the Clojure version which your project depends.
+Running as a plugin will ignore the Clojure version on which your project depends.
 
-[source,clojure]
+[source,clojure,subs="attributes+"]
 ----
- :plugins [[com.github.liquidz/antq "RELEASE"]]
+ :plugins [[com.github.liquidz/antq "{lib-version}"]]
  ;; optional - you can add antq options here:
  :antq {}
 ----

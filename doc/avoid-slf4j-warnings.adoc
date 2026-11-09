@@ -1,6 +1,10 @@
 = Quiet SLF4J logger warnings
+// lib-version is auto-updated by publish workflow
+:lib-version: 2.11.1276
+:slf4j-version: 2.0.20
 
-It is not antq's place to specify a logger, so depending our your project, you may see the following messages when antq is run:
+Antq uses Clojure's tools.deps library, which uses Maven libraries that sometimes log.
+It is not antq's place to specify a logger, so, depending on your your project, you may see the following messages when antq is run:
 
 [source,text]
 ----
@@ -9,28 +13,30 @@ SLF4J: Defaulting to no-operation (NOP) logger implementation
 SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
 ----
 
-You can avoid these message by specifying a logger.
+You can avoid these messages by specifying a logger.
 
-Add the nop logger to suppress all logging output:
-[source,clojure]
+Add the NOP logger to suppress all logging output:
+[source,clojure,subs="attributes+"]
 ----
-org.slf4j/slf4j-nop {:mvn/version "RELEASE"}
+org.slf4j/slf4j-nop {:mvn/version "{slf4j-version}"}
 ----
 
 Or add the simple logger that will log to stdout:
-[source,clojure]
+[source,clojure,subs="attributes+"]
 ----
-org.slf4j/slf4j-simple {:mvn/version "RELEASE"}
+org.slf4j/slf4j-simple {:mvn/version "{slf4j-version}"}
 ----
 
-This logger dependency should be added under the context which antq runs, for example for link:../README.adoc#usage-clojure-cli[`deps.edn`] this would look like:
+TIP: Replace SLF4J version `{slf4j-version}` with the latest released version.
 
-[source,clojure]
+This logger dependency should be added in the context which antq runs, for example, for link:../README.adoc#usage-clojure-cli[`deps.edn`] this would look like:
+
+[source,clojure,subs="attributes+"]
 ----
 {
  :aliases
- {:outdated {:deps {org.slf4j/slf4j-simple {:mvn/version "RELEASE"}
-                    com.github.liquidz/antq {:mvn/version "RELEASE"}}
+ {:outdated {:deps {org.slf4j/slf4j-simple {:mvn/version "{slf4j-version}"}
+                    com.github.liquidz/antq {:mvn/version "{lib-version}"}}
              :main-opts ["-m" "antq.core"]}}
 }
 ----

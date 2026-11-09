@@ -23,7 +23,11 @@
       :version-tag version ; same for Antq
       :main 'antq.core ; for uberjar
       :changelog-file changelog-file
-      :user-guide-file "README.adoc"
+      ;; the following files specify the current Antq :lib-version:
+      :user-guide-files ["README.adoc"
+                         "doc/avoid-slf4j-warnings.adoc"
+                         "doc/latest-version-of-a-specific-library.adoc"
+                         "doc/non-supported-clojure-version.adoc"]
 
       ;; derived and/or less likely to change
       :url (str "https://github.com/" github-coords)

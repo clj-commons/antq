@@ -1,19 +1,20 @@
 = Find the latest version of a library
+// lib-version is auto-updated by publish workflow
+:lib-version: 2.11.1276
 
-If you are using Clojure CLI Tools https://clojure.org/releases/tools#v1.10.1.697[v1.10.1.697] or later,
-You can use `-X` option to find out the latest version of a specific library.
+If you are using Clojure CLI https://clojure.org/releases/tools#v1.10.1.697[v1.10.1.697] or later,
+you can use the `-X` option to find out the latest version of a specific library.
 
-Try to find Java library by default:
-[source,clojure]
+By default, Antq looks for a Java library:
+[source,shell,subs="attributes+"]
 ----
-clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}}' \
+clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "{lib-version}"}}}' \
   -X antq.core/latest :name antq
 ----
 
-You can specify library type:
-[source,clojure]
+You can specify the library type:
+[source,shell,subs="attributes+"]
 ----
-clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}}' \
+clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "{lib-version}"}}}' \
   -X antq.core/latest :name actions/checkout :type :github-tag
 ----
-

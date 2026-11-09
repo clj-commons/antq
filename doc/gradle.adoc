@@ -27,14 +27,14 @@ As such, checking Gradle dependencies is opt-in via `--check-gradle`.
 * The project's Gradle wrapper (`gradlew`, or `gradlew.bat` on Windows) is used when there is one.
   It is looked up in the project directory and in its parent directories that belong to the same Gradle build.
   A wrapper that is not executable is reported as an error.
-* Otherwise the `gradle` command must be installed.
+* Otherwise, the `gradle` command must be installed.
 * Gradle 8 or later.
 * If Gradle cannot be run or fails, antq stops with an error that includes Gradle's output.
 
 == Quick start
 
-antq does not need to be added to the build.
-Run it in the project directory as for any other project, e.g. as a https://clojure.org/reference/clojure_cli#tools[Clojure CLI tool]:
+Antq does not need to be added to the build.
+Run it in the project directory as for any other project, e.g., as a https://clojure.org/reference/clojure_cli#tools[Clojure CLI tool]:
 
 [source,sh]
 ----

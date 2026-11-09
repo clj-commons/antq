@@ -131,12 +131,13 @@
       (spit fname new-content))))
 
 (defn- update-user-guide!
-  [{:keys! [version user-guide-file]}]
-  (status/line :detail "Applying version %s to user guide" version)
-  (update-file! user-guide-file
-                "update :lib-version: adoc attribute"
-                #"(?m)^(:lib-version: )(.*)$"
-                (str "$1" version)))
+  [{:keys! [version user-guide-files]}]
+  (doseq [doc-file user-guide-files]
+    (status/line :detail "Applying version %s to user docs %s" version doc-file)
+    (update-file! doc-file
+                  "update :lib-version: adoc attribute"
+                  #"(?m)^(:lib-version: )(.*)$"
+                  (str "$1" version))))
 
 (defn- yyyy-mm-dd-now-utc
   []
@@ -183,12 +184,12 @@
                    released-section))))
 
 (defn- commit-changes-for-release!
-  [{:keys! [version changelog-file user-guide-file version-file released-version-file]}]
-  (t/shell "git add"
-           changelog-file
-           user-guide-file
-           version-file
-           released-version-file)
+  [{:keys! [version changelog-file user-guide-files version-file released-version-file]}]
+  (apply t/shell "git add"
+         changelog-file
+         version-file
+         released-version-file
+         user-guide-files)
   (t/shell "git commit -m" (str "publish: apply version " version)))
 
 (defn- commit-changes-for-dev-work!
