@@ -1,23 +1,25 @@
 (ns ^:no-doc antq.util.maven
   (:require
    [antq.constant :as const]
+   [antq.impl.user-agent :as user-agent]
    [antq.log :as log]
    [antq.util.bb :refer [if-bb]]
    [antq.util.env :as u.env]
    [antq.util.leiningen :as u.lein]
    [antq.util.ver :as u.ver]
    [antq.util.xml :as u.xml]
+   [babashka.http-client :as http]
    [clojure.data.xml :as xml]
    [clojure.java.io :as io]
    [clojure.string :as str])
   (:import
    (java.net
     Authenticator
-    HttpURLConnection
-    PasswordAuthentication
-    URI)
-   java.time.Instant
-   java.util.Base64))
+    PasswordAuthentication)
+   (java.time
+    ZonedDateTime)
+   (java.time.format
+    DateTimeFormatter)))
 
 (if-bb (require '[babashka.deps.maven :as deps.maven]) nil)
 
@@ -132,23 +134,34 @@
          (str/replace group-id "." "/") "/" artifact-id "/" version "/"
          artifact-id "-" version ".pom")))
 
+(def ^:private http-client
+  (http/client (-> http/default-client-opts
+                   (assoc :connect-timeout const/maven-timeout-msec))))
+
+(defn- header
+  "Case-insensitive lookup of response header `keyname`."
+  [resp keyname]
+  (some (fn [[k v]] (when (.equalsIgnoreCase keyname k) v))
+        (:headers resp)))
+
 (defn last-modified
   "Returns the `Last-Modified` header of `url` as an Instant, or nil if it can't be read."
   [url {:keys [username password]}]
   (try
-    (let [conn ^HttpURLConnection (.openConnection (.toURL (URI. url)))
-          timeout (int const/maven-timeout-msec)]
-      (.setRequestMethod conn "HEAD")
-      (.setConnectTimeout conn timeout)
-      (.setReadTimeout conn timeout)
-      (when (and username password)
-        (.setRequestProperty conn "Authorization"
-                             (str "Basic " (.encodeToString (Base64/getEncoder)
-                                                            (.getBytes (str username ":" password) "UTF-8")))))
-      (when (= 200 (.getResponseCode conn))
-        (let [ms (.getLastModified conn)]
-          (when (pos? ms)
-            (Instant/ofEpochMilli ms)))))
+    (let [resp (http/head url
+                          (cond-> {:client http-client
+                                   :timeout const/maven-timeout-msec
+                                   ;; we aren't technically calling from aether libs here, but we are still
+                                   ;; hitting maven repos, so apply aether sys prop if set
+                                   :headers {:user-agent (or (System/getProperty "aether.connector.userAgent")
+                                                             user-agent/user-agent)}
+                                   :throw false}
+                            (and username password)
+                            (assoc :basic-auth [username password])))]
+      (when (= 200 (:status resp))
+        (when-let [lm (header resp "last-modified")]
+          (-> (ZonedDateTime/parse lm DateTimeFormatter/RFC_1123_DATE_TIME)
+              .toInstant))))
     (catch Exception _ nil)))
 
 (defn- resolved-repositories
