@@ -1,5 +1,6 @@
 (ns ^:no-doc antq.cli
   (:require
+   [antq.impl.antq-meta :as antq-meta]
    [antq.util.report :as u.report]
    [babashka.cli :as cli]
    [clojure.string :as str]))
@@ -142,6 +143,10 @@
     :default :cli
     :desc "Internal opt to control style of usage help"}
 
+   :version
+   {:coerce :boolean
+    :desc "Show version"}
+
    :help
    {:alias :h
     :coerce :boolean
@@ -241,6 +246,21 @@
                [])
        (mapv #(if-not (string? %) (pr-str %) %))))
 
+(defn- antq-short-version
+  []
+  (str "antq " antq-meta/antq-version))
+
+(defn- antq-long-version
+  []
+  (str (antq-short-version) " on "
+       (if-let [bb-version (System/getProperty "babashka.version")]
+         (str "babashka " bb-version)
+         ;; prefer java.vendor.version for version of tool rather than version of Java it implements
+         (let [java-vendor-version (or (System/getProperty "java.vendor.version")
+                                       (str (System/getProperty "java.vendor") " "
+                                            (System/getProperty "java.version")))]
+           (str "Java " java-vendor-version)))))
+
 (defn usage-help
   "Return usage help as a string
 
@@ -249,32 +269,38 @@
     - `:cli` for -M style help
     - `:clojure-tool` for -T and -X style help "
   [{:keys [opts]}]
-  (str "antq ARG USAGE:\n"
-       " [options..]\n"
+  (str (antq-short-version) "\n\n"
+       "USAGE: [options..]\n"
        "\n"
        (format-opts {:spec cli-options :opts opts
                      ;; match order from README, exclude deprecated and undocumented options
                      :order [:upgrade :force :exclude :directory :focus
                              :skip :error-format :reporter :no-progress :download :ignore-locals
                              :check-clojure-tools :check-gradle :no-changes :changes-in-table :transitive
-                             :cooldown :verbose :help]})))
+                             :cooldown :verbose :version :help]})))
 
 (defn parse-args
   "Parses command line `args` and returns a map of:
   - `:warnings` - non-fatal issues, caller should display
   - `:errors` - fatal issues, caller should display
-  - `:help` - usage help as text, caller should display
+  - `:info` - text, caller should display (usage help or version)
   - `:opts` - parsed opts
 
   It is assumed caller will exit process on existence of:
   - `:errors` - non-zero exit
-  - `:help` only - zero exit"
+  - `:info` only - zero exit"
   [args]
   (let [errors (atom [])
         orig-args args
-        {:keys [opts]} (cli/parse-args args {:spec (select-keys cli-options [:help :usage-help-style])})]
-    (if (:help opts)
-      {:help (usage-help {:opts opts})}
+        {:keys [opts]} (cli/parse-args args {:spec (select-keys cli-options [:help :version :usage-help-style])})]
+    (cond
+      (:help opts)
+      {:info (usage-help {:opts opts})}
+
+      (:version opts)
+      {:info (antq-long-version)}
+
+      :else
       (let [{:keys [opts]} (cli/parse-args orig-args
                                            {:spec cli-options
                                             :error-fn (fn [error]
@@ -289,7 +315,7 @@
           (assoc :warnings warnings)
 
           (seq errors)
-          (assoc :errors errors :help (usage-help {:opts opts}))
+          (assoc :errors errors :info (usage-help {:opts opts}))
 
           :else
           (assoc :opts opts))))))

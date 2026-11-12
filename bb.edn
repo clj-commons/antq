@@ -33,7 +33,7 @@
   install       {:exec-fn install/task       :doc "install antq to local maven repository"}
   antq          {:task outdated/-main        :doc "run antq on antq"}
   docker-build  {:exec-fn docker/build       :doc "build docker image"}
-  docker-antq   {:exec-fn docker/sources     :doc "run antq on against cwd from docker image"}
+  docker-antq   {:task docker/sources        :doc "run antq on against cwd from docker image"}
 
   pubcheck      {:exec-fn publish/pubcheck   :doc "Run only publish checks (without publishing)"}
   publish       {:exec-fn publish/publish    :doc "Publish a release (for maintainers)"}

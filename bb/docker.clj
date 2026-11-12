@@ -10,9 +10,10 @@
   (shell/command "docker build -t uochan/antq ."))
 
 (defn sources
-  [_opts]
+  [& args]
   (status/line :head "Running antq against cwd from docker image")
-  (shell/command "docker run --rm"
-                 "--volume" (str (fs/cwd) ":/src")
-                 "--workdir" "/src"
-                 "uochan/antq:latest"))
+  (apply shell/command
+         "docker run --rm"
+         "--volume" (str (fs/cwd) ":/src")
+         "--workdir" "/src"
+         "uochan/antq:latest" args))

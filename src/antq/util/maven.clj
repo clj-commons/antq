@@ -1,7 +1,7 @@
 (ns ^:no-doc antq.util.maven
   (:require
    [antq.constant :as const]
-   [antq.impl.user-agent :as user-agent]
+   [antq.impl.antq-meta :as antq-meta]
    [antq.log :as log]
    [antq.util.bb :refer [if-bb]]
    [antq.util.env :as u.env]
@@ -154,7 +154,7 @@
                                    ;; we aren't technically calling from aether libs here, but we are still
                                    ;; hitting maven repos, so apply aether sys prop if set
                                    :headers {:user-agent (or (System/getProperty "aether.connector.userAgent")
-                                                             user-agent/user-agent)}
+                                                             antq-meta/user-agent)}
                                    :throw false}
                             (and username password)
                             (assoc :basic-auth [username password])))]
