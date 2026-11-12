@@ -29,6 +29,7 @@
   - :transitive          <boolean>
   - :cooldown            <string> e.g. \"7d\"
   - :verbose             <boolean>
+  - :version             <boolean> print antq version
   - :help                <boolean> for full command-line style help
 
   See [docs](/README.adoc#usage-clojure-tool)."

@@ -24,7 +24,7 @@
         {:keys [out]} (p/shell {:out :string}
                                "bb -Sdeps"
                                (pr-str {:deps {'com.github.liquidz/antq {:local/root "target/antq.jar"}}})
-                               "--eval" "(require 'antq.impl.user-agent) (println antq.impl.user-agent/user-agent)")
+                               "--eval" "(require 'antq.impl.antq-meta) (println antq.impl.antq-meta/user-agent)")
         out (str/trim out)]
     (is (= (format "antq/%s tools.deps/%s" version (tools-deps-version)) out) "user-agent")))
 
@@ -34,6 +34,6 @@
   (let [version (-> (io/resource "com.github.liquidz/antq/VERSION") slurp str/trim)
         {:keys [out]} (p/shell {:out :string}
                                "clojure -Scp target/antq-standalone.jar -M --eval"
-                               "(require 'antq.impl.user-agent) (println antq.impl.user-agent/user-agent)")
+                               "(require 'antq.impl.antq-meta) (println antq.impl.antq-meta/user-agent)")
         out (str/trim out)]
     (is (= (format "antq/%s tools.deps/%s" version (tools-deps-version)) out) "user-agent")))

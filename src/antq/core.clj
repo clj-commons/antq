@@ -360,7 +360,7 @@
   (str "\u001B[43;30mWARNING:\u001B[0m\u001B[33m " text "\u001B[0m"))
 
 (defn ^:no-doc main*
-  [{:keys [opts warnings errors help]}]
+  [{:keys [opts warnings errors info]}]
   (u.maven/initialize-proxy-setting!)
   (let [opts (cond-> (update opts :directory u.file/distinct-directory)
                ;; Force "format" reporter when :error-format is specified
@@ -375,12 +375,13 @@
       (do (doseq [e errors]
             (log/error (error-text (:msg e))))
           (log/info "")
-          (log/info help)
+          (log/info info) ; usage help
           (system-exit 1))
 
-      help
+      ;; usage help or version
+      info
       (do
-        (log/info help)
+        (log/info info)
         (system-exit 0))
 
       (seq deps)

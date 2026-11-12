@@ -1,10 +1,10 @@
-(ns ^:no-doc antq.impl.user-agent
-  "These days it is considered polite to identify yourself"
+(ns ^:no-doc antq.impl.antq-meta
+  "Metadata about antq itself"
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]))
 
-(def ^:private antq-version
+(def antq-version
   (-> (io/resource "com.github.liquidz/antq/VERSION")
       slurp
       str/trim))
@@ -20,6 +20,7 @@
         str/trim)))
 
 (def user-agent
+  "As per convention discussed for clojars"
   (str "antq/" antq-version " tools.deps/" tools-deps-version))
 
 (comment
