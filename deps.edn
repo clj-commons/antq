@@ -41,7 +41,7 @@
 
   :nrepl/jvm
   {:extra-deps {nrepl/nrepl {:mvn/version "1.8.0"}
-                cider/cider-nrepl {:mvn/version "0.64.0"}
+                cider/cider-nrepl {:mvn/version "0.64.1"}
                 refactor-nrepl/refactor-nrepl {:mvn/version "3.15.0"}}
    :jvm-opts ["-XX:-OmitStackTraceInFastThrow" "-Djdk.attach.allowAttachSelf"]
    :main-opts ["-m" "nrepl.cmdline"
