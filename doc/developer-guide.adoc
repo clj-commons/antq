@@ -1,0 +1,136 @@
+= Developer Guide
+:toclevels: 6
+:toc:
+
+== Audience
+You want to contribute to, or learn about, the development of `antq`.
+
+== Supported Environments
+`antq` is verified on each push on Ubuntu and Windows via GitHub Actions.
+We don't currently verify on macOS, since if it works on Ubuntu, it usually works on macOS.
+
+Scripts run on GitHub Actions automatically discover what versions of Clojure to test via auto-discovery of `:clojure-*` aliases in `deps.edn`.
+GitHub Actions tests will cover all versions.
+
+JVM tests cover supported LTS JDKs and the current latest JDK.
+
+`antq` supports the last 2 stable Gradle releases.
+
+== Prerequisites
+
+* Please read the link:/CONTRIBUTING.adoc[Contributing Guidelines]
+* Java JDK 11 or above (Clojure 1.13+ requires JDK 17+)
+* Current Clojure CLI
+** Note that `antq` itself supports Clojure v1.11 and above
+* Current Babashka
+* Gradle
+** The supported versions of Gradle do not necessarily work with all of our supported JDK versions.
+** It is probably easiest to develop on the latest JDK with the latest stable Gradle
+* Docker - if you want/need to test building/running the `antq` Docker image
+
+== Babashka Tasks
+All scripts are written in Clojure and invoked via https://github.com/borkdude/babashka[babashka] tasks.
+This gives us a cross-platform scripting language that is familiar, fun, and consistent.
+
+To see all available tasks with a short description, run:
+----
+bb tasks
+----
+
+To run a task, for example, the `test-clj` task:
+----
+bb test-clj
+----
+
+Usage help for a task is requested via `--help`, for example:
+----
+bb test-clj --help
+----
+
+Tasks are described throughout this document.
+
+TIP: The babashka tasks often do special setup, so use them (and not the lower level commands they invoke).
+
+== Clean
+Sometimes you want to turf any local build work and caches; you can do so via:
+
+----
+bb clean
+----
+
+== REPLs
+
+To launch a nREPL server for Clojure on the JVM:
+----
+bb dev-jvm
+----
+
+
+For a nREPL server for Babashka
+----
+bb dev-bb
+----
+
+From your IDE, cider connect clj to these REPL server.
+
+== Unit tests
+Unit tests can be run locally on your dev box.
+Some tests require a specific OS and JDK, you will see warnings if a test is skipped for your current environment.
+
+----
+bb test-clj
+bb test-bb
+----
+
+== Checking for Outdated Dependencies
+
+`antq` checks for outdated dependencies daily using the antq-action GitHub Action.
+
+You can also run `antq` on `antq` via:
+
+----
+bb antq
+----
+
+== Linting
+We use https://github.com/borkdude/clj-kondo[clj-kondo] and  https://github.com/greglook/cljstyle[cljstyle] h to lint `antq` source code.
+
+We fail the build on any lint violations.
+The CI server runs:
+----
+bb lint-kondo
+bb lint-cljstyle
+----
+and you can too.
+
+The `lint-kondo` task will build the clj-kondo cache when it is missing or stale.
+If you want to force a rebuild of the cache, run:
+----
+bb lint-kondo --rebuild
+----
+
+== `antq` as a `bbin` Script for Testing
+`antq` is babashka compatible and can be run as a https://github.com/babashka/bbin[bbin] script.
+
+It can be very convenient to have bbin point at your local `antq` dir.
+For `antq` cloned to `~/proj/oss/clj-commons/antq`, install like so:
+
+----
+bbin install com.github.liquidz/antq --local-root ~/proj/oss/clj-commons/antq --as antq
+----
+
+You can now run your local work-in-progress `antq` from any dir.
+
+== Docker Image
+Each `antq` release publishes an `antq` Docker image to GitHub Packages.
+One user of this Docker image is the antq-action GitHub Action.
+
+You can do a test Docker image build via:
+----
+bb docker-build
+----
+
+And test against this image via:
+----
+bb docker-antq
+----
