@@ -1,6 +1,7 @@
 (ns ^:no-doc antq.ver.java
   (:require
    [antq.constant :as const]
+   [antq.impl.user-agent :as user-agent]
    [antq.util.async :as u.async]
    [antq.util.bb :refer [if-bb]]
    [antq.util.dep :as u.dep]
@@ -16,6 +17,8 @@
 
 (defn- get-versions
   [name opts]
+  (when-not (System/getProperty "aether.connector.userAgent")
+    (System/setProperty "aether.connector.userAgent" user-agent/user-agent))
   (if-bb
    (let [repos (:repositories opts)
          config {:mvn/repos (update-vals repos #(select-keys % [:url :releases :snapshots]))}]

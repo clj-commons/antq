@@ -8,10 +8,20 @@
         io.github.babashka/deps-deploy {:mvn/version "0.0.1"}
         org.clj-commons/pretty {:mvn/version "3.10.0"}}
  :tasks
- {:cli helper.cli/base-opts
+ {;; to allow us to test against a local fake test http (not https) maven repository,
+  ;; we automatically set the appropriate environment variable
+  :init (do
+         (def test-env {"CLOJURE_CLI_ALLOW_HTTP_REPO" "true"})
+         (def test-env-tasks #{'dev-jvm 'dev-bb 'test-clj 'test-bb 'test-coverage}))
+  :requires ([babashka.process :as p])
+  :enter (when (test-env-tasks (:name (current-task)))
+          (when-not (every? (fn [[k v]] (= v (System/getenv k))) test-env)
+           (apply p/exec {:extra-env test-env} "bb" (str (:name (current-task))) *command-line-args*)))
+  :cli helper.cli/base-opts
   clean         {:exec-fn clean/task         :doc "delete all build work"}
   download-deps {:exec-fn download-deps/task :doc "bring down Clojure deps"}
-  dev-jvm       {:exec-fn dev-repl/task      :doc "launch jvm nREPL for development"}
+  dev-jvm       {:exec-fn dev-jvm-repl/task  :doc "launch a JVM nREPL for development"}
+  dev-bb        {:exec-fn dev-bb-repl/task   :doc "launch babashka nREPL for development"}
   lint-kondo    {:exec-fn lint-kondo/task    :doc "lint with clj-kondo"}
   lint-cljstyle {:task lint-cljstyle/-main   :doc "lint with cljstyle"}
   test-clj      {:exec-fn test-clj/task      :doc "run tests against a version of Clojure"}

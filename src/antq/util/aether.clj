@@ -45,7 +45,7 @@
                   (new-repository-server {:id id :username username :password password})))
     settings))
 
-(def ^TransferListener custom-transfer-listener
+(def ^:private ^TransferListener custom-transfer-listener
   "Logs corrupted downloads."
   (reify TransferListener
     (transferStarted [_ _event])
@@ -56,7 +56,7 @@
     (transferProgressed [_ _event])
     (transferSucceeded [_ _event])))
 
-(defn repository-system
+(defn- repository-system
   [name version opts]
   (let [lib (cond-> name (string? name) symbol)
         local-repo @deps.util.maven/cached-local-repo

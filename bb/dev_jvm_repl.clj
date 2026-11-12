@@ -1,4 +1,4 @@
-(ns dev-repl
+(ns dev-jvm-repl
   (:require
    [babashka.process :as process]
    [helper.clojure-versions :as clojure-versions]
@@ -13,7 +13,7 @@
                                     :alias :b
                                     :default "127.0.0.1"
                                     :desc "Bind address"}
-                             :port {:ref "<symbols>"
+                             :port {:ref "<port>"
                                     :coerce :int
                                     :default 0
                                     :alias :p

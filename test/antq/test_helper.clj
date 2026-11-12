@@ -5,7 +5,8 @@
    [antq.util.os :as os]
    [babashka.fs :as fs]
    [clojure.string :as str]
-   [lambdaisland.deep-diff2 :as ddiff])
+   [lambdaisland.deep-diff2 :as ddiff]
+   [org.httpkit.server :as http-server])
   (:import
    java.io.File
    lambdaisland.deep_diff2.diff_impl.Mismatch))
@@ -89,3 +90,57 @@
           (fs/copy-tree source dest)
           (fs/copy source dest))))
     dest-paths))
+
+(defn- find-route
+  "Return longest matching route for `uri` in `routes`."
+  [routes uri]
+  (->> routes
+       (filter (fn [[path _]] (str/starts-with? uri path)))
+       (sort-by (comp count key) >)
+       first
+       val))
+
+(defn with-server
+  "A simple little clojure/bb compatible HTTP server. Adjust as needed to support tests.
+
+  `routes` is a map where key is route, ex, `\"/ok\"`, and value is a map with:
+   - `:response-status`
+   - `:response-headers`
+
+  Calls `f` with map with `:base-url` and `:requests-atom` a vector of collected requests."
+  [routes f]
+  (let [requests-atom (atom [])
+        handler (fn [req]
+                  (swap! requests-atom conj
+                         {:method (:request-method req)
+                          :path (:uri req)
+                          :auth (get-in req [:headers "authorization"])
+                          :user-agent (get-in req [:headers "user-agent"])})
+                  (if-let [{:keys [response-status response-headers]}
+                           (find-route routes (:uri req))]
+                    {:status (or response-status 200)
+                     :headers response-headers}
+                    {:status 404}))
+        server (http-server/run-server handler {:ip "127.0.0.1" :port 0
+                                                :legacy-return-value? false})]
+    (try
+      (f {:base-url (str "http://127.0.0.1:" (http-server/server-port server))
+          :requests-atom requests-atom})
+      (finally
+        (http-server/server-stop! server)))))
+
+(defmacro with-user-agent-property
+  "Runs `body` with aether.connector.userAgent set to `value` (cleared when `value` is nil),
+  then restores the original value."
+  [value & body]
+  `(let [old-value# (System/getProperty "aether.connector.userAgent")
+         value# ~value]
+     (try
+       (if value#
+         (System/setProperty "aether.connector.userAgent" value#)
+         (System/clearProperty "aether.connector.userAgent"))
+       ~@body
+       (finally
+         (if old-value#
+           (System/setProperty "aether.connector.userAgent" old-value#)
+           (System/clearProperty "aether.connector.userAgent"))))))
