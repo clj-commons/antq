@@ -31,12 +31,12 @@ jobs:
     strategy:
       matrix:
         jdk: ['11', '17', '21', '25', '27']
-        gradle: ['8.14.6', '9.8.1']
+        gradle: ['8.14.7', '9.9.1']
         os: ['ubuntu', 'windows']
         exclude:
-          - {gradle: '9.8.1', jdk: '11'}
-          - {gradle: '8.14.6', jdk: '25'}
-          - {gradle: '8.14.6', jdk: '27'}
+          - {gradle: '9.9.1', jdk: '11'}
+          - {gradle: '8.14.7', jdk: '25'}
+          - {gradle: '8.14.7', jdk: '27'}
 
     name: gradle ${{ matrix.gradle }} ${{ matrix.os }} jdk ${{ matrix.jdk }}
 
