@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 ## Version
-<!-- Please specify what version of Antq you are using.  If you are referencing via `:git/url`, specify the `:sha` -->
+<!-- Please specify what version of antq you are using.  If you are referencing via `:git/url`, specify the `:sha` -->
 
 ## Platform
 <!-- Please specificy relevant platforms -->

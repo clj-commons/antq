@@ -475,7 +475,7 @@
                                                   :skip ["babashka"]}))))))))
 
 (t/deftest ^:gradle fetch-deps-gradle-test
-  ;; gradle does not run on the entire broader set of of supported Antq JDKs, hence this tagged
+  ;; gradle does not run on the entire broader set of of supported antq JDKs, hence this tagged
   ;; isolated test to allow for explicit inclusion and exclusion
   (let [project-dir "target/test/fetch-deps-gradle-test"
         all-files (setup-deps-scenario project-dir)

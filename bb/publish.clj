@@ -294,4 +294,4 @@
             (status/line :detail "- Publish a release jar to clojars")
             (status/line :detail "- Create a GitHub release")
             (status/line :detail "- Inform cljdoc of release")
-            (status/line :detail "- Build and publish Antq docker image to GitHub packages")))))))
+            (status/line :detail "- Build and publish antq docker image to GitHub packages")))))))

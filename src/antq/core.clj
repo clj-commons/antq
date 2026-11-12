@@ -401,7 +401,7 @@
           (system-exit 1)))))
 
 (defn latest
-  "Entrypoint for finding last version of a library via -X cli usage.
+  "Entrypoint for finding latest version of a library via -X cli usage.
 
   See [docs](/doc/latest-version-of-a-specific-library.adoc)."
   [arg-map]

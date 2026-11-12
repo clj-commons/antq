@@ -3,8 +3,8 @@
 :lib-version: 2.11.1276
 :slf4j-version: 2.0.20
 
-Antq uses Clojure's tools.deps library, which uses Maven libraries that sometimes log.
-It is not antq's place to specify a logger, so, depending on your your project, you may see the following messages when antq is run:
+`antq` uses Clojure's tools.deps library, which uses Maven libraries that sometimes log.
+It is not ``antq``'s place to specify a logger, so, depending on your your project, you may see the following messages when `antq` is run:
 
 [source,text]
 ----
@@ -29,7 +29,7 @@ org.slf4j/slf4j-simple {:mvn/version "{slf4j-version}"}
 
 TIP: Replace SLF4J version `{slf4j-version}` with the latest released version.
 
-This logger dependency should be added in the context which antq runs, for example, for link:../README.adoc#usage-clojure-cli[`deps.edn`] this would look like:
+This logger dependency should be added in the context which `antq` runs, for example, for link:../README.adoc#usage-clojure-cli[`deps.edn`] this would look like:
 
 [source,clojure,subs="attributes+"]
 ----

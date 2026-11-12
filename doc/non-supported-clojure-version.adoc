@@ -1,9 +1,9 @@
-= Antq on projects that use an old version of Clojure
+= `antq` on projects that use an old version of Clojure
 // lib-version is auto-updated by publish workflow
 :lib-version: 2.11.1276
 
-Antq requires a minimum of Clojure v1.11.
-You can still use antq on projects that use an older version of Clojure by following the steps below.
+`antq` requires a minimum of Clojure v1.11.
+You can still use `antq` on projects that use an older version of Clojure by following the steps below.
 
 == Clojure CLI
 
@@ -18,7 +18,7 @@ TIP: This assumes your installed Clojure CLI version is 1.11 or later.
                       :main-opts ["-m" "antq.core"]}}}
 ----
 
-If you must use `:extra-deps`, add an antq-supported version of Clojure explicitly in an alias that uses antq as follows.
+If you must use `:extra-deps`, add an `antq` supported version of Clojure explicitly in an alias that uses `antq` as follows.
 
 [source,clojure,subs="attributes+"]
 ----
@@ -32,7 +32,7 @@ Then, run `clojure -M:outdated`.
 
 == Leiningen
 
-You can run antq as a plugin.
+You can run `antq` as a plugin.
 Running as a plugin will ignore the Clojure version on which your project depends.
 
 [source,clojure,subs="attributes+"]

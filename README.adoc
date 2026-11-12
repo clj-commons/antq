@@ -1,4 +1,4 @@
-= Antq
+= `antq`
 :toc: macro
 :lib-version: 2.11.1276
 :project-src-coords: clj-commons/antq
@@ -23,7 +23,7 @@ toc::[]
 
 == Requirements
 
-Antq needs https://clojure.org/[Clojure] v1.11 or later or https://babashka.org/[Babashka].
+`antq` needs https://clojure.org/[Clojure] v1.11 or later or https://babashka.org/[Babashka].
 
 * If your project is using an earlier version of Clojure, all should be fine; see this link:./doc/non-supported-clojure-version.adoc[tip]
 * We recommend that you always use the latest Babashka
@@ -93,7 +93,7 @@ See <<opt-check-clojure-tools>> option.
 [[usage-clojure-cli]]
 === Clojure CLI (deps.edn)
 
-Run the following command from your project root directory to quickly try antq:
+Run the following command from your project root directory to quickly try `antq`:
 [source,sh,subs="attributes+"]
 ----
 clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "{lib-version}"}}}' \
@@ -176,7 +176,7 @@ Then, run `lein outdated`.
 === Leiningen (as a plugin)
 
 The Leiningen plugin is a newer offering.
-It tends to be more accurate (since Leiningen evaluates your `project.clj` instead of antq parsing it).
+It tends to be more accurate (since Leiningen evaluates your `project.clj` instead of `antq` parsing it).
 However, it does not check any other sources (deps.edn, etc.), and the `:upgrade` option will not be supported (since the plugin cannot always know whether a given dependency came from a specific profile, middleware, etc.).
 
 To use it, add the following plugin to your `project.clj` (or `$HOME/.lein/profiles.clj`):
@@ -190,20 +190,20 @@ Then, run `lein antq`.
 
 === GitHub Actions
 
-Antq can work with https://github.com/features/actions[GitHub Actions].
+`antq` can work with https://github.com/features/actions[GitHub Actions].
 You can roll your own, or use the https://github.com/liquidz/antq-action[antq-action] (link:.github/workflows/dependencies.yml[example usage]).
 
 If you roll your own, use a custom `--error-format` to show findings as GitHub Actions annotations: `--error-format="::error file={{file}}::{{message}}"`
 
 === Gradle
 
-Antq experimentally supports https://gradle.org[Gradle].
+`antq` experimentally supports https://gradle.org[Gradle].
 See link:./doc/gradle.adoc[our Gradle docs] for details.
 Disabled by default, see <<opt-check-gradle>>.
 
 === Timeouts
 
-Antq has timeouts for fetching various kinds of information.
+`antq` has timeouts for fetching various kinds of information.
 See link:./doc/timeout.adoc[Timeouts] for details.
 
 [[options]]
@@ -357,7 +357,7 @@ The diff URL for the version control system. (Nullable)
 
 |===
 
-Antq uses https://github.com/athos/pogonos[Pogonos] as a template engine, so you can use http://mustache.github.io/[Mustache] features.
+`antq` uses https://github.com/athos/pogonos[Pogonos] as a template engine, so you can use http://mustache.github.io/[Mustache] features.
 
 e.g. `{{name}}{{#latest-name}} -> {{.}}{{/latest-name}}`
 
@@ -510,12 +510,18 @@ Clojars artifacts released before February 2020 show a release date in February 
 * link:./doc/maven-s3-repos.adoc[Maven S3 repos]
 * link:./doc/avoid-slf4j-warnings.adoc[Quiet SLF4J logger warnings]
 * link:./doc/latest-version-of-a-specific-library.adoc[Find the latest version of a library]
-* link:./doc/non-supported-clojure-version.adoc[Antq on projects that use an old version of Clojure]
+* link:./doc/non-supported-clojure-version.adoc[`antq` on projects that use an old version of Clojure]
 * link:./doc/gradle.adoc[Working with Gradle]
 * link:./doc/proxy.adoc[Running behind a proxy]
 * link:./doc/timeout.adoc[Timeouts]
 * link:./doc/exclusions.adoc[Excluding dependencies]
-* link:./doc/use-as-library.adoc[Using antq as a library]
+* link:./doc/use-as-library.adoc[Using `antq` as a library]
+
+== Guides
+
+* User Guide (you are reading it!)
+* link:./doc/developer-guide.adoc[Developer Guide]
+* link:./doc/maintainer-guide.adoc[Maintainer Guide]
 
 == License
 

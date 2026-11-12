@@ -51,6 +51,12 @@ Tasks are described throughout this document.
 
 TIP: The babashka tasks often do special setup, so use them (and not the lower level commands they invoke).
 
+== Docs
+All documentation is written in AsciiDoc.
+We follow https://asciidoctor.org/docs/asciidoc-recommended-practices/#one-sentence-per-line[AsciiDoc best practice of one sentence per line].
+
+`antq` is always written in lowercase and formatted as `antq`.
+
 == Clean
 Sometimes you want to turf any local build work and caches; you can do so via:
 
