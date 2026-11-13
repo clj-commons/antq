@@ -521,6 +521,24 @@
                         (dep-files (sut/fetch-deps {:directory [project-dir]}))))
           (t/is (match? [] @log-error)))))))
 
+(t/deftest no-deps-found-test
+  (let [test-dir "target/test/no-deps-found-test"]
+    (fs/delete-tree test-dir)
+    (fs/create-dirs (fs/path test-dir "dir-empty"))
+    (fs/create-dirs (fs/path test-dir "no-deps"))
+    (fs/spit (fs/path test-dir "no-deps" "deps.edn") "{}")
+    (doseq [test ["dir-missing"
+                  "dir-empty"
+                  "no-deps"]]
+      (t/testing test
+        (let [exit (atom nil)
+              logs (atom [])]
+          (with-redefs [sut/system-exit (fn [x] (reset! exit x))
+                        antq.log/info (fn [x] (swap! logs conj x))]
+            (sut/main* {:opts {:directory [(str (fs/path test-dir test))]}}))
+          (t/is (= 1 @exit))
+          (t/is (match? [#"No dependencies found"] @logs)))))))
+
 (t/deftest mark-only-newest-version-flag-test
   (let [deps [(r/map->Dependency {:name "org.clojure/clojure" :version "1"})
               (r/map->Dependency {:name "org.clojure/clojure" :version "2"})

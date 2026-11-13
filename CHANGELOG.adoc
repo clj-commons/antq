@@ -124,6 +124,8 @@ https://github.com/clj-commons/antq/issues/416[#416]: Docs and docstrings review
 * https://github.com/clj-commons/antq/pull/398[#398]: GitHub Actions: an action pinned to a commit SHA that lives in a subdirectory of its repository, such as `actions/cache/restore@<sha>`, is now checked for updates.
 Before, `antq` looked for a repository named after the full path and could not find it.
 (thanks, https://github.com/stefanroex[@stefanroex]!)
+* https://github.com/clj-commons/antq/issues/402[#402]: Fix misleading error when no dependencies were found to analyze
+(https://github.com/lread[@lread])
 
 == 2.11.1276 (2025-03-15)
 // {{{

@@ -397,7 +397,7 @@
           (exit)))
 
       :else
-      (do (log/info "No project file")
+      (do (log/info "No dependencies found to analyze")
           (system-exit 1)))))
 
 (defn latest
