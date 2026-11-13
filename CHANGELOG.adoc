@@ -22,21 +22,21 @@ A release with known breaking changes is marked with:
 //   (adjust these in publish.clj as you see fit)
 == Unreleased [minor breaking]
 
-Antq is now under the loving care of https://clj-commons.org/[clj-commons].
-A thousand thanks to https://github.com/liquidz[@liquidz] for creating the wonderful Antq, and for entrusting its ongoing care to us.
-We'll continue to publish releases to the existing Antq maven coordinates https://clojars.org/com.github.liquidz/antq[`com.github.liquidz/antq`] (thanks @liquidz!).
+`antq` is now under the loving care of https://clj-commons.org/[clj-commons].
+A thousand thanks to https://github.com/liquidz[@liquidz] for creating the wonderful `antq`, and for entrusting its ongoing care to us.
+We'll continue to publish releases to the existing `antq` maven coordinates https://clojars.org/com.github.liquidz/antq[`com.github.liquidz/antq`] (thanks @liquidz!).
 
 === Minor Breaking
 * https://github.com/clj-commons/antq/issues/376[#376]: Discovering Gradle dependencies requires invoking `gradle` or `gradlew`, which can pose some risk.
 Therefore, checking Gradle dependencies is now opt-in via `--check-gradle`.
 * Minimum Clojure version is now 1.11
 (https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/396[#396]: Long ago, Antq switched to https://clojars.org/com.github.liquidz/antq[com.github.liquidz/antq] as its official Maven coordinates.
+* https://github.com/clj-commons/antq/issues/396[#396]: Long ago, `antq` switched to https://clojars.org/com.github.liquidz/antq[com.github.liquidz/antq] as its official Maven coordinates.
 We will no longer also release to the legacy https://clojars.org/antq[antq/antq] Maven coordinates.
 Users using the legacy coordinates must switch if they want to keep up to date.
 (https://github.com/lread[@lread])
-* Antq published a docker image with each release to https://github.com/users/liquidz/packages/container/package/antq[https://github.com/*users/liquidz*/packages/container/package/antq].
-Because Antq is now under the clj-commons GitHub org, this docker image will now be published to https://github.com/orgs/clj-commons/packages/container/package/antq[https://github.com/*orgs/clj-commons*/packages/container/package/antq].
+* `antq` published a docker image with each release to https://github.com/users/liquidz/packages/container/package/antq[https://github.com/*users/liquidz*/packages/container/package/antq].
+Because `antq` is now under the clj-commons GitHub org, this docker image will now be published to https://github.com/orgs/clj-commons/packages/container/package/antq[https://github.com/*orgs/clj-commons*/packages/container/package/antq].
 
 === Added
 * https://github.com/clj-commons/antq/pull/380[#380]: Add babashka compatibility
@@ -47,14 +47,14 @@ Because Antq is now under the clj-commons GitHub org, this docker image will now
 (thanks, https://github.com/kirked[@kirked]!)
 * https://github.com/clj-commons/antq/issues/280[#280],
 https://github.com/clj-commons/antq/issues/259[#259],
-https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now has `--help` (and for antq clojure tools users, `:help true`) and option validation. Tools-usage and main-usage now draw from the same single source of cli truth.
+https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now has `--help` (and for `antq` clojure tools users, `:help true`) and option validation. Tools-usage and main-usage now draw from the same single source of cli truth.
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/419[#419]: New `--version` option prints `antq` version and exits.
 Version is now also printed with CLI usage help.
 (https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/362[#362]: Gradle: all projects of a multi-module build are now read in one run, `build.gradle.kts` builds are recognized, and repositories (including those in `settings.gradle`) are found without changes to the build. antq passes a small init script to Gradle for this. Requires Gradle 8 or later
+* https://github.com/clj-commons/antq/issues/362[#362]: Gradle: all projects of a multi-module build are now read in one run, `build.gradle.kts` builds are recognized, and repositories (including those in `settings.gradle`) are found without changes to the build. `antq` passes a small init script to Gradle for this. Requires Gradle 8 or later
 (thanks, https://github.com/aadrian[@aadrian]!)
-* https://github.com/clj-commons/antq/issues/297[#297]: GitHub Actions: antq now upgrades an action pinned to a commit SHA with a version comment, such as `actions/checkout@<sha> # v4.1.0`, to the commit of its latest release and updates the comment.
+* https://github.com/clj-commons/antq/issues/297[#297]: GitHub Actions: `antq` now upgrades an action pinned to a commit SHA with a version comment, such as `actions/checkout@<sha> # v4.1.0`, to the commit of its latest release and updates the comment.
 Before, it moved such a pin to the newest commit on the default branch.
 (thanks, https://github.com/stefanroex[@stefanroex]!)
 * https://github.com/clj-commons/antq/issues/299[#299]: New `--cooldown` option, e.g. `--cooldown=7d`, to only suggest Maven versions released at least that long ago.
@@ -69,14 +69,15 @@ The table also shows the age of the current and latest versions of Maven depende
 (https://github.com/lread[@lread])
 
 === Changed
-* General dep bumping and maintenance after migrating antq to clj-commons :tada:
+* General dep bumping and maintenance after migrating `antq` to clj-commons :tada:
 (https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/304[#304]: When run as a lein plugin, antq now runs analysis in a sub-process to avoid any classpath conflicts between lein and tools.deps
+* https://github.com/clj-commons/antq/issues/304[#304]: When run as a lein plugin, `antq` now runs analysis in a sub-process to avoid any classpath conflicts between lein and tools.deps
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/pull/316[#316]: Read an artifact's POM from the local Maven repository through tools.deps instead of resolving its repository with Aether and fetching the POM over HTTP.
 Artifacts in an s3 repository are no longer skipped, and a POM that is not cached yet prints a `Downloading:` line.
 (https://github.com/borkdude[@borkdude])
-* https://github.com/clj-commons/antq/issues/276[#276]: Docs and docstrings reviewed, includes:
+* https://github.com/clj-commons/antq/issues/276[#276],
+https://github.com/clj-commons/antq/issues/416[#416]: Docs and docstrings reviewed, includes:
 (https://github.com/lread[@lread])
 ** Verifying for https://cljdoc.org/d/antq/antq[cljdoc.org]
 ** Defining the public API, which is currently limited to the `antq.api` namespace and `-M`/`-X`/`-T` cli entrypoints.
@@ -88,19 +89,19 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 (thanks, https://github.com/aadrian[@aadrian]!)
 * https://github.com/clj-commons/antq/issues/352[#352]: Recognize early access versions (e.g. `1.1-ea`, `13-ea+14b`) as pre-releases, without mistaking a commit hash in a version (e.g. `20210520.145017.40e04ea`) for one
 (thanks, https://github.com/aadrian[@aadrian]!)
-* https://github.com/clj-commons/antq/issues/353[#353]: Gradle: when Gradle cannot be run or fails, antq now stops with an error that includes Gradle's output, instead of reporting all dependencies as up-to-date
+* https://github.com/clj-commons/antq/issues/353[#353]: Gradle: when Gradle cannot be run or fails, `antq` now stops with an error that includes Gradle's output, instead of reporting all dependencies as up-to-date
 (thanks, https://github.com/aadrian[@aadrian]!)
-* https://github.com/clj-commons/antq/issues/357[#357]: Improved Gradle docs: running antq without changes to the build, repositories, running from the build, limitations and troubleshooting
+* https://github.com/clj-commons/antq/issues/357[#357]: Improved Gradle docs: running `antq` without changes to the build, repositories, running from the build, limitations and troubleshooting
 (thanks, https://github.com/aadrian[@aadrian]!)
 * https://github.com/clj-commons/antq/issues/394[#394]: Remove core.async dependency (improves performance, simplifies codebase)
 (thanks, https://github.com/nenadalm[@nenadalm]!)
-* https://github.com/clj-commons/antq/issues/374[#374]: When talking to maven repositories, Antq now politely identifies itself with a user-agent of `antq/<antq version> tools.deps/<tools deps version>`
+* https://github.com/clj-commons/antq/issues/374[#374]: When talking to maven repositories, `antq` now politely identifies itself with a user-agent of `antq/<antq version> tools.deps/<tools deps version>`
 (https://github.com/lread[@lread])
 
 === Fixed
 * https://github.com/clj-commons/antq/pull/408[#408]: Improved support for vector-based lein credential config
 (thanks, https://github.com/lukaszkorecki[@lukaszkorecki]!)
-* https://github.com/clj-commons/antq/issues/231[#231]: Exclusions are now supported when antq is run as lein plugin
+* https://github.com/clj-commons/antq/issues/231[#231]: Exclusions are now supported when `antq` is run as lein plugin
 (thanks, https://github.com/marcobiscaro2112[@marcobiscaro2112]!)
 * https://github.com/clj-commons/antq/issues/320[#320]: Progress bar should no longer be sporadically garbled
 (https://github.com/lread[@lread])
@@ -116,12 +117,12 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/330[#330]: Windows: preserve host-specific newlines in updated files
 (https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/290[#290]: circleci: skip inline and URL orbs; Antq only analyzes registry orbs
+* https://github.com/clj-commons/antq/issues/290[#290]: circleci: skip inline and URL orbs; `antq` only analyzes registry orbs
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/269[#269]: Composite github actions are now checked for updates
 (thanks, https://github.com/nenadalm[@nenadalm]!)
 * https://github.com/clj-commons/antq/pull/398[#398]: GitHub Actions: an action pinned to a commit SHA that lives in a subdirectory of its repository, such as `actions/cache/restore@<sha>`, is now checked for updates.
-Before, antq looked for a repository named after the full path and could not find it.
+Before, `antq` looked for a repository named after the full path and could not find it.
 (thanks, https://github.com/stefanroex[@stefanroex]!)
 
 == 2.11.1276 (2025-03-15)
@@ -381,7 +382,7 @@ Before, antq looked for a repository named after the full path and could not fin
 == 2.3.1043 (2023-04-01)
 // {{{
 === Added
-* https://github.com/clj-commons/antq/issues/209[#209]: Added `antq.api` namespace for using antq as a library.
+* https://github.com/clj-commons/antq/issues/209[#209]: Added `antq.api` namespace for using `antq` as a library.
 
 === Changed
 * Bumped tools.deps to 0.18.1331.
@@ -525,7 +526,7 @@ Before, antq looked for a repository named after the full path and could not fin
 
 === Removed
 * *BREAKING*: Dropped support for Clojure 1.9.
-** Basically, antq could work regardless of the Clojure version which your project depends.
+** Basically, `antq` could work regardless of the Clojure version which your project depends.
 ** If you have a trouble, please see link:./doc/non-supported-clojure-version.adoc[here].
 // }}}
 
@@ -680,7 +681,7 @@ Before, antq looked for a repository named after the full path and could not fin
 // {{{
 === Added
 * https://github.com/clj-commons/antq/issues/132[#132]: Added `--download` option to allow downloading *upgraded* dependencies at the same time as a convenience.
-** If you upgrade manually or without the `--download` option and the version is changed to the latest, the new version will not be downloaded even if you specify the `--download` option later (because antq does not detect differences).
+** If you upgrade manually or without the `--download` option and the version is changed to the latest, the new version will not be downloaded even if you specify the `--download` option later (because `antq` does not detect differences).
 
 === Fixed
 * https://github.com/clj-commons/antq/issues/137[#137]: Fixed to use SHA of annotated tags for specified `:git/tag`
@@ -794,7 +795,7 @@ Before, antq looked for a repository named after the full path and could not fin
 === Fixed
 * https://github.com/clj-commons/antq/pull/99[#99]: Fixed to handle errors when parsing GitHub version tags.
 * https://github.com/clj-commons/antq/pull/100[#100]: Fixed false positive with comparing prefixed versions.
-* https://github.com/clj-commons/antq/issues/101[#101]: Fixed to work with s3-wagon-private when antq is used as a Leiningen plugin.
+* https://github.com/clj-commons/antq/issues/101[#101]: Fixed to work with s3-wagon-private when `antq` is used as a Leiningen plugin.
 // }}}
 
 == 0.16.1 (2021-07-31)
@@ -1062,7 +1063,7 @@ Before, antq looked for a repository named after the full path and could not fin
 === Added
 
 * https://github.com/clj-commons/antq/issues/36[#36]: Added `--upgrade` option.
-** Allows to upgrade versions in files by antq interactively.
+** Allows to upgrade versions in files by `antq` interactively.
 ** Files to support upgrading currently
 *** deps.edn, shadow-cljs.edn, project.clj, build.boot, pom.xml
 ** Added `--force` option.

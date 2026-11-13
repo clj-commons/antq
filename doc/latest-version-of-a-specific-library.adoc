@@ -5,7 +5,7 @@
 If you are using Clojure CLI https://clojure.org/releases/tools#v1.10.1.697[v1.10.1.697] or later,
 you can use the `-X` option to find out the latest version of a specific library.
 
-By default, Antq looks for a Java library:
+By default, `antq` looks for a Java library:
 [source,shell,subs="attributes+"]
 ----
 clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "{lib-version}"}}}' \

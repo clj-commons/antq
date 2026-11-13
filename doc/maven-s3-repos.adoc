@@ -1,6 +1,6 @@
 = Maven S3 repos
 
-Antq supports Maven S3 repositories, same as https://clojure.org/reference/deps_and_cli[tools.deps].
+`antq` supports Maven S3 repositories, same as https://clojure.org/reference/deps_and_cli[tools.deps].
 To use Maven S3 repositories, add repositories to your project configuration.
 
 Please see https://clojure.org/reference/clojure_cli#mvn_s3_repo[tools.deps docs] for details on AWS S3 credentials.

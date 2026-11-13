@@ -20,10 +20,10 @@
       :license-url "https://www.eclipse.org/legal/epl-2.0/"
       :github-coords github-coords
       :version version
-      :version-tag version ; same for Antq
+      :version-tag version ; same for antq
       :main 'antq.core ; for uberjar
       :changelog-file changelog-file
-      ;; the following files specify the current Antq :lib-version:
+      ;; the following files specify the current antq :lib-version:
       :user-guide-files ["README.adoc"
                          "doc/avoid-slf4j-warnings.adoc"
                          "doc/latest-version-of-a-specific-library.adoc"

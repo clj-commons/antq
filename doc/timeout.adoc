@@ -1,6 +1,6 @@
 = Timeouts
 
-Antq has timeouts for acquiring various information.
+`antq` has timeouts for acquiring various information.
 These timeouts are customizable by following environmental variables:
 
 [%autowidth]

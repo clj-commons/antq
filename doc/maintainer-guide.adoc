@@ -40,7 +40,7 @@ Flow:
 
 We do not, at this time, release -SNAPSHOT versions to clojars.
 
-This scheme allows us to support returning a reasonable version when a user is referencing the Antq lib from an arbitrary git sha on GitHub.
+This scheme allows us to support returning a reasonable version when a user is referencing the `antq` lib from an arbitrary git sha on GitHub.
 
 == Publishing a New Release
 Is invoked from the command line via:
@@ -103,7 +103,7 @@ Then up on CI, the CI publish workflow is only triggered when it sees a release 
 . a release jar is published to clojars
 . a GitHub release is created
 . cljdoc is informed of the new release
-. An Antq docker image is built and uploaded to GitHub packages
+. An `antq` docker image is built and uploaded to GitHub packages
 
 == Relevant Sources
 

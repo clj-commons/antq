@@ -1,6 +1,6 @@
 = Excluding dependencies
 
-When you'd like to exclude specific dependencies from being checked by Antq, you can use the link:../README.adoc#opt-exclude[--exclude] option.
+When you'd like to exclude specific dependencies from being checked by `antq`, you can use the link:../README.adoc#opt-exclude[--exclude] option.
 Alternatively, you can add `:antq/exclude` metadata directly in a supported project file as described below.
 
 == Exclude a dependency
