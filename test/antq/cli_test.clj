@@ -81,7 +81,14 @@
                    :warnings m/absent
                    :info m/absent
                    :opts {:error-format "foo"}}
-                  (sut/parse-args ["--error-format=foo"]))))
+                  (sut/parse-args ["--error-format=foo"])))
+
+    (t/testing "escaping"
+      (t/is (match? {:errors m/absent
+                     :warnings m/absent
+                     :info m/absent
+                     :opts {:error-format "foo\nbar\tbaz"}}
+                    (sut/parse-args ["--error-format=foo\\nbar\\tbaz"])))))
 
   (t/testing "--reporter"
     (t/is (match? {:errors m/absent

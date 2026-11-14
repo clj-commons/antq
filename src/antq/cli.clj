@@ -307,10 +307,17 @@
                                                         (swap! errors conj error))
                                             :restrict true
                                             :restrict-args true})
-            opts (update opts :directory (fn [d]
-                                           (if (not (:exclude-cwd opts))
-                                             (into ["."] d)
-                                             d)))
+            opts (cond-> opts
+                   (:error-format opts)
+                   (update :error-format (fn [f]
+                                           (-> f
+                                               (str/replace #"\\n" "\n")
+                                               (str/replace #"\\t" "\t"))))
+                   :always
+                   (update :directory (fn [d]
+                                        (if (not (:exclude-cwd opts))
+                                          (into ["."] d)
+                                          d))))
             ;; for now, sort by msg, I'd rather sort by user entry order, but that's a nitpick
             errors (sort-by :msg @errors)
             warnings (sort-by :msg (deprecation-warnings opts))]
