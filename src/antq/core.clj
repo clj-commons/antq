@@ -361,44 +361,42 @@
 
 (defn ^:no-doc main*
   [{:keys [opts warnings errors info]}]
-  (u.maven/initialize-proxy-setting!)
-  (let [opts (cond-> (update opts :directory u.file/distinct-directory)
-               ;; Force "format" reporter when :error-format is specified
-               (some? (:error-format opts)) (assoc :reporter "format"))
-        deps (when (not (seq errors))
-               (fetch-deps opts))]
-    (doseq [w warnings]
-      ;; a bit weird to log/info but warnings only show if verbose is enabled
-      (log/info (warning-text (:msg w))))
-    (cond
-      (seq errors)
-      (do (doseq [e errors]
-            (log/error (error-text (:msg e))))
-          (log/info "")
-          (log/info info) ; usage help
-          (system-exit 1))
+  (doseq [w warnings]
+    ;; a bit weird to log/info but log/warning only shows if verbose is enabled
+    (log/info (warning-text (:msg w))))
+  (cond
+    (seq errors)
+    (do (doseq [e errors]
+          (log/error (error-text (:msg e))))
+        (log/info "")
+        (log/info info) ; usage help
+        (system-exit 1))
 
-      ;; usage help or version
-      info
-      (do
-        (log/info info)
-        (system-exit 0))
+    ;; usage help or version
+    info
+    (do
+      (log/info info)
+      (system-exit 0))
 
-      (seq deps)
-      (let [outdated (antq opts deps)]
-        (report/reporter outdated opts)
-        (cond-> outdated
-          (:upgrade opts)
-          (-> (upgrade/upgrade! opts)
-              ;; get non-upgraded deps
-              (get false))
-
-          true
-          (exit)))
-
-      :else
-      (do (log/info "No dependencies found to analyze")
-          (system-exit 1)))))
+    :else
+    (do
+      (u.maven/initialize-proxy-setting!)
+      (let [opts (cond-> (update opts :directory u.file/distinct-directory)
+                   ;; Force "format" reporter when :error-format is specified
+                   (some? (:error-format opts)) (assoc :reporter "format"))
+            deps (fetch-deps opts)]
+        (if-not (seq deps)
+          (do (log/info "No dependencies found to analyze")
+              (system-exit 1))
+          (let [outdated (antq opts deps)]
+            (report/reporter outdated opts)
+            (cond-> outdated
+              (:upgrade opts)
+              (-> (upgrade/upgrade! opts)
+                  ;; get non-upgraded deps
+                  (get false))
+              :always
+              (exit))))))))
 
 (defn latest
   "Entrypoint for finding latest version of a library via -X cli usage.
@@ -428,6 +426,5 @@
                        (update :error-format #(some-> %
                                                       (str/replace #"\\n" "\n")
                                                       (str/replace #"\\t" "\t"))))]
-
       (binding [log/*verbose* (:verbose (:opts opts-res) false)]
         (main* opts-res)))))
