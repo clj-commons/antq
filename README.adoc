@@ -271,10 +271,16 @@ For example: `rewrite-clj/rewrite-clj`.
 
 === --directory=DIRECTORY ...
 Add a search path for project files.
-The current directory (`.`) is added by default.
+The current directory (`.`) is always included unless <<opt-exclude-cwd>> is specified.
 Specify multiple times for multiple directories.
 
 E.g. `-d foo --directory=bar:baz` will search ".", "foo", "baz", and "bar" directories.
+
+[[opt-exclude-cwd]]
+=== --exclude-cwd
+Omit the current directory (`.`) from the project files search path.
+
+E.g. `-d foo --directory=bar:baz --exclude-cwd` will search "foo", "baz", and "bar" directories.
 
 === --focus=ARTIFACT_NAME ...
 Focus version checking for specified artifacts only.

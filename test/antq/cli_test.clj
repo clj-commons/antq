@@ -42,6 +42,26 @@
                                    "--directory=dir2"
                                    "--directory" "dir3:dir4"]))))
 
+  (t/testing "--exclude-cwd & --directory"
+    (t/testing "solo, no dirs at all"
+      (t/is (match? {:errors m/absent
+                     :warnings m/absent
+                     :info m/absent
+                     :opts {:directory []}}
+                    (sut/parse-args ["--exclude-cwd"]))))
+    (t/testing "with --directory, just specified dirs"
+      (t/is (match? {:errors m/absent
+                     :warnings m/absent
+                     :info m/absent
+                     :opts {:directory ["dir1" "dir2"]}}
+                    (sut/parse-args ["-d" "dir1" "-d" "dir2" "--exclude-cwd"]))))
+    (t/testing "with --directory including ."
+      (t/is (match? {:errors m/absent
+                     :warnings m/absent
+                     :info m/absent
+                     :opts {:directory ["dir1" "dir2" "."]}}
+                    (sut/parse-args ["-d" "dir1" "-d" "dir2" "-d" "." "--exclude-cwd"])))))
+
   (t/testing "--skip"
     (t/is (match? {:errors m/absent
                    :warnings m/absent
@@ -108,7 +128,8 @@
                           :error-format "my error format"
                           :reporter "json"
                           :no-progress true
-                          :directory ["." "two" "three"]
+                          :directory ["two" "three"]
+                          :exclude-cwd true
                           :upgrade true
                           :verbose true
                           :force true
@@ -126,6 +147,7 @@
                                    "--reporter" "json"
                                    "--no-progress"
                                    "--directory" "two" "-d" "three"
+                                   "--exclude-cwd"
                                    "--upgrade"
                                    "--verbose"
                                    "--force"
@@ -219,7 +241,7 @@
                           :skip ["pom" "gradle" "leiningen"]
                           :error-format "my error format"
                           :reporter "json"
-                          :directory ["." "two" "three"]
+                          :directory ["two" "three"]
                           :upgrade true
                           :verbose true
                           :force true
@@ -235,6 +257,7 @@
                                            :error-format "my error format"
                                            :reporter "json"
                                            :directory ["two" "three"]
+                                           :exclude-cwd true
                                            :upgrade true
                                            :verbose true
                                            :force true

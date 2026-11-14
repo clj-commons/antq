@@ -72,15 +72,15 @@
    :directory
    {:alias :d
     :ref "<directory>"
-    :collect (fn multi-value
-               [coll arg-value]
-               ;; "." is not optional/overridable
-               (into (or coll ["."])
-                     (str/split arg-value #":")))
-    :default ["."]
+    :collect multi-value
+    :default []
     :default-desc "./"
-    :desc "Add search paths for projects (in addition to ./)"
+    :desc "Add search paths for projects\nAutomatically includes ./ unless --exclude-cwd specified"
     :extra-desc (multi-value-tip "--directory" ["./dira" "./dirb"])}
+
+   :exclude-cwd
+   {:coerce boolean
+    :desc "Don't automatically include ./ in project search paths"}
 
    :upgrade
    {:coerce boolean
@@ -274,7 +274,7 @@
        "\n"
        (format-opts {:spec cli-options :opts opts
                      ;; match order from README, exclude deprecated and undocumented options
-                     :order [:upgrade :force :exclude :directory :focus
+                     :order [:upgrade :force :exclude :directory :exclude-cwd :focus
                              :skip :error-format :reporter :no-progress :download :ignore-locals
                              :check-clojure-tools :check-gradle :no-changes :changes-in-table :transitive
                              :cooldown :verbose :version :help]})))
@@ -307,6 +307,10 @@
                                                         (swap! errors conj error))
                                             :restrict true
                                             :restrict-args true})
+            opts (update opts :directory (fn [d]
+                                           (if (not (:exclude-cwd opts))
+                                             (into ["."] d)
+                                             d)))
             ;; for now, sort by msg, I'd rather sort by user entry order, but that's a nitpick
             errors (sort-by :msg @errors)
             warnings (sort-by :msg (deprecation-warnings opts))]
