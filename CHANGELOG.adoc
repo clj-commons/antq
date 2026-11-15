@@ -128,6 +128,9 @@ Before, `antq` looked for a repository named after the full path and could not f
 (thanks, https://github.com/stefanroex[@stefanroex]!)
 * https://github.com/clj-commons/antq/issues/402[#402]: Fix misleading error when no dependencies were found to analyze
 (https://github.com/lread[@lread])
+* https://github.com/clj-commons/antq/issues/424[#424]: Windows: `--directory` path separator is now `;` to avoid conflicts with `C:\foobar` and to follow OS conventions.
+`--directory` path separator remains `:` on macOS & Linux.
+(https://github.com/lread[@lread])
 
 == 2.11.1276 (2025-03-15)
 // {{{

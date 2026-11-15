@@ -1,6 +1,7 @@
 (ns ^:no-doc antq.cli
   (:require
    [antq.impl.antq-meta :as antq-meta]
+   [antq.util.os :as os]
    [antq.util.report :as u.report]
    [babashka.cli :as cli]
    [clojure.string :as str]))
@@ -25,17 +26,39 @@
 (declare styled-long-opt)
 
 (defn- multi-value
-  [coll arg-value]
-  (into (or coll [])
-        (str/split (str arg-value) #":")))
+  ([coll arg-value]
+   (multi-value coll arg-value :default))
+  ([coll arg-value sep-type]
+   (into (or coll [])
+         (str/split (str arg-value)
+                    (if (and (os/windows?) (= :path sep-type))
+                      #";"
+                      #":")))))
+
+(def ^:private path-multi-value #(multi-value %1 %2 :path))
 
 (defn- multi-value-tip
-  [option sample-values]
-  {:clojure-tool (format "for multiple, use a vector, ex: '[%s]'\n or use colon separators: %s"
-                         (str/join " " sample-values) (str/join ":" sample-values))
-   :cli (format "for multiple, repeat arg, ex: %s\n or use colon separators: %s=%s"
-                (str/join " " (mapv #(str option "=" %) sample-values))
-                option (str/join ":" sample-values))})
+  ([option sample-values]
+   (multi-value-tip option sample-values :default))
+  ([option sample-values sep-type]
+   (let [[sep-char sep-char-name] (if (and (os/windows?) (= :path sep-type))
+                                    [";" "semicolon"]
+                                    [":" "colon"])
+         extra-tip (when (= :path sep-type)
+                     "\n(Separator char for this option is OS-specific : on macOS/Linux ; on Windows)")]
+     {:clojure-tool (str (format "for multiple, use a vector, ex: '[%s]'\n or use %s separators: %s"
+                                 (str/join " " sample-values)
+                                 sep-char-name
+                                 (str/join sep-char sample-values))
+                         extra-tip)
+      :cli (str (format "for multiple, repeat arg, ex: %s\n or use %s separators: %s=%s"
+                        (str/join " " (mapv #(str option "=" %) sample-values))
+                        sep-char-name
+                        option
+                        (str/join sep-char sample-values))
+                extra-tip)})))
+
+(def ^:private path-multi-value-tip #(multi-value-tip %1 %2 :path))
 
 (def ^:private cli-options
   {:exclude
@@ -72,11 +95,11 @@
    :directory
    {:alias :d
     :ref "<directory>"
-    :collect multi-value
+    :collect path-multi-value
     :default []
     :default-desc "./"
     :desc "Add search paths for projects\nAutomatically includes ./ unless --exclude-cwd specified"
-    :extra-desc (multi-value-tip "--directory" ["./dira" "./dirb"])}
+    :extra-desc (path-multi-value-tip "--directory" ["dira" "dirb"])}
 
    :exclude-cwd
    {:coerce boolean
