@@ -87,8 +87,8 @@
     (t/testing "validation error"
       (t/is (match? {:info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"
                      :warnings m/absent
-                     :errors [{:cause :validate :msg #"Invalid value.*skip.*foo"}]}
-                    (sut/parse-args ["--skip=foo"])))))
+                     :errors [{:cause :validate :msg #"Invalid value.*skip.*gradle"}]}
+                    (sut/parse-args ["--skip=gradle"])))))
 
   (t/testing "--error-format"
     (t/is (match? {:errors m/absent
@@ -145,7 +145,7 @@
                    :info m/absent
                    :opts {:exclude ["art1" "art2@1.2.3" "art7"]
                           :focus ["art3" "art4"]
-                          :skip ["pom" "gradle" "leiningen"]
+                          :skip ["pom" "circle-ci" "leiningen"]
                           :error-format "my error format"
                           :reporter "json"
                           :no-progress true
@@ -163,7 +163,7 @@
                           :transitive true}}
                   (sut/parse-args ["--exclude" "art1:art2@1.2.3" "--exclude" "art7"
                                    "--focus" "art3" "--focus" "art4"
-                                   "--skip" "pom:gradle" "--skip" "leiningen"
+                                   "--skip" "pom:circle-ci" "--skip" "leiningen"
                                    "--error-format" "my error format"
                                    "--reporter" "json"
                                    "--no-progress"
@@ -266,7 +266,7 @@
                    :info m/absent
                    :opts {:exclude ["art1" "art2@1.2.3"]
                           :focus ["art3" "art4"]
-                          :skip ["pom" "gradle" "leiningen"]
+                          :skip ["pom" "circle-ci" "leiningen"]
                           :error-format "my error format"
                           :reporter "json"
                           :directory ["two" "three"]
@@ -281,7 +281,7 @@
                           :transitive true}}
                   (sut/validate-tool-opts {:exclude "art1:art2@1.2.3" ; try colon separated for multi
                                            :focus ["art3" "art4"]     ; try vector for multi
-                                           :skip "pom:gradle:leiningen"
+                                           :skip "pom:circle-ci:leiningen"
                                            :error-format "my error format"
                                            :reporter "json"
                                            :directory ["two" "three"]

@@ -18,7 +18,6 @@
    "circle-ci"
    "clojure-cli"
    "github-action"
-   "gradle"
    "leiningen"
    "pom"
    "shadow-cljs"])
@@ -78,7 +77,7 @@
     :collect multi-value
     :enum valid-skip
     :desc "Skip specified project file types"
-    :extra-desc (multi-value-tip "--format" ["pom" "gradle"])}
+    :extra-desc (multi-value-tip "--format" ["pom" "leiningen"])}
 
    :error-format
    {:ref "<error-format>"
@@ -98,12 +97,12 @@
     :collect path-multi-value
     :default []
     :default-desc "./"
-    :desc "Add search paths for projects\nAutomatically includes ./ unless --exclude-cwd specified"
+    :desc "Add to search path for projects\nAutomatically includes ./ unless --exclude-cwd specified"
     :extra-desc (path-multi-value-tip "--directory" ["dira" "dirb"])}
 
    :exclude-cwd
    {:coerce boolean
-    :desc "Don't automatically include ./ in project search paths"}
+    :desc "Don't automatically include ./ in project search path"}
 
    :upgrade
    {:coerce boolean
