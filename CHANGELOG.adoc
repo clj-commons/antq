@@ -29,6 +29,7 @@ We'll continue to publish releases to the existing `antq` maven coordinates http
 === Minor Breaking
 * https://github.com/clj-commons/antq/issues/376[#376]: Discovering Gradle dependencies requires invoking `gradle` or `gradlew`, which can pose some risk.
 Therefore, checking Gradle dependencies is now opt-in via `--check-gradle`.
+(https://github.com/lread[@lread])
 * Minimum Clojure version is now 1.11
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/396[#396]: Long ago, `antq` switched to https://clojars.org/com.github.liquidz/antq[com.github.liquidz/antq] as its official Maven coordinates.
@@ -38,46 +39,35 @@ Users using the legacy coordinates must switch if they want to keep up to date.
 * `antq` published a docker image with each release to https://github.com/users/liquidz/packages/container/package/antq[https://github.com/*users/liquidz*/packages/container/package/antq].
 Because `antq` is now under the clj-commons GitHub org, this docker image will now be published to https://github.com/orgs/clj-commons/packages/container/package/antq[https://github.com/*orgs/clj-commons*/packages/container/package/antq].
 
-=== Added
-* https://github.com/clj-commons/antq/pull/380[#380]: Add babashka compatibility
+=== New Features
+* https://github.com/clj-commons/antq/pull/380[#380]: `antq` can now be run from https://book.babashka.org/#projects[babashka]
 (https://github.com/borkdude[@borkdude])
-* https://github.com/clj-commons/antq/pull/386[#386]: Add bbin install and shell completion
+** https://github.com/clj-commons/antq/pull/316[#316]: Read an artifact's POM from the local Maven repository through tools.deps instead of resolving its repository with Aether and fetching the POM over HTTP.
+Artifacts in an s3 repository are no longer skipped, and a POM that is not cached yet prints a `Downloading:` line.
 (https://github.com/borkdude[@borkdude])
-* https://github.com/clj-commons/antq/pull/289[#289]: New `--no-progress` option to suppress progress indicator while analyzing deps
-(thanks, https://github.com/kirked[@kirked]!)
+* https://github.com/clj-commons/antq/pull/386[#386]: `antq` can now be installed and run as a https://github.com/babashka/bbin[bbin] script
+(https://github.com/borkdude[@borkdude])
 * https://github.com/clj-commons/antq/issues/280[#280],
 https://github.com/clj-commons/antq/issues/259[#259],
 https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now has `--help` (and for `antq` clojure tools users, `:help true`) and option validation. Tools-usage and main-usage now draw from the same single source of cli truth.
 (https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/419[#419]: New `--version` option prints `antq` version and exits.
-Version is now also printed with CLI usage help.
-(https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/384[#384]: New `--exclude-cwd` option suppresses automatic inclusion of the current working directory to the project search path
-(https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/362[#362]: Gradle: all projects of a multi-module build are now read in one run, `build.gradle.kts` builds are recognized, and repositories (including those in `settings.gradle`) are found without changes to the build. `antq` passes a small init script to Gradle for this. Requires Gradle 8 or later
-(thanks, https://github.com/aadrian[@aadrian]!)
-* https://github.com/clj-commons/antq/issues/297[#297]: GitHub Actions: `antq` now upgrades an action pinned to a commit SHA with a version comment, such as `actions/checkout@<sha> # v4.1.0`, to the commit of its latest release and updates the comment.
-Before, it moved such a pin to the newest commit on the default branch.
-(thanks, https://github.com/stefanroex[@stefanroex]!)
 * https://github.com/clj-commons/antq/issues/299[#299]: New `--cooldown` option, e.g. `--cooldown=7d`, to only suggest Maven versions released at least that long ago.
 The table also shows the age of the current and latest versions of Maven dependencies.
 (thanks, https://github.com/aadrian[@aadrian]!)
-* CI: Test coverage for:
-** https://github.com/clj-commons/antq/issues/323[#323]: Windows
+* `antq` can now be run on Windows
+** https://github.com/clj-commons/antq/issues/329[#329]: Windows: `.\foo\bar` now converts to, as intended, `foo\bar`
 (https://github.com/lread[@lread])
-** https://github.com/clj-commons/antq/issues/323[#323]: JDK 11+ LTS JDKs and lastest JDK
+** https://github.com/clj-commons/antq/issues/370[#370]: Windows: gradle command now found and launches
 (https://github.com/lread[@lread])
-** https://github.com/clj-commons/antq/issues/375[#375]: Gradle 8 & Gradle 9
+** https://github.com/clj-commons/antq/issues/330[#330]: Windows: preserve host-specific newlines in updated files
+(https://github.com/lread[@lread])
+** https://github.com/clj-commons/antq/issues/424[#424]: Windows: `--directory` path separator is now `;` to avoid conflicts with `C:\foobar` and to follow OS conventions.
+`--directory` path separator remains `:` on macOS & Linux.
 (https://github.com/lread[@lread])
 
-=== Changed
-* General dep bumping and maintenance after migrating `antq` to clj-commons :tada:
+=== Housekeeping
+* General dep bumping and maintenance after migrating `antq` to clj-commons
 (https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/304[#304]: When run as a lein plugin, `antq` now runs analysis in a sub-process to avoid any classpath conflicts between lein and tools.deps
-(https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/pull/316[#316]: Read an artifact's POM from the local Maven repository through tools.deps instead of resolving its repository with Aether and fetching the POM over HTTP.
-Artifacts in an s3 repository are no longer skipped, and a POM that is not cached yet prints a `Downloading:` line.
-(https://github.com/borkdude[@borkdude])
 * https://github.com/clj-commons/antq/issues/276[#276],
 https://github.com/clj-commons/antq/issues/416[#416]: Docs and docstrings reviewed, includes:
 (https://github.com/lread[@lread])
@@ -85,52 +75,83 @@ https://github.com/clj-commons/antq/issues/416[#416]: Docs and docstrings review
 ** Defining the public API, which is currently limited to the `antq.api` namespace and `-M`/`-X`/`-T` cli entrypoints.
 ** Adding a Developer Guide
 ** Adding a Maintainer's Guide
+* CI: Test coverage for:
+** https://github.com/clj-commons/antq/issues/323[#323]: Windows
+(https://github.com/lread[@lread])
+** https://github.com/clj-commons/antq/issues/323[#323]: JDK 11+ LTS JDKs and lastest JDK
+(https://github.com/lread[@lread])
+** https://github.com/clj-commons/antq/issues/375[#375]: Gradle 8 & Gradle 9
+(https://github.com/lread[@lread])
+* https://github.com/clj-commons/antq/issues/394[#394]: Remove core.async dependency (improves performance, simplifies codebase)
+(thanks, https://github.com/nenadalm[@nenadalm]!)
+
+=== New Command Line Options
+* https://github.com/clj-commons/antq/pull/289[#289]: New `--no-progress` option to suppress progress indicator while analyzing deps
+(thanks, https://github.com/kirked[@kirked]!)
+* https://github.com/clj-commons/antq/issues/419[#419]: New `--version` option prints `antq` version and exits.
+Version is now also printed with CLI usage help.
+(https://github.com/lread[@lread])
+* https://github.com/clj-commons/antq/issues/384[#384]: New `--exclude-cwd` option suppresses automatic inclusion of the current working directory to the project search path
+(https://github.com/lread[@lread])
+
+=== Versions
 * https://github.com/clj-commons/antq/issues/235[#235]: Improve pre-release detection: recognize more markers as whole words (e.g. `-M1`, `milestone`, `preview`, `pre`, `CR`, `dev`), so they are no longer suggested as the latest version
 (thanks, https://github.com/aadrian[@aadrian]!)
 * https://github.com/clj-commons/antq/pull/348[#348]: Recognize Maven timestamped snapshots (e.g. `2.5-20240101.120000-1`) as snapshots
 (thanks, https://github.com/aadrian[@aadrian]!)
 * https://github.com/clj-commons/antq/issues/352[#352]: Recognize early access versions (e.g. `1.1-ea`, `13-ea+14b`) as pre-releases, without mistaking a commit hash in a version (e.g. `20210520.145017.40e04ea`) for one
 (thanks, https://github.com/aadrian[@aadrian]!)
-* https://github.com/clj-commons/antq/issues/353[#353]: Gradle: when Gradle cannot be run or fails, `antq` now stops with an error that includes Gradle's output, instead of reporting all dependencies as up-to-date
-(thanks, https://github.com/aadrian[@aadrian]!)
-* https://github.com/clj-commons/antq/issues/357[#357]: Improved Gradle docs: running `antq` without changes to the build, repositories, running from the build, limitations and troubleshooting
-(thanks, https://github.com/aadrian[@aadrian]!)
-* https://github.com/clj-commons/antq/issues/394[#394]: Remove core.async dependency (improves performance, simplifies codebase)
-(thanks, https://github.com/nenadalm[@nenadalm]!)
-* https://github.com/clj-commons/antq/issues/374[#374]: When talking to maven repositories, `antq` now politely identifies itself with a user-agent of `antq/<antq version> tools.deps/<tools deps version>`
-(https://github.com/lread[@lread])
 
-=== Fixed
+=== Leiningen
+* https://github.com/clj-commons/antq/issues/304[#304]: When run as a lein plugin, `antq` now runs analysis in a sub-process to avoid any classpath conflicts between lein and tools.deps
+(https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/pull/408[#408]: Improved support for vector-based lein credential config
 (thanks, https://github.com/lukaszkorecki[@lukaszkorecki]!)
 * https://github.com/clj-commons/antq/issues/231[#231]: Exclusions are now supported when `antq` is run as lein plugin
 (thanks, https://github.com/marcobiscaro2112[@marcobiscaro2112]!)
-* https://github.com/clj-commons/antq/issues/320[#320]: Progress bar should no longer be sporadically garbled
-(https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/324[#324]: No longer replacing embedded `HOME` env var matches in paths with `~`
-(https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/329[#329]: Windows: `.\foo\bar` now converts to, as intended, `foo\bar`
-(https://github.com/lread[@lread])
-* https://github.com/liquidz/antq/issues/300[#300]: Avoid a `NullPointerException` when a dependency's POM has a malformed SCM URL that uses a slash instead of a colon (e.g. `git@github.com/foo/bar.git`).
-(thanks, https://github.com/SAY-5[@SAY-5]!)
-* https://github.com/clj-commons/antq/issues/359[#359]: Gradle: dependency constraints (e.g. added by a plugin) are no longer reported as dependencies
-(thanks, https://github.com/aadrian[@aadrian]!)
-* https://github.com/clj-commons/antq/issues/370[#370]: Windows: gradle command now found and launches
-(https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/330[#330]: Windows: preserve host-specific newlines in updated files
-(https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/290[#290]: circleci: skip inline and URL orbs; `antq` only analyzes registry orbs
-(https://github.com/lread[@lread])
+
+=== GitHub Actions
+* https://github.com/clj-commons/antq/issues/297[#297]: GitHub Actions: `antq` now upgrades an action pinned to a commit SHA with a version comment, such as `actions/checkout@<sha> # v4.1.0`, to the commit of its latest release and updates the comment.
+Before, it moved such a pin to the newest commit on the default branch.
+(thanks, https://github.com/stefanroex[@stefanroex]!)
 * https://github.com/clj-commons/antq/issues/269[#269]: Composite github actions are now checked for updates
 (thanks, https://github.com/nenadalm[@nenadalm]!)
 * https://github.com/clj-commons/antq/pull/398[#398]: GitHub Actions: an action pinned to a commit SHA that lives in a subdirectory of its repository, such as `actions/cache/restore@<sha>`, is now checked for updates.
 Before, `antq` looked for a repository named after the full path and could not find it.
 (thanks, https://github.com/stefanroex[@stefanroex]!)
+
+=== CircleCI
+* https://github.com/clj-commons/antq/issues/290[#290]: circleci: skip inline and URL orbs; `antq` only analyzes registry orbs
+(https://github.com/lread[@lread])
+
+=== Gradle
+// copied from breaking
+* https://github.com/clj-commons/antq/issues/376[#376]: Discovering Gradle dependencies requires invoking `gradle` or `gradlew`, which can pose some risk.
+Therefore, checking Gradle dependencies is now opt-in via `--check-gradle`.
+(https://github.com/lread[@lread])
+* https://github.com/clj-commons/antq/issues/362[#362]: Gradle: all projects of a multi-module build are now read in one run, `build.gradle.kts` builds are recognized, and repositories (including those in `settings.gradle`) are found without changes to the build. `antq` passes a small init script to Gradle for this. Requires Gradle 8 or later
+(thanks, https://github.com/aadrian[@aadrian]!)
+* https://github.com/clj-commons/antq/issues/353[#353]: Gradle: when Gradle cannot be run or fails, `antq` now stops with an error that includes Gradle's output, instead of reporting all dependencies as up-to-date
+(thanks, https://github.com/aadrian[@aadrian]!)
+* https://github.com/clj-commons/antq/issues/357[#357]: Improved Gradle docs: running `antq` without changes to the build, repositories, running from the build, limitations and troubleshooting
+(thanks, https://github.com/aadrian[@aadrian]!)
+* https://github.com/clj-commons/antq/issues/359[#359]: Gradle: dependency constraints (e.g. added by a plugin) are no longer reported as dependencies
+(thanks, https://github.com/aadrian[@aadrian]!)
+
+=== Etiquette
+* https://github.com/clj-commons/antq/issues/374[#374]: When talking to maven repositories, `antq` now politely identifies itself with a user-agent of `antq/<antq version> tools.deps/<tools deps version>`
+(https://github.com/lread[@lread])
+
+=== Fixed
+* https://github.com/clj-commons/antq/issues/320[#320]: Progress bar should no longer be sporadically garbled
+(https://github.com/lread[@lread])
+* https://github.com/clj-commons/antq/issues/324[#324]: No longer replacing embedded `HOME` env var matches in paths with `~`
+(https://github.com/lread[@lread])
+* https://github.com/liquidz/antq/issues/300[#300]: Avoid a `NullPointerException` when a dependency's POM has a malformed SCM URL that uses a slash instead of a colon (e.g. `git@github.com/foo/bar.git`).
+(thanks, https://github.com/SAY-5[@SAY-5]!)
 * https://github.com/clj-commons/antq/issues/402[#402]: Fix misleading error when no dependencies were found to analyze
 (https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/424[#424]: Windows: `--directory` path separator is now `;` to avoid conflicts with `C:\foobar` and to follow OS conventions.
-`--directory` path separator remains `:` on macOS & Linux.
-(https://github.com/lread[@lread])
+
 
 == 2.11.1276 (2025-03-15)
 // {{{
