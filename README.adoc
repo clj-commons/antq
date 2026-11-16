@@ -241,9 +241,9 @@ Adapt as necessary when specifying for <<usage-clojure-tool, clojure tool usage>
 For example:
 
 * <<opt-upgrade>> is specified as `:upgrade true` for both clojure tool and antq option usage
-* <<opt-exclude,--exclude=ARTIFACT1 --exclude ARTIFACT2>> is specified as
-** `:exclude '["ARTIFACT1" "ARTIFACT2"]'` for clojure tool usage
-** `:exclude ["ARTIFACT1" "ARTIFACT2"]` as a lein plugin `:antq` option
+* <<opt-exclude,--exclude=<artifact1> --exclude <artifact2>>> is specified as
+** `:exclude '["<artifact1>" "<artifact2>"]'` for clojure tool usage
+** `:exclude ["<artifact1>" "<artifact2>"]` as a lein plugin `:antq` option
 ====
 
 [[opt-upgrade]]
@@ -260,7 +260,7 @@ The `--upgrade` option does not support Gradle files.
 Use with <<opt-upgrade>> for a non-interactive upgrade.
 
 [[opt-exclude]]
-=== --exclude=ARTIFACT_NAME[@VERSION] ...
+=== --exclude=<artifact-name[@version]> ...
 Skip version checking for specified artifacts or versions.
 Specify multiple times for multiple artifacts.
 
@@ -283,7 +283,7 @@ See link:./doc/exclusions.adoc[Exclusions] for more information.
 NOTE: You must specify `groupId/artifactId` for Java dependencies even when `groupId` and `artifactId` are the same.
 For example: `rewrite-clj/rewrite-clj`.
 
-=== --directory=DIRECTORY ...
+=== --directory<directory> ...
 Add a search path for project files.
 The current directory (`.`) is always included unless <<opt-exclude-cwd>> is specified.
 Specify multiple times for multiple directories.
@@ -309,7 +309,7 @@ Omit the current directory (`.`) from the project files search path.
 
 E.g. `-d foo --directory=bar:baz --exclude-cwd` will search "foo", "baz", and "bar" directories.
 
-=== --focus=ARTIFACT_NAME ...
+=== --focus=<artifact-name[@version]> ...
 Focus version checking for specified artifacts only.
 Specify multiple times for multiple artifacts.
 
@@ -319,13 +319,13 @@ NOTE: You must specify `groupId/artifactId` for Java dependencies.
 
 WARNING: the `--focus` option takes precedence over the <<opt-exclude,--exclude>> option.
 
-If you want to focus the upgrade on a specific version of a dependency, you can use `--focus=ARTIFACT_NAME[@VERSION]`.
+If you want to focus the upgrade on a specific version of a dependency, you can use `--focus=<artifact-name@version>`.
 
 E.g. `--focus=com.github.liquidz/antq@50.2.0`
 
 This will set the antq dependency to version 50.2.0, even if that version doesn't exist.
 
-=== --skip=PROJECT_TYPE ...
+=== --skip=<project-type> ...
 Skip searching of specified project files by type.
 Must be one of `boot`, `clojure-cli`, `github-action`, `gradle`, `pom`, `shadow-cljs`, `leiningen`, or `babashka`.
 Specify multiple times to skip multiple project file types.
@@ -333,7 +333,7 @@ Specify multiple times to skip multiple project file types.
 E.g. `--skip=pom --skip=leiningen`
 
 [[opt-error-format]]
-=== --error-format=ERROR_FORMAT
+=== --error-format=<error-format>
 Customize the output for outdated dependencies.
 
 E.g.  `--error-format="::error file={{file}}::{{message}}"`
@@ -404,10 +404,10 @@ clojure -Tantq outdated :error-format '"{{file}}::{{message}}"'
 ====
 
 [[opt-reporter]]
-=== --reporter=REPORTER
+=== --reporter=<reporter>
 
 |===
-| Reporter Name | Description
+| `<reporter>` | Description
 
 | `table` (default)
 | Report results in a table.
@@ -498,17 +498,17 @@ Reading release dates adds to this time: antq reads them for the current and lat
 ====
 
 [[opt-cooldown]]
-=== --cooldown=DURATION
+=== --cooldown=<duration>
 
-Only suggest versions released at least `DURATION` ago.
-`DURATION` is a number of days with the unit `d`, e.g. `--cooldown=7d` (`:cooldown '"7d"'` when running <<usage-clojure-tool, as a clojure tool>>).
+Only suggest versions released at least `<duration>` ago.
+`<duration>` is a number of days with the unit `d`, e.g. `--cooldown=7d` (`:cooldown '"7d"'` when running <<usage-clojure-tool, as a clojure tool>>).
 A cooldown gives time to spot a broken or compromised release before it reaches your project.
 Disabled by default and with `0d`.
 
 For Maven dependencies, the table always shows the age of the current and latest versions in an `age` column next to each.
 With this option, it also shows between the current and latest versions:
 
-* `cooldown`: the newest version released at least `DURATION` ago, or the current version if all newer versions are too new
+* `cooldown`: the newest version released at least `<duration>` ago, or the current version if all newer versions are too new
 * `age`: the age of the cooldown version
 * `dur`: the cooldown period
 
