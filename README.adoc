@@ -284,7 +284,7 @@ NOTE: You must specify `groupId/artifactId` for Java dependencies even when `gro
 For example: `rewrite-clj/rewrite-clj`.
 
 === --directory=<directory> ...
-Add a search path for project files.
+Add to search path for project files.
 The current directory (`.`) is always included unless <<opt-exclude-cwd>> is specified.
 Specify multiple times for multiple directories.
 
@@ -327,10 +327,12 @@ This will set the antq dependency to version 50.2.0, even if that version doesn'
 
 === --skip=<project-type> ...
 Skip searching of specified project files by type.
-Must be one of `boot`, `clojure-cli`, `github-action`, `gradle`, `pom`, `shadow-cljs`, `leiningen`, or `babashka`.
+Must be one of `babashka`, `boot`, `clojure-cli`, `github-action`, `leiningen`, `pom`, or `shadow-cljs`.
 Specify multiple times to skip multiple project file types.
 
 E.g. `--skip=pom --skip=leiningen`
+
+NOTE: `gradle` is now skipped by default, use <<opt-check-gradle>> to search for gradle projects.
 
 [[opt-error-format]]
 === --error-format=<error-format>
