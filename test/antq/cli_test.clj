@@ -2,6 +2,7 @@
   (:require
    [antq.cli :as sut]
    [antq.test-report]
+   [antq.util.os :as os]
    [clojure.string :as str]
    [clojure.test :as t]
    [matcher-combinators.matchers :as m]
@@ -37,10 +38,23 @@
     (t/is (match? {:errors m/absent
                    :warnings m/absent
                    :info m/absent
-                   :opts {:directory ["." "dir1" "dir2" "dir3" "dir4"]}}
+                   :opts {:directory ["." "dir1" "dir2" "dir3" "dir4" "dir5" "dir6" "dir7"]}}
                   (sut/parse-args ["-d" "dir1"
                                    "--directory=dir2"
-                                   "--directory" "dir3:dir4"]))))
+                                   "--directory" (if (os/windows?)
+                                                   "dir3;dir4"
+                                                   "dir3:dir4")
+                                   "--directory" "dir5" "dir6"
+                                   "-d" "dir7"])))
+    (t/testing "os specific separator parsing"
+      (t/is (match? {:errors m/absent
+                     :warnings m/absent
+                     :info m/absent
+                     :opts {:directory (if (os/windows?)
+                                         ["." "dir1" "dir2:dir3"]
+                                         ["." "dir1;dir2" "dir3"])}}
+
+                    (sut/parse-args ["-d" "dir1;dir2:dir3"])))))
 
   (t/testing "--exclude-cwd & --directory"
     (t/testing "solo, no dirs at all"
@@ -192,7 +206,14 @@
     (t/is (match? {:errors m/absent
                    :warnings m/absent
                    :info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"}
-                  (sut/parse-args ["--help"])))))
+                  (sut/parse-args ["--help"])))
+    (t/testing "OS specific usage text"
+      (t/is (match? {:errors m/absent
+                     :warnings m/absent
+                     :info (if (os/windows?)
+                             #"dira;dirb"
+                             #"dira:dirb")}
+                    (sut/parse-args ["--help"]))))))
 
 (t/deftest cooldown-option-test
   (t/is (match? {:errors m/absent :opts {:cooldown "7d"}} (sut/parse-args ["--cooldown=7d"])))

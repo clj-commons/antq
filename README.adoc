@@ -216,7 +216,21 @@ Options documented with `...` at the end of their names can be specified multipl
 For example, to <<opt-exclude>> artifact `a` and `b` you can express this as: +
 
 * `--exclude=a --exclude=b`
-* or `--exclude=a:b`
+* or our repeat syntax `--exclude=a:b`
+
+**Note** The repeat syntax for `--directory` uses the `:` separator on macOS and Linux:
+
+`--directory=dira:dirb`
+
+And the `;` separator on Windows (the conventional path separators on this OS):
+
+`--directory="dira;dirb"`
+
+Note the use of quotes `"` here, `;` is a command separator in PowerShell.
+
+Alternatively, avoid the separator via:
+
+`--directory dira dirb`
 ====
 
 [NOTE]
@@ -275,6 +289,19 @@ The current directory (`.`) is always included unless <<opt-exclude-cwd>> is spe
 Specify multiple times for multiple directories.
 
 E.g. `-d foo --directory=bar:baz` will search ".", "foo", "baz", and "bar" directories.
+
+[TIP]
+====
+On Windows, the directory path separator char is `;` so, on Windows, this example would be:
+
+`-d foo --directory="bar;baz"`
+
+Note the use of quotes `"` here, `;` is a command separator in PowerShell.
+
+Alternatively you can avoid the separator char via:
+
+`-d foo --directory bar baz`
+====
 
 [[opt-exclude-cwd]]
 === --exclude-cwd
