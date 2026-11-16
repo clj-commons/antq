@@ -47,13 +47,6 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 (https://github.com/borkdude[@borkdude])
 * https://github.com/clj-commons/antq/pull/386[#386]: `antq` can now be installed and run as a https://github.com/babashka/bbin[bbin] script
 (https://github.com/borkdude[@borkdude])
-* https://github.com/clj-commons/antq/issues/280[#280],
-https://github.com/clj-commons/antq/issues/259[#259],
-https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now has `--help` (and for `antq` clojure tools users, `:help true`) and option validation. Tools-usage and main-usage now draw from the same single source of cli truth.
-(https://github.com/lread[@lread])
-* https://github.com/clj-commons/antq/issues/299[#299]: New `--cooldown` option, e.g. `--cooldown=7d`, to only suggest Maven versions released at least that long ago.
-The table also shows the age of the current and latest versions of Maven dependencies.
-(thanks, https://github.com/aadrian[@aadrian]!)
 * `antq` can now be run on Windows
 ** https://github.com/clj-commons/antq/issues/329[#329]: Windows: `.\foo\bar` now converts to, as intended, `foo\bar`
 (https://github.com/lread[@lread])
@@ -85,7 +78,14 @@ https://github.com/clj-commons/antq/issues/416[#416]: Docs and docstrings review
 * https://github.com/clj-commons/antq/issues/394[#394]: Remove core.async dependency (improves performance, simplifies codebase)
 (thanks, https://github.com/nenadalm[@nenadalm]!)
 
-=== New Command Line Options
+=== New for Command Line
+* https://github.com/clj-commons/antq/issues/280[#280],
+https://github.com/clj-commons/antq/issues/259[#259],
+https://github.com/clj-commons/antq/issues/228[#228]: Command-line-interface now has `--help` (and for `antq` clojure tools users, `:help true`) and option validation. Tools-usage and main-usage now draw from the same single source of cli truth.
+(https://github.com/lread[@lread])
+* https://github.com/clj-commons/antq/issues/299[#299]: New `--cooldown` option, e.g. `--cooldown=7d`, to only suggest Maven versions released at least that long ago.
+The table also shows the age of the current and latest versions of Maven dependencies.
+(thanks, https://github.com/aadrian[@aadrian]!)
 * https://github.com/clj-commons/antq/pull/289[#289]: New `--no-progress` option to suppress progress indicator while analyzing deps
 (thanks, https://github.com/kirked[@kirked]!)
 * https://github.com/clj-commons/antq/issues/419[#419]: New `--version` option prints `antq` version and exits.
