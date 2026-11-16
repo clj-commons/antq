@@ -68,7 +68,7 @@
     :extra-desc (multi-value-tip "--exclude" ["art1" "art2@1.23"])}
 
    :focus
-   {:ref "<artifact-name>"
+   {:ref "<artifact-name[@version]>"
     :collect multi-value
     :desc "Only version check for specified artifacts"
     :extra-desc (multi-value-tip "--focus" ["art1" "art2"])}
@@ -81,7 +81,7 @@
     :extra-desc (multi-value-tip "--format" ["pom" "gradle"])}
 
    :error-format
-   {:ref "<error format>"
+   {:ref "<error-format>"
     :coerce :string
     :desc "Customize output for outdated dependencies"}
 
