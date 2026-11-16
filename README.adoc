@@ -283,7 +283,7 @@ See link:./doc/exclusions.adoc[Exclusions] for more information.
 NOTE: You must specify `groupId/artifactId` for Java dependencies even when `groupId` and `artifactId` are the same.
 For example: `rewrite-clj/rewrite-clj`.
 
-=== --directory<directory> ...
+=== --directory=<directory> ...
 Add a search path for project files.
 The current directory (`.`) is always included unless <<opt-exclude-cwd>> is specified.
 Specify multiple times for multiple directories.
