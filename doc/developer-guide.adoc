@@ -122,7 +122,7 @@ It can be very convenient to have bbin point at your local `antq` dir.
 For `antq` cloned to `~/proj/oss/clj-commons/antq`, install like so:
 
 ----
-bbin install com.github.liquidz/antq --local-root ~/proj/oss/clj-commons/antq --as antq
+bbin install com.github.liquidz/antq --local/root ~/proj/oss/clj-commons/antq --as antq
 ----
 
 You can now run your local work-in-progress `antq` from any dir.
