@@ -21,7 +21,8 @@
    (java.time.format
     DateTimeFormatter)))
 
-(if-bb (require '[babashka.deps.maven :as deps.maven]) nil)
+(if-bb (require '[babashka.deps.maven :as deps.maven])
+       (import '[org.apache.maven.settings Settings Proxy]))
 
 (def default-repos
   {"central" {:url "https://repo1.maven.org/maven2/"}
@@ -140,7 +141,7 @@
 
 (defn- header
   "Case-insensitive lookup of response header `keyname`."
-  [resp keyname]
+  [resp ^String keyname]
   (some (fn [[k v]] (when (.equalsIgnoreCase keyname k) v))
         (:headers resp)))
 
@@ -205,12 +206,13 @@
   []
   (if-bb
    (deps.maven/active-proxy)
-   (when-let [prxy (some-> ((requiring-resolve 'antq.util.aether/get-maven-settings) {})
-                           (.getActiveProxy))]
-     {:host (.getHost prxy)
-      :port (.getPort prxy)
-      :username (.getUsername prxy)
-      :password (.getPassword prxy)})))
+   (let [^Settings settings ((requiring-resolve 'antq.util.aether/get-maven-settings) {})]
+     (when-let [^Proxy prxy
+                (some-> settings (.getActiveProxy))]
+       {:host (.getHost prxy)
+        :port (.getPort prxy)
+        :username (.getUsername prxy)
+        :password (.getPassword prxy)}))))
 
 (defn initialize-proxy-setting!
   []
