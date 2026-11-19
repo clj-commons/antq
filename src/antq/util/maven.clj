@@ -21,8 +21,7 @@
    (java.time.format
     DateTimeFormatter)))
 
-(if-bb (require '[babashka.deps.maven :as deps.maven])
-       (import '[org.apache.maven.settings Settings Proxy]))
+(if-bb (require '[babashka.deps.maven :as deps.maven]) nil)
 
 (def default-repos
   {"central" {:url "https://repo1.maven.org/maven2/"}
@@ -206,8 +205,8 @@
   []
   (if-bb
    (deps.maven/active-proxy)
-   (let [^Settings settings ((requiring-resolve 'antq.util.aether/get-maven-settings) {})]
-     (when-let [^Proxy prxy
+   (let [^org.apache.maven.settings.Settings settings ((requiring-resolve 'antq.util.aether/get-maven-settings) {})]
+     (when-let [^org.apache.maven.settings.Proxy prxy
                 (some-> settings (.getActiveProxy))]
        {:host (.getHost prxy)
         :port (.getPort prxy)
