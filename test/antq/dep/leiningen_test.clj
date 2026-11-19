@@ -26,7 +26,7 @@
   (with-redefs [u.lein/lein-home (constantly "path/to/dummy/")]
     (let [deps (sut/extract-deps
                 file-path
-                (slurp (io/resource "dep/test_project.clj")))]
+                (slurp (io/resource "dep/test_project_clj")))]
       (t/is (sequential? deps))
       (t/is (every? #(instance? antq.record.Dependency %) deps))
       (t/is (match?
@@ -43,7 +43,7 @@
              (sort-by :name deps))))))
 
 (t/deftest load-deps-test
-  (with-redefs [const.project-file/leiningen "test_project.clj"]
+  (with-redefs [const.project-file/leiningen "test_project_clj"]
     (let [deps (sut/load-deps "test/resources/dep")]
       (t/is (seq deps))
       (t/is (every? #(= :java (:type %)) deps))))
