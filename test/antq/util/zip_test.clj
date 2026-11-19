@@ -40,7 +40,7 @@
                           sut/of-edn-file
                           z/down z/down z/right
                           sut/root-edn-string))
-              content)))))
+              (str "content:" content))))))
 
 (t/deftest indented-update-preserves-windows-line-endings-test
   (doseq [content ["foo\r\n  hello\r\n    bar\r\n"
