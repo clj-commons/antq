@@ -59,6 +59,13 @@
   {:deps {clj-kondo/clj-kondo {:mvn/version "2026.10.26"}}
    :main-opts ["-m" "clj-kondo.main"]}
 
+  :eastwood {:extra-deps {jonase/eastwood {:mvn/version "1.4.3"}}
+             :main-opts ["-m" "eastwood.lint" {:source-paths ["src"]
+                                               :test-paths ["test"]
+                                               :exclude-linters [:unused-ret-vals-in-try]
+                                               :exclude-namespaces [leiningen.antq]}]}
+
+
   ;; for local usage
   ;; clojure -M:outdated ...
   ;; clojure -X:outdated outdated...
