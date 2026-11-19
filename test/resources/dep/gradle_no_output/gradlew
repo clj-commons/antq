@@ -1,2 +1,2 @@
 #!/bin/sh
-exec bb "$(dirname "$0")/gradlew.clj" "$@"
+exec bb "$(dirname "$0")/gradlew.bb" "$@"
