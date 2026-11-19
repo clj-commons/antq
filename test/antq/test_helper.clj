@@ -129,18 +129,19 @@
       (finally
         (http-server/server-stop! server)))))
 
+(defn set-user-agent-property!
+  [value]
+  (if value
+    (System/setProperty "aether.connector.userAgent" value)
+    (System/clearProperty "aether.connector.userAgent")))
+
 (defmacro with-user-agent-property
   "Runs `body` with aether.connector.userAgent set to `value` (cleared when `value` is nil),
   then restores the original value."
   [value & body]
-  `(let [old-value# (System/getProperty "aether.connector.userAgent")
-         value# ~value]
+  `(let [old-value# (System/getProperty "aether.connector.userAgent")]
      (try
-       (if value#
-         (System/setProperty "aether.connector.userAgent" value#)
-         (System/clearProperty "aether.connector.userAgent"))
+       (set-user-agent-property! ~value)
        ~@body
        (finally
-         (if old-value#
-           (System/setProperty "aether.connector.userAgent" old-value#)
-           (System/clearProperty "aether.connector.userAgent"))))))
+         (set-user-agent-property! old-value#)))))
