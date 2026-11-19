@@ -61,6 +61,10 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 === Housekeeping
 * General dep bumping and maintenance after migrating `antq` to clj-commons
 (https://github.com/lread[@lread])
+* https://github.com/clj-commons/antq/issues/434[#434]: Address reflection warnings, and to avoid recurrence:
+(https://github.com/lread[@lread])
+** Add  `lint-eastwood` babashka task
+** Add `eastwood` job to CI
 * https://github.com/clj-commons/antq/issues/276[#276],
 https://github.com/clj-commons/antq/issues/416[#416]: Docs and docstrings reviewed, includes:
 (https://github.com/lread[@lread])
