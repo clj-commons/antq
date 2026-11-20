@@ -3,7 +3,7 @@
  {org.clojure/clojure {:mvn/version "1.12.6"}
   org.clojure/data.xml {:mvn/version "0.2.0-alpha11"}
   org.clojure/data.zip {:mvn/version "1.1.1"}
-  org.clojure/tools.deps {:mvn/version "0.31.1646"}
+  org.clojure/tools.deps {:mvn/version "0.32.1650"}
   org.clojure/data.json {:mvn/version "2.5.2"}
   babashka/fs {:mvn/version "0.5.34"}
   babashka/process {:mvn/version "0.6.25"}
