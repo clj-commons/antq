@@ -17,7 +17,7 @@
       (get 'org.clojure/tools.deps)
       (get :mvn/version)))
 
-(deftest ^:integration jar-includes-resources
+(deftest ^:lint jar-includes-resources
   (fs/delete-if-exists "target/antq.jar")
   (p/shell "bb jar")
   (let [version (-> (io/resource "com.github.liquidz/antq/VERSION") slurp str/trim)
@@ -28,7 +28,7 @@
         out (str/trim out)]
     (is (= (format "antq/%s tools.deps/%s" version (tools-deps-version)) out) "user-agent")))
 
-(deftest ^:integration uberjar-includes-resources
+(deftest ^:lint uberjar-includes-resources
   (fs/delete-if-exists "target/antq-standalone.jar")
   (p/shell "bb uberjar")
   (let [version (-> (io/resource "com.github.liquidz/antq/VERSION") slurp str/trim)

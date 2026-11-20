@@ -1,5 +1,6 @@
 = Developer Guide
 :toclevels: 6
+:min-clojure-version: 1.11.4
 :toc:
 
 == Audience
@@ -21,7 +22,7 @@ JVM tests cover supported LTS JDKs and the current latest JDK.
 * Please read the link:/CONTRIBUTING.adoc[Contributing Guidelines]
 * Java JDK 11 or above (Clojure 1.13+ requires JDK 17+)
 * Current Clojure CLI
-** Note that `antq` itself supports Clojure v1.11 and above
+** Note that `antq` itself supports Clojure v{min-clojure-version} and above
 * Current Babashka
 * Gradle
 ** The supported versions of Gradle do not necessarily work with all of our supported JDK versions.

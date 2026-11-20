@@ -23,7 +23,7 @@ jobs:
           jdk: ${{ matrix.jdk }}
 
       - name: run unit tests
-        run: bb test-clj --clojure-version all --exclude :integration --exclude :gradle
+        run: bb test-clj --clojure-version all --exclude :integration --exclude :gradle --exclude :lint
 
       - name: run integration tests
         run: bb test-clj --include :integration

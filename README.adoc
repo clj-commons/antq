@@ -4,6 +4,7 @@
 :project-src-coords: clj-commons/antq
 :project-mvn-coords: com.github.liquidz/antq
 :workflow-url: https://github.com/{project-src-coords}/actions/workflows
+:min-clojure-version: 1.11.4
 :sym-yes: ✅
 :sym-no: ❌
 
@@ -23,7 +24,7 @@ toc::[]
 
 == Requirements
 
-`antq` needs https://clojure.org/[Clojure] v1.11 or later or https://babashka.org/[Babashka].
+`antq` needs https://clojure.org/[Clojure] v{min-clojure-version} or later or https://babashka.org/[Babashka].
 
 * If your project is using an earlier version of Clojure, all should be fine; see this link:./doc/non-supported-clojure-version.adoc[tip]
 * We recommend that you always use the latest Babashka
