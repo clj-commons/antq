@@ -119,7 +119,7 @@
                                      :version "1.0.0"
                                      :repositories {"wrapper-repo" {:url "https://example.com/maven/"}}})])
                (sut/extract-deps file-path (fs/path test-dir "gradle_wrapper" path)))
-              path)))))
+              (str "path: " path))))))
 
 (when-not (os/windows?)
   ;; .bat files, I think, are always executable, so skip for Windows

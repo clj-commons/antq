@@ -48,7 +48,7 @@
         dep3 (r/map->Dependency {:project ::test
                                  :latest-version (u.ex/ex-timeout "test")
                                  :file temp3})]
-    (t/is (every? #(= 0 (.indexOf % "before"))
+    (t/is (every? #(= 0 (str/index-of % "before"))
                   (map slurp temp-files)))
 
     (sut/upgrade! [dep1 dep2 dep3] {:force true})
@@ -92,7 +92,7 @@
           err-str (binding [*err* sw]
                     (sut/upgrade! [dep] {:force true})
                     (str sw))]
-      (t/is (not= -1 (.indexOf err-str "Not supported"))))
+      (t/is (not= nil (str/index-of err-str "Not supported"))))
 
     (t/is (= "before0" (slurp temp1)))))
 
@@ -107,7 +107,7 @@
       (let [out-str (with-out-str
                       (with-redefs [read (constantly 'n)]
                         (sut/upgrade! [dep] {:force false})))]
-        (t/is (not= -1 (.indexOf out-str "Do you want to upgrade"))))
+        (t/is (not= nil (str/index-of out-str "Do you want to upgrade"))))
 
       (t/is (= "before0" (slurp temp1))))
 
@@ -115,6 +115,6 @@
       (let [out-str (with-out-str
                       (with-redefs [read (constantly 'y)]
                         (sut/upgrade! [dep] {:force false})))]
-        (t/is (not= -1 (.indexOf out-str "Do you want to upgrade"))))
+        (t/is (not= nil (str/index-of out-str "Do you want to upgrade"))))
 
       (t/is (= "afterLATEST" (slurp temp1))))))

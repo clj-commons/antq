@@ -5,3 +5,4 @@
 **/.lsp
 .idea
 *.iml
+.eastwood

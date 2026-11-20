@@ -105,6 +105,7 @@ We fail the build on any lint violations.
 The CI server runs:
 ----
 bb lint-kondo
+bb lint-eastwood
 bb lint-cljstyle
 ----
 and you can too.

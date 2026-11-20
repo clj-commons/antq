@@ -17,7 +17,7 @@
                                      :type :java
                                      :name "foo/core"
                                      :latest-version "9.0.0"
-                                     :file (io/resource "dep/test_project.clj")})
+                                     :file (io/resource "dep/test_project_clj")})
         from-deps (->> java-dep
                        :file
                        (slurp)
@@ -49,7 +49,7 @@
                                      :type :java
                                      :name "bar/bar"
                                      :latest-version "8.0.0"
-                                     :file (io/resource "dep/test_project.clj")})
+                                     :file (io/resource "dep/test_project_clj")})
         from-deps (->> meta-dep
                        :file
                        (slurp)
@@ -66,7 +66,7 @@
                                      :type :java
                                      :name "plug/plug"
                                      :latest-version "7.0.0"
-                                     :file (io/resource "dep/test_project.clj")})
+                                     :file (io/resource "dep/test_project_clj")})
         from-deps (->> meta-dep
                        :file
                        (slurp)

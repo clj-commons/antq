@@ -9,7 +9,7 @@
 (t/deftest ex-timeout-test
   (let [ex (sut/ex-timeout "foo")]
     (t/is (instance? ExceptionInfo ex))
-    (t/is (= "foo" (.getMessage ex)))
+    (t/is (= "foo" (ex-message ex)))
     (t/is (contains? (ex-data ex) :type))
     (t/is (qualified-keyword? (:type (ex-data ex))))))
 

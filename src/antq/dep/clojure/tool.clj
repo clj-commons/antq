@@ -4,10 +4,12 @@
    [clojure.edn :as edn]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [clojure.tools.deps.edn :as deps-edn]))
+   [clojure.tools.deps.edn :as deps-edn])
+  (:import
+   java.io.File))
 
 (defn- tools-dir
-  ^java.io.File []
+  ^File []
   (-> (deps-edn/user-deps-path)
       (io/file)
       (.getParentFile)
@@ -31,5 +33,5 @@
   ([dir-file]
    (some->> dir-file
             (file-seq)
-            (filter #(and (.isFile %) (str/ends-with? (.getName %) ".edn")))
-            (keep #(extract-deps (.getAbsolutePath %) (slurp %))))))
+            (filter (fn [^File f] (and (.isFile f) (str/ends-with? (.getName f) ".edn"))))
+            (keep (fn [^File f] (extract-deps (.getAbsolutePath f) (slurp f)))))))

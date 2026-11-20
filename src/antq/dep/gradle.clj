@@ -69,7 +69,7 @@ gradle.beforeProject { p ->
   [dir]
   (loop [dir (fs/absolutize dir)]
     (when (and dir (gradle-project-dir? dir))
-      (let [wrapper (fs/file dir (gradle-wrapper-name))]
+      (let [^File wrapper (fs/file dir (gradle-wrapper-name))]
         (cond
           (not (fs/regular-file? wrapper))
           (recur (fs/parent dir))
@@ -180,6 +180,7 @@ gradle.beforeProject { p ->
                       (assoc (ex-data ex) :file relative-file-path))))))
 
 (defn discover-project
+  ^File
   [dir]
   (->> project-files
        (map #(fs/file dir %))

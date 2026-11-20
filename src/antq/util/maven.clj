@@ -140,7 +140,7 @@
 
 (defn- header
   "Case-insensitive lookup of response header `keyname`."
-  [resp keyname]
+  [resp ^String keyname]
   (some (fn [[k v]] (when (.equalsIgnoreCase keyname k) v))
         (:headers resp)))
 
@@ -205,12 +205,13 @@
   []
   (if-bb
    (deps.maven/active-proxy)
-   (when-let [prxy (some-> ((requiring-resolve 'antq.util.aether/get-maven-settings) {})
-                           (.getActiveProxy))]
-     {:host (.getHost prxy)
-      :port (.getPort prxy)
-      :username (.getUsername prxy)
-      :password (.getPassword prxy)})))
+   (let [^org.apache.maven.settings.Settings settings ((requiring-resolve 'antq.util.aether/get-maven-settings) {})]
+     (when-let [^org.apache.maven.settings.Proxy prxy
+                (some-> settings (.getActiveProxy))]
+       {:host (.getHost prxy)
+        :port (.getPort prxy)
+        :username (.getUsername prxy)
+        :password (.getPassword prxy)}))))
 
 (defn initialize-proxy-setting!
   []

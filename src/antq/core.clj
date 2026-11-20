@@ -1,8 +1,9 @@
 ;; Fail on Clojure 1.11.0 or earlier
-(let [{:keys [major minor]} *clojure-version*]
-  (when-not (or (and (= major 1) (>= minor 11))
-                (> major 1))
-    (.println ^java.io.PrintWriter *err* "antq requires Clojure 1.11 or later.")
+;; (qualifying vars to appease Eastwood linter which will outright fail otherwise)
+(clojure.core/let [v clojure.core/*clojure-version*]
+  (clojure.core/when-not (clojure.core/or (clojure.core/and (clojure.core/= (:major v) 1) (clojure.core/>= (:minor v) 11))
+                                          (clojure.core/> (:major v) 1))
+    (.println ^java.io.PrintWriter clojure.core/*err* "antq requires Clojure 1.11 or later.")
     (System/exit 1)))
 
 (ns antq.core

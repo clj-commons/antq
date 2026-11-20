@@ -23,7 +23,9 @@
   dev-jvm       {:exec-fn dev-jvm-repl/task  :doc "launch a JVM nREPL for development"}
   dev-bb        {:exec-fn dev-bb-repl/task   :doc "launch babashka nREPL for development"}
   lint-kondo    {:exec-fn lint-kondo/task    :doc "lint with clj-kondo"}
+  lint-eastwood {:exec-fn lint-eastwood/task :doc "lint with eastwood"}
   lint-cljstyle {:task lint-cljstyle/-main   :doc "lint with cljstyle"}
+
   test-clj      {:exec-fn test-clj/task      :doc "run tests against a version of Clojure"}
   test-bb       {:exec-fn test-bb/task       :doc "run tests against babashka"}
   test-coverage {:exec-fn test-coverage/task :doc "generate code coverage reports Clojure tests"}

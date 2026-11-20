@@ -350,7 +350,7 @@
           (seq errors)
           (assoc :errors errors :info (usage-help {:opts opts}))
 
-          :else
+          :always
           (assoc :opts opts))))))
 
 (defn validate-tool-opts

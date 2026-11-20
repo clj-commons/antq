@@ -416,7 +416,7 @@
     ["test_deps.edn"          "deps.edn"]
     ["test_github_action.yml" ".github/workflows/test.yml"]
     ["test_pom.xml"           "pom.xml"]
-    ["test_project.clj"       "project.clj"]
+    ["test_project_clj"       "project.clj"]
     ["test_shadow-cljs.edn"   "shadow-cljs.edn"]]))
 
 (t/deftest fetch-deps-test
