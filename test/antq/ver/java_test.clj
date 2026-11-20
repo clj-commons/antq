@@ -6,21 +6,24 @@
    [antq.util.maven :as u.mvn]
    [antq.ver :as ver]
    [antq.ver.java :as sut]
-   [clojure.edn :as edn]
    [clojure.set :as set]
    [clojure.test :as t]
    [matcher-combinators.matchers :as m]
    [matcher-combinators.test]))
 
-(def ^:private current-clojure-version
-  (get-in (edn/read-string (slurp "deps.edn"))
-          [:deps 'org.clojure/clojure :mvn/version]))
+(defn current-clojure-version*
+  []
+  (-> (slurp "https://repo1.maven.org/maven2/org/clojure/clojure/maven-metadata.xml")
+      (->> (re-find #"<release>([^<]+)</release>"))
+      second))
+
+(def current-clojure-version (memoize current-clojure-version*))
 
 (t/deftest get-versions-test
   (let [vers (#'sut/get-versions 'org.clojure/clojure
                                  {:repositories u.mvn/default-repos})]
     (t/is (seq vers))
-    (t/is (contains? (set (map str vers)) current-clojure-version))))
+    (t/is (contains? (set (map str vers)) (current-clojure-version)))))
 
 (defn- dummy-versions
   [_ opts]

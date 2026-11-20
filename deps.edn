@@ -1,6 +1,6 @@
 {:paths ["src" "resources"]
  :deps
- {org.clojure/clojure {:mvn/version "1.12.7"}
+ {org.clojure/clojure {:mvn/version "1.11.4"} ;; min supported clojure version
   org.clojure/data.xml {:mvn/version "0.2.0-alpha11"}
   org.clojure/data.zip {:mvn/version "1.1.1"}
   org.clojure/tools.deps {:mvn/version "0.32.1650"}

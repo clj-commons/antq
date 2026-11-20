@@ -57,7 +57,7 @@
   [out]
   (->> out
        str/split-lines
-       (remove (fn [l] (re-find #"^(SLF4J:|Retrieving|Downloading|\[|\| file |\|-| *$)" l)))))
+       (remove (fn [l] (re-find #"^(SLF4J:|Reflection|Retrieving|Downloading|\[|\| file |\|-| *$)" l)))))
 
 (defn- lein-run
   []

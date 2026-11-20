@@ -1,9 +1,10 @@
-;; Fail on Clojure 1.11.0 or earlier
+;; Fail if using Clojure version before 1.11.4
 ;; (qualifying vars to appease Eastwood linter which will outright fail otherwise)
 (clojure.core/let [v clojure.core/*clojure-version*]
-  (clojure.core/when-not (clojure.core/or (clojure.core/and (clojure.core/= (:major v) 1) (clojure.core/>= (:minor v) 11))
-                                          (clojure.core/> (:major v) 1))
-    (.println ^java.io.PrintWriter clojure.core/*err* "antq requires Clojure 1.11 or later.")
+  (clojure.core/when (clojure.core/neg? (clojure.core/compare
+                                         [(:major v) (:minor v) (:incremental v)]
+                                         [1 11 4]))
+    (.println ^java.io.PrintWriter clojure.core/*err* "antq requires Clojure 1.11.4 or later.")
     (System/exit 1)))
 
 (ns antq.core
