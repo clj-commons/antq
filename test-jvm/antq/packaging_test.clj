@@ -22,7 +22,7 @@
   (p/shell "bb jar")
   (let [version (-> (io/resource "com.github.liquidz/antq/VERSION") slurp str/trim)
         {:keys [out]} (p/shell {:out :string}
-                               "bb -Sdeps"
+                               "clojure -Sdeps"
                                (pr-str {:deps {'com.github.liquidz/antq {:local/root "target/antq.jar"}}})
                                "--eval" "(require 'antq.impl.antq-meta) (println antq.impl.antq-meta/user-agent)")
         out (str/trim out)]
