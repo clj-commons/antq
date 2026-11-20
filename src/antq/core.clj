@@ -1,4 +1,4 @@
-;; Fail on Clojure 1.11.4 or earlier
+;; Fail if using Clojure version before 1.11.4
 ;; (qualifying vars to appease Eastwood linter which will outright fail otherwise)
 (clojure.core/let [v clojure.core/*clojure-version*]
   (clojure.core/when (clojure.core/neg? (clojure.core/compare
