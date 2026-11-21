@@ -156,7 +156,8 @@ Therefore, checking Gradle dependencies is now opt-in via `--check-gradle`.
 (thanks, https://github.com/SAY-5[@SAY-5]!)
 * https://github.com/clj-commons/antq/issues/402[#402]: Fix misleading error when no dependencies were found to analyze
 (https://github.com/lread[@lread])
-
+* https://github.com/clj-commons/antq/issues/428[#428]: Now failing fast when `--directory` is not a directory or does not exist
+(https://github.com/lread[@lread])
 
 == 2.11.1276 (2025-03-15)
 // {{{
