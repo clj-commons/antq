@@ -3,10 +3,24 @@
    [antq.cli :as sut]
    [antq.test-report]
    [antq.util.os :as os]
+   [babashka.fs :as fs]
    [clojure.string :as str]
    [clojure.test :as t]
    [matcher-combinators.matchers :as m]
    [matcher-combinators.test]))
+
+(defn- td
+  [& segs]
+  (str (apply fs/file "target/test/cli-test" segs)))
+
+(t/use-fixtures :once
+  (fn [f]
+    (fs/delete-tree (td))
+    (fs/create-dirs (td))
+    (doseq [n (range 7)]
+      (fs/create-dir (td (str "dir" (inc n)))))
+    (spit (td "not-a-dir") "foo")
+    (f)))
 
 (t/deftest cli-options-test
   (t/testing "default options"
@@ -38,23 +52,47 @@
     (t/is (match? {:errors m/absent
                    :warnings m/absent
                    :info m/absent
-                   :opts {:directory ["." "dir1" "dir2" "dir3" "dir4" "dir5" "dir6" "dir7"]}}
-                  (sut/parse-args ["-d" "dir1"
-                                   "--directory=dir2"
-                                   "--directory" (if (os/windows?)
-                                                   "dir3;dir4"
-                                                   "dir3:dir4")
-                                   "--directory" "dir5" "dir6"
-                                   "-d" "dir7"])))
+                   :opts {:directory ["."
+                                      (td "dir1") (td "dir2") (td "dir3") (td "dir4")
+                                      (td "dir5") (td "dir6") (td "dir7")]}}
+                  (sut/parse-args ["-d" (td "dir1")
+                                   (str "--directory=" (td "dir2"))
+                                   "--directory" (str (td "dir3")
+                                                      (if (os/windows?) ";" ":")
+                                                      (td "dir4"))
+                                   "--directory" (td "dir5") (td "dir6")
+                                   "-d" (td "dir7")])))
     (t/testing "os specific separator parsing"
-      (t/is (match? {:errors m/absent
+      (t/is (match? {:errors [{:msg (str "Invalid value for option -d: "
+                                         (if (os/windows?)
+                                           (str (td "dir2") ":" (td "dir3"))
+                                           (str (td "dir1") ";" (td "dir2")))
+                                         ". Must be a directory.")}]
                      :warnings m/absent
-                     :info m/absent
+                     :info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"
+                     ;; take advantage of population of opts even on error
                      :opts {:directory (if (os/windows?)
-                                         ["." "dir1" "dir2:dir3"]
-                                         ["." "dir1;dir2" "dir3"])}}
-
-                    (sut/parse-args ["-d" "dir1;dir2:dir3"])))))
+                                         ["."
+                                          (td "dir1")
+                                          (str (td "dir2") ":" (td "dir3"))]
+                                         ["."
+                                          (str (td "dir1") ";" (td "dir2"))
+                                          (td "dir3")])}}
+                    (sut/parse-args ["-d" (str (td "dir1") ";" (td "dir2") ":" (td "dir3"))]))))
+    (t/testing "dir missing"
+      (t/is (match? {:errors [{:msg (str "Invalid value for option -d: "
+                                         (td "dir-missing")
+                                         ". Must be a directory.")}]
+                     :warnings m/absent
+                     :info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"}
+                    (sut/parse-args ["-d" (td "dir-missing")]))))
+    (t/testing "not a dir"
+      (t/is (match? {:errors [{:msg (str "Invalid value for option -d: "
+                                         (td "not-a-dir")
+                                         ". Must be a directory.")}]
+                     :warnings m/absent
+                     :info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"}
+                    (sut/parse-args ["-d" (td "not-a-dir")])))))
 
   (t/testing "--exclude-cwd & --directory"
     (t/testing "solo, no dirs at all"
@@ -67,14 +105,14 @@
       (t/is (match? {:errors m/absent
                      :warnings m/absent
                      :info m/absent
-                     :opts {:directory ["dir1" "dir2"]}}
-                    (sut/parse-args ["-d" "dir1" "-d" "dir2" "--exclude-cwd"]))))
+                     :opts {:directory [(td "dir1") (td "dir2")]}}
+                    (sut/parse-args ["-d" (td "dir1") "-d" (td "dir2") "--exclude-cwd"]))))
     (t/testing "with --directory including ."
       (t/is (match? {:errors m/absent
                      :warnings m/absent
                      :info m/absent
-                     :opts {:directory ["dir1" "dir2" "."]}}
-                    (sut/parse-args ["-d" "dir1" "-d" "dir2" "-d" "." "--exclude-cwd"])))))
+                     :opts {:directory [(td "dir1") (td "dir2") "."]}}
+                    (sut/parse-args ["-d" (td "dir1") "-d" (td "dir2") "-d" "." "--exclude-cwd"])))))
 
   (t/testing "--skip"
     (t/is (match? {:errors m/absent
@@ -149,7 +187,7 @@
                           :error-format "my error format"
                           :reporter "json"
                           :no-progress true
-                          :directory ["two" "three"]
+                          :directory [(td "dir1") (td "dir2")]
                           :exclude-cwd true
                           :upgrade true
                           :verbose true
@@ -167,7 +205,7 @@
                                    "--error-format" "my error format"
                                    "--reporter" "json"
                                    "--no-progress"
-                                   "--directory" "two" "-d" "three"
+                                   "--directory" (td "dir1") "-d" (td "dir2")
                                    "--exclude-cwd"
                                    "--upgrade"
                                    "--verbose"
@@ -242,8 +280,8 @@
     (t/is (match? {:errors m/absent
                    :warnings m/absent
                    :info m/absent
-                   :opts {:directory ["." "foo" "bar"]}}
-                  (sut/validate-tool-opts {:directory ['foo 'bar]}))))
+                   :opts {:directory ["." (td "dir1") (td "dir2")]}}
+                  (sut/validate-tool-opts {:directory [(td "dir1") (td "dir2")]}))))
 
   (t/testing "validated"
     (t/is (match? {:errors m/absent
@@ -269,7 +307,7 @@
                           :skip ["pom" "circle-ci" "leiningen"]
                           :error-format "my error format"
                           :reporter "json"
-                          :directory ["two" "three"]
+                          :directory [(td "dir1") (td "dir2")]
                           :upgrade true
                           :verbose true
                           :force true
@@ -284,7 +322,7 @@
                                            :skip "pom:circle-ci:leiningen"
                                            :error-format "my error format"
                                            :reporter "json"
-                                           :directory ["two" "three"]
+                                           :directory [(td "dir1") (td "dir2")]
                                            :exclude-cwd true
                                            :upgrade true
                                            :verbose true
@@ -300,11 +338,13 @@
     (t/is (match? {:info #"(?ms)^antq \d+\..*^USAGE.*:upgrade.*use a vector"
                    :warnings [{:cause :deprecation
                                :msg #"no-diff.*deprecated.*use.*no-changes"}]
-                   :errors [{:cause :validate :msg #"Invalid value.*reporter.*foo"}
+                   :errors [{:cause :validate :msg #"Invalid value.*directory.*no-dir"}
+                            {:cause :validate :msg #"Invalid value.*reporter.*foo"}
                             {:cause :validate :msg #"Invalid value.*skip.*nope"}
                             {:cause :restrict :msg #"Unknown option.*excude"}]}
                   (sut/validate-tool-opts {:reporter "foo"
                                            :skip ["nope"]
+                                           :directory (td "no-dir")
                                            :no-diff true
                                            :excude "spello"}))))
 

@@ -4,6 +4,7 @@
    [antq.util.os :as os]
    [antq.util.report :as u.report]
    [babashka.cli :as cli]
+   [babashka.fs :as fs]
    [clojure.string :as str]))
 
 (def ^:private valid-reporter
@@ -97,6 +98,11 @@
     :collect path-multi-value
     :default []
     :default-desc "./"
+    :validate {:pred #(and (fs/exists? %) (fs/directory? %))
+               :ex-msg (fn [{:keys [value flag]}]
+                         ;; match verbiage of default bb cli
+                         (format "Invalid value for option %s: %s. Must be a directory."
+                                 flag value))}
     :desc "Add to search path for projects\nAutomatically includes ./ unless --exclude-cwd specified"
     :extra-desc (path-multi-value-tip "--directory" ["dira" "dirb"])}
 
