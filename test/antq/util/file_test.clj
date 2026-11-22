@@ -2,25 +2,28 @@
   (:require
    [antq.test-helper :as h]
    [antq.test-report]
-   [antq.util.env :as u.env]
    [antq.util.file :as sut]
    [clojure.java.io :as io]
    [clojure.test :as t]
    [matcher-combinators.test]))
 
 (t/deftest normalize-path-test
-  (t/testing "HOME"
-    (with-redefs [u.env/getenv {"HOME" (h/os-path "/home/foo")}]
+  (t/testing "home"
+    (with-redefs [sut/home (constantly (h/os-path "/home/foo"))]
       (t/is (= (h/os-path "/path/to/bar") (sut/normalize-path "/path/to/bar")))
       (t/is (= (h/os-path "~/bar") (sut/normalize-path "/home/foo/bar")))
       (t/is (= (h/os-path "/embed/home/foo/here") (sut/normalize-path "/embed/home/foo/here")))
       (t/is (= (h/os-path "~/two/home/foo/three") (sut/normalize-path "/home/foo/two/home/foo/three")))))
 
+  (t/testing "no home -> no-op"
+    (with-redefs [sut/home (constantly nil)]
+      (t/is (= (h/os-path "/home/foo/bar") (sut/normalize-path "/home/foo/bar")))))
+
   (t/testing "Redundant path"
     (t/is (= (h/os-path "/path/to/bar") (sut/normalize-path "/path/to/./foo/../bar"))))
 
   (t/testing "HOME and Redundant path"
-    (with-redefs [u.env/getenv {"HOME" (h/os-path "/home/foo")}]
+    (with-redefs [sut/home (constantly (h/os-path "/home/foo"))]
       (t/is (= (h/os-path "~/bar") (sut/normalize-path "/home/./bar/../foo/bar"))))))
 
 (t/deftest detect-project-test

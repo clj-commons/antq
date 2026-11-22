@@ -2,13 +2,14 @@
   (:require
    [antq.log :as log]
    [antq.util.env :as u.env]
+   [antq.util.file :as u.file]
    [clojure.java.io :as io]
    [clojure.java.shell :as shell]
    [clojure.string :as str]))
 
 (defn lein-home
   []
-  (io/file (System/getProperty "user.home") ".lein"))
+  (io/file (u.file/home) ".lein"))
 
 (defn- env-name
   "cf. https://github.com/technomancy/leiningen/blob/master/doc/DEPLOY.md#credentials-in-the-environment"

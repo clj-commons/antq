@@ -4,7 +4,7 @@
    [antq.impl.antq-meta :as antq-meta]
    [antq.log :as log]
    [antq.util.bb :refer [if-bb]]
-   [antq.util.env :as u.env]
+   [antq.util.file :as u.file]
    [antq.util.leiningen :as u.lein]
    [antq.util.ver :as u.ver]
    [antq.util.xml :as u.xml]
@@ -103,7 +103,7 @@
         path (-> (str name)
                  (str/replace "/" sep)
                  (str/replace "." sep))
-        file (io/file (u.env/getenv "HOME") ".m2" "repository" path "maven-metadata-local.xml")]
+        file (io/file (u.file/home) ".m2" "repository" path "maven-metadata-local.xml")]
     (when (.exists file)
       (try
         (->> (slurp file)
