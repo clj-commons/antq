@@ -57,6 +57,8 @@ Artifacts in an s3 repository are no longer skipped, and a POM that is not cache
 ** https://github.com/clj-commons/antq/issues/424[#424]: Windows: `--directory` path separator is now `;` to avoid conflicts with `C:\foobar` and to follow OS conventions.
 `--directory` path separator remains `:` on macOS & Linux.
 (https://github.com/lread[@lread])
+** https://github.com/clj-commons/antq/issues/441[#441]: Windows: get home dir appropriately for OS
+(https://github.com/lread[@lread])
 
 === Housekeeping
 * General dep bumping and maintenance after migrating `antq` to clj-commons
