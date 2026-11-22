@@ -1,13 +1,17 @@
 (ns ^:no-doc antq.util.file
   (:require
    [antq.constant.project-file :as const.project-file]
-   [antq.util.env :as u.env]
+   [babashka.fs :as fs]
    [clojure.java.io :as io]
    [clojure.string :as str]))
 
+(defn home
+  []
+  (str (fs/home)))
+
 (defn- normalize-home
   [file-path]
-  (let [home (u.env/getenv "HOME")]
+  (let [home (home)]
     (if (and home (str/starts-with? file-path home))
       (str/replace-first file-path home "~")
       file-path)))

@@ -101,7 +101,7 @@ clojure -Sdeps '{:deps {com.github.liquidz/antq {:mvn/version "{lib-version}"}}}
   -M -m antq.core
 ----
 
-Or add the following alias to your project `deps.edn` or `$HOME/.clojure/deps.edn`.
+Or add the following alias to your project `deps.edn` or `~/.clojure/deps.edn`.
 [source,clojure,subs="attributes+"]
 ----
 {
@@ -161,7 +161,7 @@ source <(antq org.babashka.cli/completions snippet --shell zsh)
 [[usage-lein-as-program]]
 === Leiningen (as a `main` program)
 
-Add the following dependency and alias to your `project.clj` or `$HOME/.lein/profiles.clj`.
+Add the following dependency and alias to your `project.clj` or `~/.lein/profiles.clj`.
 [source,clojure,subs="attributes+"]
 ----
 {
@@ -180,7 +180,7 @@ The Leiningen plugin is a newer offering.
 It tends to be more accurate (since Leiningen evaluates your `project.clj` instead of `antq` parsing it).
 However, it does not check any other sources (deps.edn, etc.), and the `:upgrade` option will not be supported (since the plugin cannot always know whether a given dependency came from a specific profile, middleware, etc.).
 
-To use it, add the following plugin to your `project.clj` (or `$HOME/.lein/profiles.clj`):
+To use it, add the following plugin to your `project.clj` (or `~/.lein/profiles.clj`):
 [source,clojure,subs="attributes+"]
 ----
  :plugins [[com.github.liquidz/antq "{lib-version}"]]
