@@ -6,7 +6,7 @@
         version-clj/version-clj {:mvn/version "2.0.3"}
         wevre/natural-compare {:mvn/version "0.0.10"}
         io.github.babashka/deps-deploy {:mvn/version "0.0.1"}
-        org.clj-commons/pretty {:mvn/version "3.10.0"}}
+        org.clj-commons/pretty {:mvn/version "3.11.1"}}
  :tasks
  {;; to allow us to test against a local fake test http (not https) maven repository,
   ;; we automatically set the appropriate environment variable
