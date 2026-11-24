@@ -5,12 +5,10 @@
    [antq.dep.github-action.third-party :as d.gha.third-party]
    [antq.dep.github-action.uses :as d.gha.uses]
    [antq.record :as r]
-   [antq.util.dep :as u.dep]
+   [antq.util.file :as u.file]
+   [babashka.fs :as fs]
    [clj-yaml.core :as yaml]
-   [clojure.java.io :as io]
-   [clojure.walk :as walk])
-  (:import
-   java.io.File))
+   [clojure.walk :as walk]))
 
 (def ^:private detect-functions
   [d.gha.uses/detect
@@ -62,24 +60,24 @@
 
 (defn- load-workflow-deps
   [dir]
-  (let [dir-file (io/file dir ".github" "workflows")]
-    (when (.isDirectory dir-file)
+  (let [dir-file (fs/file dir ".github" "workflows")]
+    (when (fs/directory? dir-file)
       (->> (file-seq dir-file)
-           (filter (fn [^File f]
-                     (and (.isFile ^File f)
-                          (re-seq #"\.ya?ml$" (.getName f)))))
-           (mapcat #(extract-deps (u.dep/relative-path %)
-                                  (slurp %)))))))
+           (filter (fn [f]
+                     (and (fs/regular-file? f)
+                          (re-seq #"\.ya?ml$" (fs/file-name f)))))
+           (mapcat #(extract-deps (u.file/data-friendly-path %)
+                                  (fs/slurp %)))))))
 
 (defn- load-action-deps
   [dir]
-  (let [dir-file (io/file dir ".github" "actions")]
-    (when (.isDirectory dir-file)
+  (let [dir-file (fs/file dir ".github" "actions")]
+    (when (fs/directory? dir-file)
       (->> (file-seq dir-file)
-           (filter (fn [^File f]
-                     (and (.isFile f)
-                          (re-seq #"^action\.ya?ml$" (.getName f)))))
-           (mapcat #(extract-deps (u.dep/relative-path %)
+           (filter (fn [f]
+                     (and (fs/regular-file? f)
+                          (re-seq #"^action\.ya?ml$" (fs/file-name f)))))
+           (mapcat #(extract-deps (u.file/data-friendly-path %)
                                   (slurp %)))))))
 
 (defn load-deps

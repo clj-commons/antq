@@ -3,16 +3,16 @@
    [antq.dep.clojure.tool :as sut]
    [antq.record :as r]
    [antq.test-report]
-   [clojure.java.io :as io]
+   [babashka.fs :as fs]
    [clojure.test :as t]
    [matcher-combinators.matchers :as m]
    [matcher-combinators.test]))
 
 (def ^:private test-dir-file
-  (io/file "test" "resources" "dep" "clojure-cli-tool"))
+  (fs/file "test" "resources" "dep" "clojure-cli-tool"))
 
 (def ^:private file-path
-  (.getAbsolutePath (io/file test-dir-file "dummy.edn")))
+  (str (fs/absolutize (fs/file test-dir-file "dummy.edn"))))
 
 (defn- git-tag-dependency
   [m]

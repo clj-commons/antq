@@ -1,6 +1,7 @@
 (ns ^:no-doc antq.cli
   (:require
    [antq.impl.antq-meta :as antq-meta]
+   [antq.util.file :as u.file]
    [antq.util.os :as os]
    [antq.util.report :as u.report]
    [babashka.cli :as cli]
@@ -98,7 +99,8 @@
     :collect path-multi-value
     :default []
     :default-desc "./"
-    :validate {:pred #(and (fs/exists? %) (fs/directory? %))
+    :validate {:pred #(let [d (u.file/tilde->home %)]
+                        (and (fs/exists? d) (fs/directory? d)))
                :ex-msg (fn [{:keys [value flag]}]
                          ;; match verbiage of default bb cli
                          (format "Invalid value for option %s: %s. Must be a directory."

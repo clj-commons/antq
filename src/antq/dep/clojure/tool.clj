@@ -1,8 +1,8 @@
 (ns ^:no-doc antq.dep.clojure.tool
   (:require
    [antq.record :as r]
+   [babashka.fs :as fs]
    [clojure.edn :as edn]
-   [clojure.java.io :as io]
    [clojure.string :as str]
    [clojure.tools.deps.edn :as deps-edn])
   (:import
@@ -11,9 +11,8 @@
 (defn- tools-dir
   ^File []
   (-> (deps-edn/user-deps-path)
-      (io/file)
-      (.getParentFile)
-      (io/file "tools")))
+      (fs/parent)
+      (fs/file "tools")))
 
 (defn extract-deps
   [file-path tool-edn-content-str]
@@ -33,5 +32,5 @@
   ([dir-file]
    (some->> dir-file
             (file-seq)
-            (filter (fn [^File f] (and (.isFile f) (str/ends-with? (.getName f) ".edn"))))
-            (keep (fn [^File f] (extract-deps (.getAbsolutePath f) (slurp f)))))))
+            (filter (fn [f] (and (fs/regular-file? f) (str/ends-with? (fs/file-name f) ".edn"))))
+            (keep (fn [f] (extract-deps (str (fs/absolutize f)) (fs/slurp f)))))))

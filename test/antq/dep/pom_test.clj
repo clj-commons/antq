@@ -4,6 +4,7 @@
    [antq.dep.pom :as sut]
    [antq.record :as r]
    [antq.test-report]
+   [babashka.fs :as fs]
    [clojure.java.io :as io]
    [clojure.test :as t]
    [matcher-combinators.matchers :as m]
@@ -23,7 +24,7 @@
 (t/deftest extract-deps-test
   (let [deps (sut/extract-deps
               file-path
-              (io/file (io/resource "dep/test_pom.xml")))]
+              (fs/file (io/resource "dep/test_pom.xml")))]
     (t/is (sequential? deps))
     (t/is (every? #(instance? antq.record.Dependency %) deps))
     (t/is (match?
@@ -37,7 +38,7 @@
 (t/deftest extract-deps-with-properties-test
   (let [deps (sut/extract-deps
               file-path
-              (io/file (io/resource "dep/test_pom_properties.xml")))
+              (fs/file (io/resource "dep/test_pom_properties.xml")))
         dependency' (fn [m]
                       (assoc-in (dependency m)
                                 [:repositories "central"]
@@ -52,7 +53,7 @@
 (t/deftest extract-deps-with-parent-child-pom-test
   (let [deps (sut/extract-deps
               file-path
-              (io/file (io/resource "dep/child_pom/child/pom.xml")))]
+              (fs/file (io/resource "dep/child_pom/child/pom.xml")))]
     (t/is (match?
            (m/nested-equals
             [(assoc (dependency {:name "org.clojure/clojure" :version "1.5.0"})

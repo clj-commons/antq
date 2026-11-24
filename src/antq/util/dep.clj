@@ -6,7 +6,7 @@
    [antq.util.function :as u.fn]
    [antq.util.maven :as u.mvn]
    [antq.util.url :as u.url]
-   [clojure.java.io :as io]
+   [babashka.fs :as fs]
    [clojure.string :as str]
    [clojure.tools.deps :as deps]
    [clojure.tools.deps.extensions :as ext])
@@ -22,14 +22,6 @@
         (.compareTo ^String (:name x) ^String (:name y))
         prj))
     0))
-
-(defn relative-path
-  [^File target-file]
-  (let [p (.getPath target-file)
-        dot-slash (str "." File/separator)]
-    (if (str/starts-with? p dot-slash)
-      (subs p 2)
-      p)))
 
 (defn name-candidates
   [^String dep-name]
@@ -53,21 +45,6 @@
   [dep]
   dep)
 
-(defn normalize-path
-  [^String path]
-  (let [file (io/file path)]
-    (try
-      (let [path' (-> file
-                      (.toPath)
-                      (.normalize)
-                      (str))]
-        (if (and (not (str/blank? path))
-                 (str/blank? path'))
-          "."
-          path'))
-      (catch Exception _
-        (.getCanonicalPath file)))))
-
 (defn- pom-file*
   "Returns the POM of dep in the local repository, or nil when it cannot be
   read. Reading a Maven coordinate's dependencies caches its POM there, which
@@ -80,14 +57,14 @@
         config {:mvn/repos (:repositories (repository-opts dep))}
         {:keys [base path]} (deps/lib-location lib coord config)
         artifact-id (first (str/split (name lib) #"\$"))
-        file (io/file base path (str artifact-id "-" version ".pom"))]
-    (when-not (.exists file)
+        file (fs/file base path (str artifact-id "-" version ".pom"))]
+    (when-not (fs/exists? file)
       (try
         (ext/coord-deps lib coord :mvn config)
         (catch Exception ex
           (log/warning (str "Failed to read the POM of " lib " " version ": "
                             (->> ex (iterate ex-cause) (take-while some?) last ex-message))))))
-    (when (.exists file)
+    (when (fs/exists? file)
       file)))
 
 (def ^:private pom-file-with-timeout

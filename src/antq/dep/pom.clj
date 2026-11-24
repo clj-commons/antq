@@ -4,11 +4,11 @@
    [antq.constant.project-file :as const.project-file]
    [antq.record :as r]
    [antq.util.bb :refer [if-bb]]
-   [antq.util.dep :as u.dep]
+   [antq.util.file :as u.file]
    [antq.util.maven :as u.mvn]
    [antq.util.xml :as u.xml]
+   [babashka.fs :as fs]
    [clojure.data.xml :as xml]
-   [clojure.java.io :as io]
    [clojure.tools.deps.extensions.pom :as ext.pom])
   (:import
    java.io.File))
@@ -66,7 +66,7 @@
                   [:=> [:cat 'string?] [:maybe r/?dependencies]]]}
   ([] (load-deps "."))
   ([dir]
-   (let [file (io/file dir const.project-file/maven)]
-     (when (.exists file)
-       (extract-deps (u.dep/relative-path file)
+   (let [file (fs/file dir const.project-file/maven)]
+     (when (fs/exists? file)
+       (extract-deps (u.file/data-friendly-path file)
                      file)))))

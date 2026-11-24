@@ -4,7 +4,8 @@
    [antq.constant.project-file :as const.project-file]
    [antq.record :as r]
    [antq.util.dep :as u.dep]
-   [clojure.java.io :as io]
+   [antq.util.file :as u.file]
+   [babashka.fs :as fs]
    [clojure.walk :as walk]))
 
 (defn- exclude?
@@ -67,7 +68,7 @@
                   [:=> [:cat 'string?] [:maybe r/?dependencies]]]}
   ([] (load-deps "."))
   ([dir]
-   (let [file (io/file dir const.project-file/boot)]
-     (when (.exists file)
-       (extract-deps (u.dep/relative-path file)
-                     (slurp file))))))
+   (let [file (fs/file dir const.project-file/boot)]
+     (when (fs/exists? file)
+       (extract-deps (u.file/data-friendly-path file)
+                     (fs/slurp file))))))

@@ -5,8 +5,9 @@
    [antq.constant.project-file :as const.project-file]
    [antq.record :as r]
    [antq.util.dep :as u.dep]
+   [antq.util.file :as u.file]
+   [babashka.fs :as fs]
    [clojure.edn :as edn]
-   [clojure.java.io :as io]
    [clojure.string :as str]
    [clojure.tools.deps.edn :as deps-edn]
    [clojure.tools.deps.extensions.git :as git]
@@ -16,9 +17,9 @@
 
 (defn user-deps-repository
   []
-  (let [file (io/file (deps-edn/user-deps-path))]
-    (when (.exists file)
-      (-> file slurp edn/read-string :mvn/repos))))
+  (let [file (deps-edn/user-deps-path)]
+    (when (fs/exists? file)
+      (-> file fs/slurp edn/read-string :mvn/repos))))
 
 (defmulti extract-type-and-version
   (fn [opt]
@@ -74,14 +75,12 @@
 
 (defn- get-relative-path-by-current-working-directory
   [current-working-directory relative-path]
-  (let [file (io/file current-working-directory)
-        dir (if (.isDirectory file)
+  (let [file (fs/file current-working-directory)
+        dir (if (fs/directory? file)
               file
-              (.getParentFile file))]
+              (fs/parent file))]
     (if dir
-      (-> (u.dep/relative-path dir)
-          (io/file relative-path)
-          (str))
+      (str (fs/file dir relative-path))
       relative-path)))
 
 (defn- get-local-root-relative-path
@@ -164,12 +163,12 @@
   ([] (load-deps "."))
   ([dir] (load-deps dir (atom #{})))
   ([dir loaded-dir-set]
-   (let [dir (u.dep/normalize-path dir)]
-     ;; Avoid infinite loop
-     (when-not (contains? @loaded-dir-set dir)
-       (swap! loaded-dir-set conj dir)
-       (let [file (io/file dir const.project-file/clojure-cli)]
-         (when (.exists file)
-           (extract-deps (u.dep/relative-path file)
-                         (slurp file)
+   (let [unique-dir (fs/canonicalize dir)] ; can't use real-path because dir might not actually exist
+     ;; Avoid infinite loop, load from each dir only once
+     (when-not (contains? @loaded-dir-set unique-dir)
+       (swap! loaded-dir-set conj unique-dir)
+       (let [file (fs/file dir const.project-file/clojure-cli)]
+         (when (fs/exists? file)
+           (extract-deps (u.file/data-friendly-path file)
+                         (fs/slurp file)
                          loaded-dir-set)))))))
