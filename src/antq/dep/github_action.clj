@@ -4,7 +4,6 @@
    [antq.dep.github-action.matrix :as d.gha.matrix]
    [antq.dep.github-action.third-party :as d.gha.third-party]
    [antq.dep.github-action.uses :as d.gha.uses]
-   [antq.record :as r]
    [antq.util.file :as u.file]
    [babashka.fs :as fs]
    [clj-yaml.core :as yaml]
@@ -34,9 +33,6 @@
   (get-in dep [:extra const.gh-action/type-key]))
 
 (defn extract-deps
-  {:malli/schema [:=>
-                  [:cat 'string? 'string?]
-                  r/?dependencies]}
   [file-path file-content-str]
   (let [deps (atom [])
         parsed (yaml/parse-string file-content-str)]
@@ -81,9 +77,6 @@
                                   (slurp %)))))))
 
 (defn load-deps
-  {:malli/schema [:function
-                  [:=> :cat [:maybe r/?dependencies]]
-                  [:=> [:cat 'string?] [:maybe r/?dependencies]]]}
   ([] (load-deps "."))
   ([dir]
    (not-empty

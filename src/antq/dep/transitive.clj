@@ -79,7 +79,6 @@
 ;; =====
 
 (defn- deps->deps-map
-  {:malli/schema [:=> [:cat r/?dependencies r/?repository] 'any?]}
   [deps repos]
   {:deps (apply merge (map dep->dep-map deps))
    :mvn/repos (merge deps.util.maven/standard-repos repos)})

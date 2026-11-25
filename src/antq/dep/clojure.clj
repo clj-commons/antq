@@ -106,9 +106,6 @@
       (u.dep/ensure-version-list)))
 
 (defn extract-deps
-  {:malli/schema [:=>
-                  [:cat 'string? 'string? [:* 'any?]]
-                  r/?dependencies]}
   [file-path deps-edn-content-str & [loaded-dir-set]]
   (let [deps (atom [])
         edn (edn/read-string deps-edn-content-str)
@@ -156,10 +153,6 @@
          (remove nil?))))
 
 (defn load-deps
-  {:malli/schema [:function
-                  [:=> :cat [:maybe r/?dependencies]]
-                  [:=> [:cat 'string?] [:maybe r/?dependencies]]
-                  [:=> [:cat 'string? 'any?] [:maybe r/?dependencies]]]}
   ([] (load-deps "."))
   ([dir] (load-deps dir (atom #{})))
   ([dir loaded-dir-set]
