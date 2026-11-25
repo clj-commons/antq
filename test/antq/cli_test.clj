@@ -14,6 +14,25 @@
   [& segs]
   (str (apply fs/file "target/test/cli-test" segs)))
 
+(defn- res
+  [m]
+  (merge {:errors m/absent
+          :warnings m/absent
+          :info m/absent}
+         m))
+
+(defn- res-err
+  [m]
+  (merge (assoc (res {})
+                :info #".* usage help.* --help")
+         m))
+
+(defn- res-err-tool
+  [m]
+  (merge (assoc (res {})
+                :info #".* usage help.* :help true")
+         m))
+
 (t/use-fixtures :once
   (fn [f]
     (fs/delete-tree (td))
@@ -27,38 +46,29 @@
 (t/deftest cli-options-test
   (with-redefs [u.file/home (constantly (td "fake-home"))]
     (t/testing "default options"
-      (t/is (= {:opts {:directory ["."]
-                       :reporter "table"
-                       :usage-help-style :cli}}
-               (sut/parse-args []))))
+      (t/is (match? (res {:opts {:directory ["."]
+                                 :reporter "table"
+                                 :usage-help-style :cli}})
+                    (sut/parse-args []))))
 
     (t/testing "--exclude"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info m/absent
-                     :opts {:exclude ["ex/ex1" "ex/ex2" "ex/ex3"
-                                      "ex/ex4@1.0.0" "ex/ex5@2.0.0" "ex/ex6@3.0.0"]}}
+      (t/is (match? (res {:opts {:exclude ["ex/ex1" "ex/ex2" "ex/ex3"
+                                           "ex/ex4@1.0.0" "ex/ex5@2.0.0" "ex/ex6@3.0.0"]}})
                     (sut/parse-args ["--exclude=ex/ex1"
                                      "--exclude=ex/ex2:ex/ex3"
                                      "--exclude=ex/ex4@1.0.0"
                                      "--exclude=ex/ex5@2.0.0:ex/ex6@3.0.0"]))))
 
     (t/testing "--focus"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info m/absent
-                     :opts {:focus ["fo/cus1" "fo/cus2" "fo/cus3"]}}
+      (t/is (match? (res {:opts {:focus ["fo/cus1" "fo/cus2" "fo/cus3"]}})
                     (sut/parse-args ["--focus=fo/cus1"
                                      "--focus=fo/cus2:fo/cus3"]))))
 
     (t/testing "--directory"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info m/absent
-                     :opts {:directory ["."
-                                        (td "dir1") (td "dir2") (td "dir3") (td "dir4")
-                                        (td "dir5") (td "dir6") (td "dir7")
-                                        "~" "~/dirf1"]}}
+      (t/is (match? (res {:opts {:directory ["."
+                                             (td "dir1") (td "dir2") (td "dir3") (td "dir4")
+                                             (td "dir5") (td "dir6") (td "dir7")
+                                             "~" "~/dirf1"]}})
                     (sut/parse-args ["-d" (td "dir1")
                                      (str "--directory=" (td "dir2"))
                                      "--directory" (str (td "dir3")
@@ -68,148 +78,105 @@
                                      "-d" (td "dir7")
                                      "--directory" "~" "~/dirf1"])))
       (t/testing "os specific separator parsing"
-        (t/is (match? {:errors [{:msg (str "Invalid value for option -d: "
-                                           (if (os/windows?)
-                                             (str (td "dir2") ":" (td "dir3"))
-                                             (str (td "dir1") ";" (td "dir2")))
-                                           ". Must be a directory.")}]
-                       :warnings m/absent
-                       :info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"
-                       ;; take advantage of population of opts even on error
-                       :opts {:directory (if (os/windows?)
-                                           ["."
-                                            (td "dir1")
-                                            (str (td "dir2") ":" (td "dir3"))]
-                                           ["."
-                                            (str (td "dir1") ";" (td "dir2"))
-                                            (td "dir3")])}}
+        (t/is (match? (res-err {:errors [{:msg (str "Invalid value for option -d: "
+                                                          (if (os/windows?)
+                                                            (str (td "dir2") ":" (td "dir3"))
+                                                            (str (td "dir1") ";" (td "dir2")))
+                                                          ". Must be a directory.")}]
+                                      ;; take advantage of population of opts even on error
+                                      :opts {:directory (if (os/windows?)
+                                                          ["."
+                                                           (td "dir1")
+                                                           (str (td "dir2") ":" (td "dir3"))]
+                                                          ["."
+                                                           (str (td "dir1") ";" (td "dir2"))
+                                                           (td "dir3")])}})
                       (sut/parse-args ["-d" (str (td "dir1") ";" (td "dir2") ":" (td "dir3"))]))))
       (t/testing "dir missing"
-        (t/is (match? {:errors [{:msg (str "Invalid value for option -d: "
-                                           (td "dir-missing")
-                                           ". Must be a directory.")}]
-                       :warnings m/absent
-                       :info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"}
+        (t/is (match? (res-err {:errors [{:msg (str "Invalid value for option -d: "
+                                                         (td "dir-missing")
+                                                         ". Must be a directory.")}]
+                                     :warnings m/absent})
                       (sut/parse-args ["-d" (td "dir-missing")])))
-        (t/is (match? {:errors [{:msg (str "Invalid value for option -d: "
-                                           "~/dir-missing"
-                                           ". Must be a directory.")}]
-                       :warnings m/absent
-                       :info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"}
+        (t/is (match? (res-err {:errors [{:msg (str "Invalid value for option -d: "
+                                                    "~/dir-missing"
+                                                    ". Must be a directory.")}]})
                       (sut/parse-args ["-d" "~/dir-missing"]))))
       (t/testing "not a dir"
-        (t/is (match? {:errors [{:msg (str "Invalid value for option -d: "
-                                           (td "not-a-dir")
-                                           ". Must be a directory.")}]
-                       :warnings m/absent
-                       :info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"}
+        (t/is (match? (res-err {:errors [{:msg (str "Invalid value for option -d: "
+                                                    (td "not-a-dir")
+                                                    ". Must be a directory.")}]})
                       (sut/parse-args ["-d" (td "not-a-dir")])))))
 
     (t/testing "--exclude-cwd & --directory"
       (t/testing "solo, no dirs at all"
-        (t/is (match? {:errors m/absent
-                       :warnings m/absent
-                       :info m/absent
-                       :opts {:directory []}}
+        (t/is (match? (res {:opts {:directory []}})
                       (sut/parse-args ["--exclude-cwd"]))))
       (t/testing "with --directory, just specified dirs"
-        (t/is (match? {:errors m/absent
-                       :warnings m/absent
-                       :info m/absent
-                       :opts {:directory [(td "dir1") (td "dir2")]}}
+        (t/is (match? (res {:opts {:directory [(td "dir1") (td "dir2")]}})
                       (sut/parse-args ["-d" (td "dir1") "-d" (td "dir2") "--exclude-cwd"]))))
       (t/testing "with --directory including ."
-        (t/is (match? {:errors m/absent
-                       :warnings m/absent
-                       :info m/absent
-                       :opts {:directory [(td "dir1") (td "dir2") "."]}}
+        (t/is (match? (res {:opts {:directory [(td "dir1") (td "dir2") "."]}})
                       (sut/parse-args ["-d" (td "dir1") "-d" (td "dir2") "-d" "." "--exclude-cwd"])))))
 
     (t/testing "--skip"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info m/absent
-                     :opts {:skip ["boot" "clojure-cli"]}}
+      (t/is (match? (res {:opts {:skip ["boot" "clojure-cli"]}})
                     (sut/parse-args ["--skip" "boot"
                                      "--skip=clojure-cli"])))
 
       (t/testing "validation error"
-        (t/is (match? {:info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"
-                       :warnings m/absent
-                       :errors [{:cause :validate :msg #"Invalid value.*skip.*gradle"}]}
+        (t/is (match? (res-err {:errors [{:cause :validate :msg #"Invalid value.*skip.*gradle"}]})
                       (sut/parse-args ["--skip=gradle"])))))
 
     (t/testing "--error-format"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info m/absent
-                     :opts {:error-format "foo"}}
+      (t/is (match? (res {:opts {:error-format "foo"}})
                     (sut/parse-args ["--error-format=foo"])))
 
       (t/testing "escaping"
-        (t/is (match? {:errors m/absent
-                       :warnings m/absent
-                       :info m/absent
-                       :opts {:error-format "foo\nbar\tbaz"}}
+        (t/is (match? (res {:opts {:error-format "foo\nbar\tbaz"}})
                       (sut/parse-args ["--error-format=foo\\nbar\\tbaz"])))))
 
     (t/testing "--reporter"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info m/absent
-                     :opts {:reporter "edn"}}
+      (t/is (match? (res {:opts {:reporter "edn"}})
                     (sut/parse-args ["--reporter=edn"])))
 
       (t/testing "validation error"
-        (t/is (match? {:info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"
-                       :warnings m/absent
-                       :errors [{:cause :validate :msg #"Invalid value.*reporter.*foo"}]}
+        (t/is (match? (res-err {:errors [{:cause :validate :msg #"Invalid value.*reporter.*foo"}]})
                       (sut/parse-args ["--reporter=foo"])))))
 
     (t/testing "--no-progress"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info m/absent
-                     :opts {:no-progress true}}
+      (t/is (match? (res {:opts {:no-progress true}})
                     (sut/parse-args ["--no-progress"]))))
 
     (t/testing "--upgrade"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info m/absent
-                     :opts {:upgrade true}}
+      (t/is (match? (res {:opts {:upgrade true}})
                     (sut/parse-args ["--upgrade"]))))
 
     (t/testing "--no-diff"
-      (t/is (match? {:errors m/absent
-                     :warnings [{:cause :deprecation
-                                 :msg #"no-diff.*deprecated.*use.*no-changes"}]
-                     :info m/absent
-                     :opts {:no-diff true}}
+      (t/is (match? (res {:warnings [{:cause :deprecation
+                                      :msg #"no-diff.*deprecated.*use.*no-changes"}]
+                          :opts {:no-diff true}})
                     (sut/parse-args ["--no-diff"]))))
 
     (t/testing "all opts - all valid"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info m/absent
-                     :opts {:exclude ["art1" "art2@1.2.3" "art7"]
-                            :focus ["art3" "art4"]
-                            :skip ["pom" "circle-ci" "leiningen"]
-                            :error-format "my error format"
-                            :reporter "json"
-                            :no-progress true
-                            :directory [(td "dir1") (td "dir2") "~/dirf1"]
-                            :exclude-cwd true
-                            :upgrade true
-                            :verbose true
-                            :force true
-                            :download true
-                            :ignore-locals true
-                            :check-clojure-tools true
-                            :check-gradle true
-                            :no-changes true
-                            :changes-in-table true
-                            :transitive true}}
+      (t/is (match? (res {:opts {:exclude ["art1" "art2@1.2.3" "art7"]
+                                 :focus ["art3" "art4"]
+                                 :skip ["pom" "circle-ci" "leiningen"]
+                                 :error-format "my error format"
+                                 :reporter "json"
+                                 :no-progress true
+                                 :directory [(td "dir1") (td "dir2") "~/dirf1"]
+                                 :exclude-cwd true
+                                 :upgrade true
+                                 :verbose true
+                                 :force true
+                                 :download true
+                                 :ignore-locals true
+                                 :check-clojure-tools true
+                                 :check-gradle true
+                                 :no-changes true
+                                 :changes-in-table true
+                                 :transitive true}})
                     (sut/parse-args ["--exclude" "art1:art2@1.2.3" "--exclude" "art7"
                                      "--focus" "art3" "--focus" "art4"
                                      "--skip" "pom:circle-ci" "--skip" "leiningen"
@@ -230,13 +197,12 @@
                                      "--transitive"]))))
 
     (t/testing "errors and warnings"
-      (t/is (match? {:info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"
-                     :warnings [{:cause :deprecation
-                                 :msg #"no-diff.*deprecated.*use.*no-changes"}]
-                     :errors [{:cause :validate :msg #"Invalid value.*reporter.*foo"}
-                              {:cause :validate :msg #"Invalid value.*skip.*nope"}
-                              {:cause :restrict-args :msg #"Unexpected argument.*somecmd"}
-                              {:cause :restrict :msg #"Unknown option.*excude"}]}
+      (t/is (match? (res-err {:warnings [{:cause :deprecation
+                                          :msg #"no-diff.*deprecated.*use.*no-changes"}]
+                              :errors [{:cause :validate :msg #"Invalid value.*reporter.*foo"}
+                                       {:cause :validate :msg #"Invalid value.*skip.*nope"}
+                                       {:cause :restrict-args :msg #"Unexpected argument.*somecmd"}
+                                       {:cause :restrict :msg #"Unknown option.*excude"}]})
                     (sut/parse-args ["somecmd"
                                      "--reporter" "foo"
                                      "--skip" "nope"
@@ -244,37 +210,31 @@
                                      "--excude" "spello"]))))
 
     (t/testing "--version"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info (if (System/getProperty "babashka.version")
-                             #"^antq \d+\..* on babashka \d+\."
-                             #"^antq \d+\..* on Java .*\d+.")}
+      (t/is (match? (res {:info (if (System/getProperty "babashka.version")
+                                  #"^antq \d+\..* on babashka \d+\."
+                                  #"^antq \d+\..* on Java .*\d+.")})
                     (sut/parse-args ["--version"]))))
 
     (t/testing "--help"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"}
+      (t/is (match? (res {:info #"(?ms)^antq \d+\..*^USAGE.*--upgrade.*repeat arg"})
                     (sut/parse-args ["--help"])))
       (t/testing "OS specific usage text"
-        (t/is (match? {:errors m/absent
-                       :warnings m/absent
-                       :info (if (os/windows?)
-                               #"dira;dirb"
-                               #"dira:dirb")}
+        (t/is (match? (res {:info (if (os/windows?)
+                                    #"dira;dirb"
+                                    #"dira:dirb")})
                       (sut/parse-args ["--help"])))))))
 
 (t/deftest cooldown-option-test
-  (t/is (match? {:errors m/absent :opts {:cooldown "7d"}} (sut/parse-args ["--cooldown=7d"])))
-  (t/is (match? {:errors m/absent :opts {:cooldown "0d"}} (sut/parse-args ["--cooldown" "0d"])))
-  (t/is (match? {:errors m/absent :opts {:cooldown "7d"}} (sut/validate-tool-opts {:cooldown "7d"})))
+  (t/is (match? (res {:opts {:cooldown "7d"}}) (sut/parse-args ["--cooldown=7d"])))
+  (t/is (match? (res {:opts {:cooldown "0d"}}) (sut/parse-args ["--cooldown" "0d"])))
+  (t/is (match? (res {:opts {:cooldown "7d"}}) (sut/validate-tool-opts {:cooldown "7d"})))
   (t/testing "the unit d is required"
-    (t/is (match? {:errors [{:msg (str "Invalid value for option --cooldown: 7. "
-                                       "Expected a number of days with the unit d, e.g. 7d")}]}
+    (t/is (match? (res-err {:errors [{:msg (str "Invalid value for option --cooldown: 7. "
+                                                "Expected a number of days with the unit d, e.g. 7d")}]})
                   (sut/parse-args ["--cooldown=7"])))
-    (t/is (match? {:errors [{:msg #":cooldown: 7\. Expected .* 7d"}]} (sut/validate-tool-opts {:cooldown 7}))))
+    (t/is (match? (res-err-tool {:errors [{:msg #":cooldown: 7\. Expected .* 7d"}]}) (sut/validate-tool-opts {:cooldown 7}))))
   (t/testing "invalid values"
-    (t/are [arg] (match? {:errors [{:msg #"Invalid value for option --cooldown"}]} (sut/parse-args [arg]))
+    (t/are [arg] (match? (res-err {:errors [{:msg #"Invalid value for option --cooldown"}]}) (sut/parse-args [arg]))
       "--cooldown=-1d"
       "--cooldown=7h"
       "--cooldown=7 d"
@@ -283,52 +243,41 @@
 (t/deftest validate-tool-opts
   (with-redefs [u.file/home (constantly (td "fake-home"))]
     (t/testing "defaults"
-      (t/is (= {:opts {:directory ["."]
-                       :reporter "table"
-                       :usage-help-style :clojure-tool}}
+      (t/is (match? (res {:opts {:directory ["."]
+                                 :reporter "table"
+                                 :usage-help-style :clojure-tool}})
                (sut/validate-tool-opts {}))))
 
     (t/testing "multi-value"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info m/absent
-                     :opts {:directory ["." (td "dir1") (td "dir2")]}}
+      (t/is (match? (res {:opts {:directory ["." (td "dir1") (td "dir2")]}})
                     (sut/validate-tool-opts {:directory [(td "dir1") (td "dir2")]}))))
 
     (t/testing "validated"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info m/absent
-                     :opts {:reporter "edn"}}
+      (t/is (match? (res {:opts {:reporter "edn"}})
                     (sut/validate-tool-opts {:reporter "edn"}))))
 
     (t/testing "deprecated"
-      (t/is (match? {:errors m/absent
-                     :warnings [{:cause :deprecation
-                                 :msg #"no-diff.*deprecated.*use.*no-changes"}]
-                     :info m/absent
-                     :opts {:no-diff true}}
+      (t/is (match? (res {:warnings [{:cause :deprecation
+                                     :msg #"no-diff.*deprecated.*use.*no-changes"}]
+                          :opts {:no-diff true}})
                     (sut/validate-tool-opts {:no-diff true}))))
 
     (t/testing "all opts - all valid"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info m/absent
-                     :opts {:exclude ["art1" "art2@1.2.3"]
-                            :focus ["art3" "art4"]
-                            :skip ["pom" "circle-ci" "leiningen"]
-                            :error-format "my error format"
-                            :reporter "json"
-                            :directory [(td "dir1") (td "dir2") "~/dirf1"]
-                            :upgrade true
-                            :verbose true
-                            :force true
-                            :download true
-                            :ignore-locals true
-                            :check-clojure-tools true
-                            :no-changes true
-                            :changes-in-table true
-                            :transitive true}}
+      (t/is (match? (res {:opts {:exclude ["art1" "art2@1.2.3"]
+                                :focus ["art3" "art4"]
+                                :skip ["pom" "circle-ci" "leiningen"]
+                                :error-format "my error format"
+                                :reporter "json"
+                                :directory [(td "dir1") (td "dir2") "~/dirf1"]
+                                :upgrade true
+                                :verbose true
+                                :force true
+                                :download true
+                                :ignore-locals true
+                                :check-clojure-tools true
+                                :no-changes true
+                                :changes-in-table true
+                                :transitive true}})
                     (sut/validate-tool-opts {:exclude "art1:art2@1.2.3" ; try colon separated for multi
                                              :focus ["art3" "art4"]     ; try vector for multi
                                              :skip "pom:circle-ci:leiningen"
@@ -347,13 +296,12 @@
                                              :transitive true}))))
 
     (t/testing "errors and warnings"
-      (t/is (match? {:info #"(?ms)^antq \d+\..*^USAGE.*:upgrade.*use a vector"
-                     :warnings [{:cause :deprecation
-                                 :msg #"no-diff.*deprecated.*use.*no-changes"}]
-                     :errors [{:cause :validate :msg #"Invalid value.*directory.*no-dir"}
-                              {:cause :validate :msg #"Invalid value.*reporter.*foo"}
-                              {:cause :validate :msg #"Invalid value.*skip.*nope"}
-                              {:cause :restrict :msg #"Unknown option.*excude"}]}
+      (t/is (match? (res-err-tool {:warnings [{:cause :deprecation
+                                               :msg #"no-diff.*deprecated.*use.*no-changes"}]
+                                   :errors [{:cause :validate :msg #"Invalid value.*directory.*no-dir"}
+                                            {:cause :validate :msg #"Invalid value.*reporter.*foo"}
+                                            {:cause :validate :msg #"Invalid value.*skip.*nope"}
+                                            {:cause :restrict :msg #"Unknown option.*excude"}]})
                     (sut/validate-tool-opts {:reporter "foo"
                                              :skip ["nope"]
                                              :directory [(td "no-dir")]
@@ -361,17 +309,13 @@
                                              :excude "spello"}))))
 
     (t/testing "version"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info (if (System/getProperty "babashka.version")
-                             #"^antq \d+\..* on babashka \d+\."
-                             #"^antq \d+\..* on Java .*\d+.")}
+      (t/is (match? (res {:info (if (System/getProperty "babashka.version")
+                                  #"^antq \d+\..* on babashka \d+\."
+                                  #"^antq \d+\..* on Java .*\d+.")})
                     (sut/validate-tool-opts {:version true}))))
 
     (t/testing "help"
-      (t/is (match? {:errors m/absent
-                     :warnings m/absent
-                     :info #"(?ms)^antq \d+\..*^USAGE.*:upgrade.*use a vector"}
+      (t/is (match? (res {:info #"(?ms)^antq \d+\..*^USAGE.*:upgrade.*use a vector"})
                     (sut/validate-tool-opts {:help true}))))))
 
 (defn- complete

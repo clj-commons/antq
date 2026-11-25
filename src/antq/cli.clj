@@ -310,6 +310,19 @@
                              :check-clojure-tools :check-gradle :no-changes :changes-in-table :transitive
                              :cooldown :verbose :version :help]})))
 
+(defn- help-on-help
+  "Return how to get help as string
+
+  opts:
+  - `:usage-help-style`
+    - `:cli` for -M style help
+    - `:clojure-tool` for -T and -X style help "
+  [{:keys [opts]}]
+  (str (format "For full usage help, specify: %s"
+               (case (:usage-help-style opts)
+                 :cli "--help"
+                 :clojure-tool ":help true"))))
+
 (defn parse-args
   "Parses command line `args` and returns a map of:
   - `:warnings` - non-fatal issues, caller should display
@@ -357,7 +370,10 @@
           (assoc :warnings warnings)
 
           (seq errors)
-          (assoc :errors errors :info (usage-help {:opts opts}))
+          (assoc :errors errors
+                 ;; errors can scroll out of view if we were to provide full usage help, so present
+                 ;; a brief note on how to get help instead.
+                 :info (help-on-help {:opts opts}))
 
           :always
           (assoc :opts opts))))))
