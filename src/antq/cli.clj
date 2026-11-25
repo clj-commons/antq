@@ -79,7 +79,7 @@
     :collect multi-value
     :enum valid-skip
     :desc (str "One of: " (str/join "|" valid-skip))
-    :extra-desc (multi-value-tip "--format" ["pom" "leiningen"])}
+    :extra-desc (multi-value-tip "--skip" ["pom" "leiningen"])}
 
    :error-format
    {:ref "<error-format>"
