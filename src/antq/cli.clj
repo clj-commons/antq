@@ -75,10 +75,10 @@
     :extra-desc (multi-value-tip "--focus" ["art1" "art2"])}
 
    :skip
-   {:ref (format "<%s>" (str/join "|" valid-skip))
+   {:ref "<project type>"
     :collect multi-value
     :enum valid-skip
-    :desc "Skip specified project file types"
+    :desc (str "One of: " (str/join "|" valid-skip))
     :extra-desc (multi-value-tip "--format" ["pom" "leiningen"])}
 
    :error-format
@@ -87,11 +87,11 @@
     :desc "Customize output for outdated dependencies"}
 
    :reporter
-   {:ref (format "<%s>" (str/join "|" valid-reporter))
+   {:ref "<output-format>"
     :coerce :string
     :default "table"
     :enum valid-reporter
-    :desc "Report output format"}
+    :desc (str "One of: " (str/join "|" valid-reporter))}
 
    :directory
    {:alias :d
@@ -199,34 +199,13 @@
     alias
     (str "-" (kw->str alias))))
 
-(defn- wrap-words
-  [words wrap-at]
-  (reduce (fn [acc enum]
-            (let [row-ndx (dec (count acc))
-                  enums-len (reduce + (map count (last acc)))]
-              (if (> enums-len wrap-at)
-                (conj acc [enum])
-                (update acc row-ndx conj enum))))
-          [[]]
-          words))
-
-(defn- wrapped-option-ref
-  [option ref wrap-at]
-  (let [rows (wrap-words (str/split ref #"\|") wrap-at)]
-    (str option (->> rows
-                     (mapv #(str/join "|" %))
-                     (str/join (str "\n" (apply str (repeat (inc (count option)) " ")) "|"))))))
-
 (defn- fmt-option-ref
   [long-opt ref {:keys [usage-help-style] :as opts}]
   (let [option (styled-long-opt long-opt opts)
         option (if (and ref (= :cli usage-help-style))
                  (str option "=")
-                 (str option " "))
-        wrap-at 20]
-    (if (and ref (str/includes? ref "|") (> (+ (count ref) (count option)) wrap-at))
-      (wrapped-option-ref option ref wrap-at)
-      (str option ref))))
+                 (str option " "))]
+    (str option ref)))
 
 (defn- opts->table
   "Based on bb cli opts->table but uses less screen width."
