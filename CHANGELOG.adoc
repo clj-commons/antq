@@ -86,6 +86,9 @@ https://github.com/clj-commons/antq/issues/416[#416]: Docs and docstrings review
 (thanks, https://github.com/nenadalm[@nenadalm]!)
 * https://github.com/clj-commons/antq/issues/445[#445]: Review, cleanup, and improve file/dir normalization and redundancy checks
 (https://github.com/lread[@lread])
+* https://github.com/clj-commons/antq/issues/446[#446]: Remove malli schemas from the handful of fns that have them.
+(https://github.com/lread[@lread])
+
 
 === New for Command Line
 * https://github.com/clj-commons/antq/issues/280[#280],

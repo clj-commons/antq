@@ -40,9 +40,6 @@
       (u.dep/ensure-version-list)))
 
 (defn extract-deps
-  {:malli/schema [:=>
-                  [:cat 'string? 'string?]
-                  r/?dependencies]}
   [file-path shadow-cljs-edn-content-str]
   (let [deps (atom [])]
     (walk/postwalk (fn [form]
@@ -65,9 +62,6 @@
                           :exclude-versions (seq (exclude-version-range dep))}))))
 
 (defn load-deps
-  {:malli/schema [:function
-                  [:=> :cat [:maybe r/?dependencies]]
-                  [:=> [:cat 'string?] [:maybe r/?dependencies]]]}
   ([] (load-deps "."))
   ([dir]
    (let [file (fs/file dir const.project-file/shadow-cljs)]

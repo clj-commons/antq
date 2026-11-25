@@ -156,9 +156,6 @@ gradle.beforeProject { p ->
                           :version version}))))
 
 (defn extract-deps
-  {:malli/schema [:=>
-                  [:cat 'string? 'string?]
-                  [:maybe r/?dependencies]]}
   [relative-file-path absolute-file-path]
   (try
     (let [project-dir (fs/parent absolute-file-path)
@@ -188,9 +185,6 @@ gradle.beforeProject { p ->
        (first)))
 
 (defn load-deps
-  {:malli/schema [:function
-                  [:=> :cat [:maybe r/?dependencies]]
-                  [:=> [:cat 'string?] [:maybe r/?dependencies]]]}
   ([] (load-deps "."))
   ([dir]
    (when-let [file (discover-project dir)]

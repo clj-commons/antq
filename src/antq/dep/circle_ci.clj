@@ -26,9 +26,6 @@
                  []))))
 
 (defn load-deps
-  {:malli/schema [:function
-                  [:=> :cat [:maybe r/?dependencies]]
-                  [:=> [:cat 'string?] [:maybe r/?dependencies]]]}
   ([] (load-deps "."))
   ([dir]
    (let [config-file (fs/file dir ".circleci/config.yml")]

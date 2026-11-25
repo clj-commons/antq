@@ -43,9 +43,6 @@
           (get-in [:user :repositories])))))
 
 (defn extract-deps
-  {:malli/schema [:=>
-                  [:cat 'string? 'string?]
-                  [r/?dependencies]]}
   [file-path project-clj-content-str]
   (let [dep-form? (atom false)
         repos-form? (atom false)
@@ -85,9 +82,6 @@
                             :exclude-versions (seq (exclude-version-range dep))})))))
 
 (defn load-deps
-  {:malli/schema [:function
-                  [:=> :cat [:maybe [r/?dependencies]]]
-                  [:=> [:cat 'string?] [:maybe r/?dependencies]]]}
   ([] (load-deps "."))
   ([dir]
    (let [file (fs/path dir const.project-file/leiningen)]

@@ -1,6 +1,4 @@
 (ns ^:no-doc antq.util.report
-  (:require
-   [antq.record :as r])
   (:import
    (java.time
     Duration
@@ -28,7 +26,6 @@
        ". Expected a number of days with the unit d, e.g. 7d"))
 
 (defn skip-duplicated-file-name
-  {:malli/schema [:=> [:cat r/?dependencies] r/?dependencies]}
   [sorted-deps]
   (loop [[dep & rest-deps] sorted-deps
          last-file nil

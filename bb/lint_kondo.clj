@@ -21,7 +21,7 @@
   (when (cache-exists?)
     (delete-cache))
   (let [clj-cp (-> (shell/clojure {:out :string}
-                                  "-Spath -M:test")
+                                  "-Spath -M:dev")
                    with-out-str
                    string/trim)
         bb-cp (-> (shell/command {:out :string}
