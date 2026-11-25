@@ -6,6 +6,7 @@
    [antq.util.report :as u.report]
    [babashka.cli :as cli]
    [babashka.fs :as fs]
+   [clojure.set :as cset]
    [clojure.string :as str]))
 
 (def ^:private valid-reporter
@@ -328,17 +329,26 @@
                                                         (swap! errors conj error))
                                             :restrict true
                                             :restrict-args true})
+            ;; sometimes short plurals are more natural, let's go with that internally
+            opts (cset/rename-keys opts {:directory :dirs})
             opts (cond-> opts
+                   ;; escape special chars for error format
                    (:error-format opts)
                    (update :error-format (fn [f]
                                            (-> f
                                                (str/replace #"\\n" "\n")
                                                (str/replace #"\\t" "\t"))))
+                   ;; optional adjust auto-include of cwd in :dirs project file search path
                    :always
-                   (update :directory (fn [d]
-                                        (if (not (:exclude-cwd opts))
-                                          (into ["."] d)
-                                          d))))
+                   (update :dirs (fn [d]
+                                   (if (not (:exclude-cwd opts))
+                                     (into ["."] d)
+                                     d)))
+                   ;; nicer to deal with keywords for project type internally
+                   (:skip opts)
+                   (update :skip (fn [skips]
+                                   ;; a set is more natural for internal usage
+                                   (into #{} (mapv keyword skips)))))
             ;; for now, sort by msg, I'd rather sort by user entry order, but that's a nitpick
             errors (sort-by :msg @errors)
             warnings (sort-by :msg (deprecation-warnings opts))]

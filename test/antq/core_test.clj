@@ -431,49 +431,49 @@
                                (if (os/windows?)
                                  #".github\\workflows\\.*"
                                  #".github/workflows/.*")])
-                    (->> (sut/fetch-deps {:directory ["."]})
+                    (->> (sut/fetch-deps {:dirs ["."]})
                          (mapv :file)
                          distinct))))
 
     (t/testing "default"
       (t/is (match? (disj all-files "build.gradle")
-                    (dep-files (sut/fetch-deps {:directory [project-dir]})))))
+                    (dep-files (sut/fetch-deps {:dirs [project-dir]})))))
 
     (t/testing "skip"
       (t/testing "boot"
         (t/is (match? (disj all-files "build.gradle" "build.boot")
-                      (dep-files (sut/fetch-deps {:directory [project-dir]
-                                                  :skip ["boot"]})))))
+                      (dep-files (sut/fetch-deps {:dirs [project-dir]
+                                                  :skip #{:boot}})))))
 
       (t/testing "clojure-cli"
         (t/is (match? (disj all-files "build.gradle" "deps.edn")
-                      (dep-files (sut/fetch-deps {:directory [project-dir]
-                                                  :skip ["clojure-cli"]})))))
+                      (dep-files (sut/fetch-deps {:dirs [project-dir]
+                                                  :skip #{:clojure-cli}})))))
 
       (t/testing "github-action"
         (t/is (match? (disj all-files "build.gradle"
                             (h/os-path ".github/workflows/test.yml"))
-                      (dep-files (sut/fetch-deps {:directory [project-dir]
-                                                  :skip ["github-action"]})))))
+                      (dep-files (sut/fetch-deps {:dirs [project-dir]
+                                                  :skip #{:github-action}})))))
 
       (t/testing "pom"
         (t/is (match? (disj all-files "build.gradle" "pom.xml")
-                      (dep-files (sut/fetch-deps {:directory [project-dir]
-                                                  :skip ["pom"]})))))
+                      (dep-files (sut/fetch-deps {:dirs [project-dir]
+                                                  :skip #{:pom}})))))
 
       (t/testing "shadow-cljs"
         (t/is (match? (disj all-files "build.gradle" "shadow-cljs.edn")
-                      (dep-files (sut/fetch-deps {:directory [project-dir]
-                                                  :skip ["shadow-cljs"]})))))
+                      (dep-files (sut/fetch-deps {:dirs [project-dir]
+                                                  :skip #{:shadow-cljs}})))))
 
       (t/testing "leiningen"
         (t/is (match? (disj all-files "build.gradle" "project.clj")
-                      (dep-files (sut/fetch-deps {:directory [project-dir]
-                                                  :skip ["leiningen"]})))))
+                      (dep-files (sut/fetch-deps {:dirs [project-dir]
+                                                  :skip #{:leiningen}})))))
       (t/testing "babashka"
         (t/is (match? (disj all-files "build.gradle" "bb.edn")
-                      (dep-files (sut/fetch-deps {:directory [project-dir]
-                                                  :skip ["babashka"]}))))))))
+                      (dep-files (sut/fetch-deps {:dirs [project-dir]
+                                                  :skip #{:babashka}}))))))))
 
 (t/deftest ^:gradle fetch-deps-gradle-test
   ;; gradle does not run on the entire broader set of of supported antq JDKs, hence this tagged
@@ -485,7 +485,7 @@
       (let [log-error (atom [])]
         (with-redefs [log/error (fn [s] (swap! log-error conj s) nil)]
           (t/is (match? (disj all-files "build.gradle")
-                        (dep-files (sut/fetch-deps {:directory [project-dir]}))))
+                        (dep-files (sut/fetch-deps {:dirs [project-dir]}))))
           (t/is (match? [(str "Skipping Gradle project discovered via "
                               (h/os-path "target/test/fetch-deps-gradle-test/build.gradle")
                               ", use:\n"
@@ -495,22 +495,22 @@
       (let [log-error (atom [])]
         (with-redefs [log/error (fn [s] (swap! log-error conj s) nil)]
           (t/is (match? (disj all-files "build.gradle")
-                        (dep-files (sut/fetch-deps {:directory [project-dir]
-                                                    :skip ["gradle"]}))))
+                        (dep-files (sut/fetch-deps {:dirs [project-dir]
+                                                    :skip #{:gradle}}))))
           (t/is (match? [] @log-error)))))
     (t/testing "--skip=gradle takes precedence over --check-gradle"
       (let [log-error (atom [])]
         (with-redefs [log/error (fn [s] (swap! log-error conj s) nil)]
           (t/is (match? (disj all-files "build.gradle")
-                        (dep-files (sut/fetch-deps {:directory [project-dir]
-                                                    :skip ["gradle"]
+                        (dep-files (sut/fetch-deps {:dirs [project-dir]
+                                                    :skip #{:gradle}
                                                     :check-gradle true}))))
           (t/is (match? [] @log-error)))))
     (t/testing "check all"
       (let [log-error (atom [])]
         (with-redefs [log/error (fn [s] (swap! log-error conj s))]
           (t/is (match? all-files
-                        (dep-files (sut/fetch-deps {:directory [project-dir]
+                        (dep-files (sut/fetch-deps {:dirs [project-dir]
                                                     :check-gradle true}))))
           (t/is (match? [] @log-error)))))
     (t/testing "hint is not presented if no gradle project detected"
@@ -519,7 +519,7 @@
       (let [log-error (atom [])]
         (with-redefs [log/error (fn [s] (swap! log-error conj s))]
           (t/is (match? (disj all-files "build.gradle")
-                        (dep-files (sut/fetch-deps {:directory [project-dir]}))))
+                        (dep-files (sut/fetch-deps {:dirs [project-dir]}))))
           (t/is (match? [] @log-error)))))))
 
 (t/deftest no-deps-found-test
@@ -535,7 +535,7 @@
               logs (atom [])]
           (with-redefs [sut/system-exit (fn [x] (reset! exit x))
                         antq.log/info (fn [x] (swap! logs conj x))]
-            (sut/main* {:opts {:directory [(str (fs/path test-dir test))]}}))
+            (sut/main* {:opts {:dirs [(str (fs/path test-dir test))]}}))
           (t/is (= 1 @exit))
           (t/is (match? [#"No dependencies found"] @logs)))))))
 
@@ -550,16 +550,16 @@
                   sut/fetch-deps (fn [opts]
                                    (swap! fetch-deps-opts conj opts)
                                    [])]
-      (sut/main* {:opts {:directory ["~"
-                                     "~/"
-                                     "~/dirfa"
-                                     "~/dirfa/dirfb/../dirfb/./dirfc/../.."
-                                     (str (fs/path test-dir "dira" "dirb"))
-                                     (str (fs/absolutize (fs/path test-dir "dira" "dirb")))
-                                     (str (fs/path test-dir "./dira/./dirb/dirc/.."))]}})
-      (t/is (match? [{:directory [(m/via h/os-path (str (fs/path test-dir "fake-home")))
-                                  (m/via h/os-path (str (fs/path test-dir "fake-home" "dirfa")))
-                                  (m/via h/os-path (str (fs/path test-dir "dira" "dirb")))]}]
+      (sut/main* {:opts {:dirs ["~"
+                                "~/"
+                                "~/dirfa"
+                                "~/dirfa/dirfb/../dirfb/./dirfc/../.."
+                                (str (fs/path test-dir "dira" "dirb"))
+                                (str (fs/absolutize (fs/path test-dir "dira" "dirb")))
+                                (str (fs/path test-dir "./dira/./dirb/dirc/.."))]}})
+      (t/is (match? [{:dirs [(m/via h/os-path (str (fs/path test-dir "fake-home")))
+                             (m/via h/os-path (str (fs/path test-dir "fake-home" "dirfa")))
+                             (m/via h/os-path (str (fs/path test-dir "dira" "dirb")))]}]
                     @fetch-deps-opts)))))
 
 (t/deftest mark-only-newest-version-flag-test

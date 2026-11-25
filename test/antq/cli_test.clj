@@ -46,7 +46,7 @@
 (t/deftest cli-options-test
   (with-redefs [u.file/home (constantly (td "fake-home"))]
     (t/testing "default options"
-      (t/is (match? (res {:opts {:directory ["."]
+      (t/is (match? (res {:opts {:dirs ["."]
                                  :reporter "table"
                                  :usage-help-style :cli}})
                     (sut/parse-args []))))
@@ -65,10 +65,10 @@
                                      "--focus=fo/cus2:fo/cus3"]))))
 
     (t/testing "--directory"
-      (t/is (match? (res {:opts {:directory ["."
-                                             (td "dir1") (td "dir2") (td "dir3") (td "dir4")
-                                             (td "dir5") (td "dir6") (td "dir7")
-                                             "~" "~/dirf1"]}})
+      (t/is (match? (res {:opts {:dirs ["."
+                                        (td "dir1") (td "dir2") (td "dir3") (td "dir4")
+                                        (td "dir5") (td "dir6") (td "dir7")
+                                        "~" "~/dirf1"]}})
                     (sut/parse-args ["-d" (td "dir1")
                                      (str "--directory=" (td "dir2"))
                                      "--directory" (str (td "dir3")
@@ -84,13 +84,13 @@
                                                       (str (td "dir1") ";" (td "dir2")))
                                                     ". Must be a directory.")}]
                                 ;; take advantage of population of opts even on error
-                                :opts {:directory (if (os/windows?)
-                                                    ["."
-                                                     (td "dir1")
-                                                     (str (td "dir2") ":" (td "dir3"))]
-                                                    ["."
-                                                     (str (td "dir1") ";" (td "dir2"))
-                                                     (td "dir3")])}})
+                                :opts {:dirs (if (os/windows?)
+                                               ["."
+                                                (td "dir1")
+                                                (str (td "dir2") ":" (td "dir3"))]
+                                               ["."
+                                                (str (td "dir1") ";" (td "dir2"))
+                                                (td "dir3")])}})
                       (sut/parse-args ["-d" (str (td "dir1") ";" (td "dir2") ":" (td "dir3"))]))))
       (t/testing "dir missing"
         (t/is (match? (res-err {:errors [{:msg (str "Invalid value for option -d: "
@@ -109,17 +109,17 @@
 
     (t/testing "--exclude-cwd & --directory"
       (t/testing "solo, no dirs at all"
-        (t/is (match? (res {:opts {:directory []}})
+        (t/is (match? (res {:opts {:dirs []}})
                       (sut/parse-args ["--exclude-cwd"]))))
       (t/testing "with --directory, just specified dirs"
-        (t/is (match? (res {:opts {:directory [(td "dir1") (td "dir2")]}})
+        (t/is (match? (res {:opts {:dirs [(td "dir1") (td "dir2")]}})
                       (sut/parse-args ["-d" (td "dir1") "-d" (td "dir2") "--exclude-cwd"]))))
       (t/testing "with --directory including ."
-        (t/is (match? (res {:opts {:directory [(td "dir1") (td "dir2") "."]}})
+        (t/is (match? (res {:opts {:dirs [(td "dir1") (td "dir2") "."]}})
                       (sut/parse-args ["-d" (td "dir1") "-d" (td "dir2") "-d" "." "--exclude-cwd"])))))
 
     (t/testing "--skip"
-      (t/is (match? (res {:opts {:skip ["boot" "clojure-cli"]}})
+      (t/is (match? (res {:opts {:skip #{:boot :clojure-cli}}})
                     (sut/parse-args ["--skip" "boot"
                                      "--skip=clojure-cli"])))
 
@@ -160,11 +160,11 @@
     (t/testing "all opts - all valid"
       (t/is (match? (res {:opts {:exclude ["art1" "art2@1.2.3" "art7"]
                                  :focus ["art3" "art4"]
-                                 :skip ["pom" "circle-ci" "leiningen"]
+                                 :skip #{:pom :circle-ci :leiningen}
                                  :error-format "my error format"
                                  :reporter "json"
                                  :no-progress true
-                                 :directory [(td "dir1") (td "dir2") "~/dirf1"]
+                                 :dirs [(td "dir1") (td "dir2") "~/dirf1"]
                                  :exclude-cwd true
                                  :upgrade true
                                  :verbose true
@@ -242,13 +242,13 @@
 (t/deftest validate-tool-opts
   (with-redefs [u.file/home (constantly (td "fake-home"))]
     (t/testing "defaults"
-      (t/is (match? (res {:opts {:directory ["."]
+      (t/is (match? (res {:opts {:dirs ["."]
                                  :reporter "table"
                                  :usage-help-style :clojure-tool}})
                     (sut/validate-tool-opts {}))))
 
     (t/testing "multi-value"
-      (t/is (match? (res {:opts {:directory ["." (td "dir1") (td "dir2")]}})
+      (t/is (match? (res {:opts {:dirs ["." (td "dir1") (td "dir2")]}})
                     (sut/validate-tool-opts {:directory [(td "dir1") (td "dir2")]}))))
 
     (t/testing "validated"
@@ -264,10 +264,10 @@
     (t/testing "all opts - all valid"
       (t/is (match? (res {:opts {:exclude ["art1" "art2@1.2.3"]
                                  :focus ["art3" "art4"]
-                                 :skip ["pom" "circle-ci" "leiningen"]
+                                 :skip #{:pom :circle-ci :leiningen}
                                  :error-format "my error format"
                                  :reporter "json"
-                                 :directory [(td "dir1") (td "dir2") "~/dirf1"]
+                                 :dirs [(td "dir1") (td "dir2") "~/dirf1"]
                                  :upgrade true
                                  :verbose true
                                  :force true
