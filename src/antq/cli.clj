@@ -296,10 +296,10 @@
     - `:cli` for -M style help
     - `:clojure-tool` for -T and -X style help "
   [{:keys [opts]}]
-  (str (format "For full usage help, specify: %s"
-               (case (:usage-help-style opts)
-                 :cli "--help"
-                 :clojure-tool ":help true"))))
+  (str "For full usage help, specify: "
+       (case (:usage-help-style opts)
+         :cli "--help"
+         :clojure-tool ":help true")))
 
 (defn parse-args
   "Parses command line `args` and returns a map of:
