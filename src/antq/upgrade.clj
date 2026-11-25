@@ -31,7 +31,7 @@
                        (:name dep)
                        (:version dep)
                        (:latest-version dep)
-                       (u.file/normalize-path (:file dep))))
+                       (u.file/text-friendly-path (:file dep))))
         (flush)
         (contains? #{'y 'Y 'yes 'Yes 'YES} (read)))
 

@@ -84,6 +84,8 @@ https://github.com/clj-commons/antq/issues/416[#416]: Docs and docstrings review
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/394[#394]: Remove core.async dependency (improves performance, simplifies codebase)
 (thanks, https://github.com/nenadalm[@nenadalm]!)
+* https://github.com/clj-commons/antq/issues/445[#445]: Review, cleanup, and improve file/dir normalization and redundancy checks
+(https://github.com/lread[@lread])
 
 === New for Command Line
 * https://github.com/clj-commons/antq/issues/280[#280],

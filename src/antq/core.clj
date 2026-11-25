@@ -383,7 +383,9 @@
     :else
     (do
       (u.maven/initialize-proxy-setting!)
-      (let [opts (cond-> (update opts :directory u.file/distinct-directory)
+      (let [opts (cond-> opts
+                   :always (update :directory #(mapv u.file/tilde->home %))
+                   :always (update :directory u.file/distinct-files)
                    ;; Force "format" reporter when :error-format is specified
                    (some? (:error-format opts)) (assoc :reporter "format"))
             deps (fetch-deps opts)]

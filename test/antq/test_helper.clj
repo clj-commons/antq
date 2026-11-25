@@ -54,7 +54,7 @@
        (spit ~sym ~content)
        ~@body
        (finally
-         (.delete ~sym)))))
+         (fs/delete ~sym)))))
 
 (defn os-path
   "Returns os-appropriate path as for unix-style path p"

@@ -1,9 +1,9 @@
 (ns ^:no-doc antq.dep.circle-ci
   (:require
    [antq.record :as r]
-   [antq.util.dep :as u.dep]
+   [antq.util.file :as u.file]
+   [babashka.fs :as fs]
    [clj-yaml.core :as yaml]
-   [clojure.java.io :as io]
    [clojure.string :as str]))
 
 (defn extract-deps
@@ -31,7 +31,7 @@
                   [:=> [:cat 'string?] [:maybe r/?dependencies]]]}
   ([] (load-deps "."))
   ([dir]
-   (let [config-file (io/file dir ".circleci/config.yml")]
-     (when (.exists config-file)
-       (extract-deps (u.dep/relative-path config-file)
-                     (slurp config-file))))))
+   (let [config-file (fs/file dir ".circleci/config.yml")]
+     (when (fs/exists? config-file)
+       (extract-deps (u.file/data-friendly-path config-file)
+                     (fs/slurp config-file))))))

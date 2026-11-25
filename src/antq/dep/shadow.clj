@@ -5,8 +5,9 @@
    [antq.record :as r]
    [antq.util.dep :as u.dep]
    [antq.util.env :as u.env]
+   [antq.util.file :as u.file]
+   [babashka.fs :as fs]
    [clojure.edn :as edn]
-   [clojure.java.io :as io]
    [clojure.walk :as walk]))
 
 (defn- read-env
@@ -69,7 +70,7 @@
                   [:=> [:cat 'string?] [:maybe r/?dependencies]]]}
   ([] (load-deps "."))
   ([dir]
-   (let [file (io/file dir const.project-file/shadow-cljs)]
-     (when (.exists file)
-       (extract-deps (u.dep/relative-path file)
-                     (slurp file))))))
+   (let [file (fs/file dir const.project-file/shadow-cljs)]
+     (when (fs/exists? file)
+       (extract-deps (u.file/data-friendly-path file)
+                     (fs/slurp file))))))

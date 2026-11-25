@@ -4,6 +4,7 @@
    [antq.dep.clojure :as sut]
    [antq.record :as r]
    [antq.test-report]
+   [babashka.fs :as fs]
    [clojure.java.io :as io]
    [clojure.test :as t]
    [clojure.tools.deps.edn :as deps-edn]
@@ -12,7 +13,7 @@
 
 (def ^:private file-path
   ;; "path/to/deps.edn"
-  (.getAbsolutePath (io/file (io/resource "dep/test_deps.edn"))))
+  (str (fs/absolutize (fs/file (io/resource "dep/test_deps.edn")))))
 
 (defn- java-dependency
   [m]
@@ -46,50 +47,50 @@
       (t/is (every? #(instance? antq.record.Dependency %) deps))
       (t/is (match?
              (m/nested-equals
-              #{(java-dependency {:name "foo/core" :version "1.0.0"})
-                (java-dependency {:name "foo/core" :version "1.1.0"})
-                (java-dependency {:name "bar/bar" :version "2.0.0"})
-                (java-dependency {:name "baz/baz" :version "3.0.0"})
-                (java-dependency {:name "rep/rep" :version "4.0.0"})
-                (java-dependency {:name "ovr/ovr" :version "5.0.0"})
-                (java-dependency {:name "dft/dft" :version "6.0.0"})
-                (java-dependency {:name "short-meta/short-meta" :version "2.5.8"})
-                (java-dependency {:name "full-meta/full-meta" :version "2.6.9"})
-                (java-dependency {:name "meta/range-ignore1" :version "4.6.9"
-                                  :exclude-versions ["5.x"]})
-                (java-dependency {:name "meta/range-ignore2" :version "4.6.9"
-                                  :exclude-versions ["6.x" "7.x"]})
-                (git-sha-dependency {:name "sha/sha" :version "dummy-sha"
-                                     :extra {:url "https://github.com/example/sha.git"}})
-                (git-sha-dependency {:name "git-sha/git-sha" :version "dummy-git-sha"
-                                     :extra {:url "https://github.com/example/git-sha.git"}})
-                (git-tag-dependency {:name "tag-short-sha/tag-short-sha" :version "v1.2.3"
-                                     :extra {:url "https://github.com/example/tag-short.git"
-                                             :sha "123abcd"}})
-                (git-tag-dependency {:name "git-tag-long-sha/git-tag-long-sha" :version "v2.3.4"
-                                     :extra {:url "https://github.com/example/git-tag-long.git"
-                                             :sha "1234567890abcdefghijklmnopqrstuvwxyz1234"}})
-                (git-sha-dependency {:name "com.github.liquidz/dummy"
-                                     :version "dummy-inferring-url"
-                                     :extra {:url "https://github.com/liquidz/dummy.git"}})
-                (java-dependency {:name "local/core" :version "9.9.9"
-                                  :file (.getAbsolutePath (io/file (io/resource "dep/local/test_deps.edn")))
-                                  :repositories nil})
-                (java-dependency {:name "local/nested-core" :version "8.8.8"
-                                  :file (.getAbsolutePath (io/file (io/resource "dep/local/nested/test_deps.edn")))
-                                  :repositories nil})
-                (java-dependency {:name "namespaced/mvn" :version "1.0.0"})
-                (git-sha-dependency {:name "namespaced/sha" :version "1234567890abcdefghijklmnopqrstuvwxyz1234"
-                                     :extra {:url "https://github.com/example/git-sha.git"}})
-                (git-tag-dependency {:name "namespaced/tag-and-sha" :version "v1.2.3"
-                                     :extra {:url "https://github.com/example/tag-short.git"
-                                             :sha "123abcd"}})})
-             (set deps))))))
+              [(git-sha-dependency {:name "com.github.liquidz/dummy"
+                                    :version "dummy-inferring-url"
+                                    :extra {:url "https://github.com/liquidz/dummy.git"}})
+               (git-sha-dependency {:name "git-sha/git-sha" :version "dummy-git-sha"
+                                    :extra {:url "https://github.com/example/git-sha.git"}})
+               (git-sha-dependency {:name "namespaced/sha" :version "1234567890abcdefghijklmnopqrstuvwxyz1234"
+                                    :extra {:url "https://github.com/example/git-sha.git"}})
+               (git-sha-dependency {:name "sha/sha" :version "dummy-sha"
+                                    :extra {:url "https://github.com/example/sha.git"}})
+               (git-tag-dependency {:name "git-tag-long-sha/git-tag-long-sha" :version "v2.3.4"
+                                    :extra {:url "https://github.com/example/git-tag-long.git"
+                                            :sha "1234567890abcdefghijklmnopqrstuvwxyz1234"}})
+               (git-tag-dependency {:name "namespaced/tag-and-sha" :version "v1.2.3"
+                                    :extra {:url "https://github.com/example/tag-short.git"
+                                            :sha "123abcd"}})
+               (git-tag-dependency {:name "tag-short-sha/tag-short-sha" :version "v1.2.3"
+                                    :extra {:url "https://github.com/example/tag-short.git"
+                                            :sha "123abcd"}})
+               (java-dependency {:name "bar/bar" :version "2.0.0"})
+               (java-dependency {:name "baz/baz" :version "3.0.0"})
+               (java-dependency {:name "dft/dft" :version "6.0.0"})
+               (java-dependency {:name "foo/core" :version "1.0.0"})
+               (java-dependency {:name "foo/core" :version "1.1.0"})
+               (java-dependency {:name "full-meta/full-meta" :version "2.6.9"})
+               (java-dependency {:name "local/core" :version "9.9.9"
+                                 :file (str (fs/absolutize (fs/file (io/resource "dep/local/test_deps.edn"))))
+                                 :repositories nil})
+               (java-dependency {:name "local/nested-core" :version "8.8.8"
+                                 :file (str (fs/absolutize (fs/file (io/resource "dep/local/nested/test_deps.edn"))))
+                                 :repositories nil})
+               (java-dependency {:name "meta/range-ignore1" :version "4.6.9"
+                                 :exclude-versions ["5.x"]})
+               (java-dependency {:name "meta/range-ignore2" :version "4.6.9"
+                                 :exclude-versions ["6.x" "7.x"]})
+               (java-dependency {:name "namespaced/mvn" :version "1.0.0"})
+               (java-dependency {:name "ovr/ovr" :version "5.0.0"})
+               (java-dependency {:name "rep/rep" :version "4.0.0"})
+               (java-dependency {:name "short-meta/short-meta" :version "2.5.8"})])
+             (sort-by (juxt :type :name :version) deps))))))
 
 (t/deftest extract-deps-cross-project-configuration-test
-  (let [cross-project-path (.getAbsolutePath
-                            (io/file
-                             (.getParentFile (io/file (io/resource "dep/test_deps.edn")))
+  (let [cross-project-path (fs/absolutize
+                            (fs/file
+                             (fs/parent (fs/file (io/resource "dep/test_deps.edn")))
                              "cross-project"
                              "test_deps.edn"))
         content (pr-str '{:deps {foo/bar {:mvn/version "0.0.1"}}})]

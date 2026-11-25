@@ -9,6 +9,7 @@
    [antq.upgrade :as upgrade]
    [antq.util.dep :as u.dep]
    [antq.util.exception :as u.ex]
+   [antq.util.file :as u.file]
    [antq.util.git :as u.git]
    [antq.util.maven :as u.maven]
    [antq.util.os :as os]
@@ -527,8 +528,7 @@
     (fs/create-dirs (fs/path test-dir "dir-empty"))
     (fs/create-dirs (fs/path test-dir "no-deps"))
     (fs/spit (fs/path test-dir "no-deps" "deps.edn") "{}")
-    (doseq [test ["dir-missing"
-                  "dir-empty"
+    (doseq [test ["dir-empty"
                   "no-deps"]]
       (t/testing test
         (let [exit (atom nil)
@@ -538,6 +538,29 @@
             (sut/main* {:opts {:directory [(str (fs/path test-dir test))]}}))
           (t/is (= 1 @exit))
           (t/is (match? [#"No dependencies found"] @logs)))))))
+
+(t/deftest directory-expansion-&-dedupe-test
+  (let [test-dir "target/test/directory-expansion-dedupe-test"
+        fetch-deps-opts (atom [])]
+    (fs/delete-tree test-dir)
+    (fs/create-dirs (fs/path test-dir "dira" "dirb" "dirc"))
+    (fs/create-dirs (fs/path test-dir "fake-home" "dirfa" "dirfb" "dirfc"))
+    (with-redefs [u.file/home (constantly (fs/file test-dir "fake-home"))
+                  sut/system-exit (fn [_x])
+                  sut/fetch-deps (fn [opts]
+                                   (swap! fetch-deps-opts conj opts)
+                                   [])]
+      (sut/main* {:opts {:directory ["~"
+                                     "~/"
+                                     "~/dirfa"
+                                     "~/dirfa/dirfb/../dirfb/./dirfc/../.."
+                                     (str (fs/path test-dir "dira" "dirb"))
+                                     (str (fs/absolutize (fs/path test-dir "dira" "dirb")))
+                                     (str (fs/path test-dir "./dira/./dirb/dirc/.."))]}})
+      (t/is (match? [{:directory [(m/via h/os-path (str (fs/path test-dir "fake-home")))
+                                  (m/via h/os-path (str (fs/path test-dir "fake-home" "dirfa")))
+                                  (m/via h/os-path (str (fs/path test-dir "dira" "dirb")))]}]
+                    @fetch-deps-opts)))))
 
 (t/deftest mark-only-newest-version-flag-test
   (let [deps [(r/map->Dependency {:name "org.clojure/clojure" :version "1"})

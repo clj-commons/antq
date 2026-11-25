@@ -5,7 +5,6 @@
    [antq.test-report]
    [antq.util.dep :as sut]
    [antq.util.maven :as u.mvn]
-   [clojure.java.io :as io]
    [clojure.test :as t]
    [matcher-combinators.matchers :as m]
    [matcher-combinators.test]))
@@ -41,17 +40,6 @@
     (t/is (zero? (sut/compare-deps {} {})))
     (t/is (zero? (sut/compare-deps nil nil)))))
 
-(t/deftest relative-path-test
-  (t/is (= "foo" (sut/relative-path (io/file "foo"))))
-  (t/is (= "foo" (sut/relative-path (io/file "." "foo"))))
-  (t/is (= "foo" (sut/relative-path (io/file "./foo"))))
-
-  (t/is (= (.getPath (io/file "foo" "bar"))
-           (sut/relative-path (io/file "." "foo" "bar"))))
-
-  (t/is (= (.getPath (io/file "foo" "bar"))
-           (sut/relative-path (io/file "./foo" "bar")))))
-
 (t/deftest name-candidates-test
   (t/is (= #{'foo/core}
            (sut/name-candidates "foo/core")))
@@ -78,18 +66,3 @@
           {:repositories u.mvn/default-repos
            :snapshots? true})
          (sut/repository-opts (r/map->Dependency {:version "1.0.0-20240101.120000-1"})))))
-
-(t/deftest normalize-path-test
-  (t/are [expected input] (= (h/os-path expected) (sut/normalize-path input))
-    "foo/bar" "foo/bar"
-    "foo/bar" "foo/./bar"
-    "bar" "foo/../bar"
-    "bar/baz" "foo/../bar/baz"
-    "bar/baz" "foo/../bar/./baz"
-    "../foo" "../foo"
-    "../bar" "foo/../../bar"
-    ".." ".."
-    "." "."
-    "" ""
-    "foo" "foo"
-    "foo" "./foo"))

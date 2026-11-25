@@ -75,6 +75,13 @@
     (doseq [dep deps]
       (println (generate-row dep columns max-lengths)))))
 
+(defn- render-file
+  "Render file, unless empty string which is a skip indicator"
+  [f]
+  (if (= "" f)
+    f
+    (u.file/text-friendly-path f)))
+
 (defmethod report/reporter "table"
   [deps options]
   ;; Show table
@@ -87,7 +94,7 @@
            (expand-children parent-grouped-deps)
            (u.report/skip-duplicated-file-name)
            (map #(assoc % :latest-version (u.ver/normalize-latest-version %)))
-           (map #(update % :file u.file/normalize-path))
+           (map #(update % :file render-file))
            ;; A dep held by the cooldown stays on its current version
            (map #(cond-> %
                    (and (:cooldown %) (nil? (:cooldown-version %)))
