@@ -166,7 +166,8 @@
     :validate {:pred u.report/cooldown-days
                :ex-msg (fn [{:keys [flag value]}]
                          (u.report/invalid-cooldown-message flag value))}
-    :desc "Adds cooldown reporting, suggesting (and, with --upgrade, upgrading to) versions released at least <duration> ago, e.g. 7d. Applies to Maven dependencies only."}
+    :desc (str "Add cooldown reporting, suggest/upgrade releases at least <duration> old, e.g. 7d.\n"
+               " applies to Maven dependencies only.")}
 
    :usage-help-style
    {:coerce :keyword
