@@ -293,15 +293,15 @@
   [options]
   (let [skip (set (:skip options))]
     (mapcat #(concat
-              (when-not (skip "boot") (dep.boot/load-deps %))
-              (when-not (skip "circle-ci") (dep.circle-ci/load-deps %))
-              (when-not (skip "clojure-cli") (dep.clj/load-deps %))
-              (when-not (skip "github-action") (dep.gh-action/load-deps %))
-              (when-not (skip "pom") (dep.pom/load-deps %))
-              (when-not (skip "shadow-cljs") (dep.shadow/load-deps %))
-              (when-not (skip "leiningen") (dep.lein/load-deps %))
-              (when-not (skip "babashka") (dep.bb/load-deps %))
-              (when-not (skip "gradle")
+              (when-not (skip :boot) (dep.boot/load-deps %))
+              (when-not (skip :circle-ci) (dep.circle-ci/load-deps %))
+              (when-not (skip :clojure-cli) (dep.clj/load-deps %))
+              (when-not (skip :github-action) (dep.gh-action/load-deps %))
+              (when-not (skip :pom) (dep.pom/load-deps %))
+              (when-not (skip :shadow-cljs) (dep.shadow/load-deps %))
+              (when-not (skip :leiningen) (dep.lein/load-deps %))
+              (when-not (skip :babashka) (dep.bb/load-deps %))
+              (when-not (skip :gradle)
                 (if (:check-gradle options)
                   (dep.gradle/load-deps %)
                   (when-let [file (dep.gradle/discover-project %)]
@@ -310,7 +310,7 @@
                                             " --skip=gradle to suppress this message")
                                        file)))))
               (when (:check-clojure-tools options) (dep.clj.tool/load-deps)))
-            (distinct (:directory options)))))
+            (distinct (:dirs options)))))
 
 (defn ^:no-doc mark-only-newest-version-flag
   [deps]
@@ -384,8 +384,8 @@
     (do
       (u.maven/initialize-proxy-setting!)
       (let [opts (cond-> opts
-                   :always (update :directory #(mapv u.file/tilde->home %))
-                   :always (update :directory u.file/distinct-files)
+                   :always (update :dirs #(mapv u.file/tilde->home %))
+                   :always (update :dirs u.file/distinct-files)
                    ;; Force "format" reporter when :error-format is specified
                    (some? (:error-format opts)) (assoc :reporter "format"))
             deps (fetch-deps opts)]

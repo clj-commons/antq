@@ -6,6 +6,7 @@
    [antq.util.report :as u.report]
    [babashka.cli :as cli]
    [babashka.fs :as fs]
+   [clojure.set :as cset]
    [clojure.string :as str]))
 
 (def ^:private valid-reporter
@@ -75,11 +76,11 @@
     :extra-desc (multi-value-tip "--focus" ["art1" "art2"])}
 
    :skip
-   {:ref (format "<%s>" (str/join "|" valid-skip))
+   {:ref "<project type>"
     :collect multi-value
     :enum valid-skip
-    :desc "Skip specified project file types"
-    :extra-desc (multi-value-tip "--format" ["pom" "leiningen"])}
+    :desc (str "One of: " (str/join "|" valid-skip))
+    :extra-desc (multi-value-tip "--skip" ["pom" "leiningen"])}
 
    :error-format
    {:ref "<error-format>"
@@ -87,11 +88,11 @@
     :desc "Customize output for outdated dependencies"}
 
    :reporter
-   {:ref (format "<%s>" (str/join "|" valid-reporter))
+   {:ref "<output-format>"
     :coerce :string
     :default "table"
     :enum valid-reporter
-    :desc "Report output format"}
+    :desc (str "One of: " (str/join "|" valid-reporter))}
 
    :directory
    {:alias :d
@@ -166,7 +167,8 @@
     :validate {:pred u.report/cooldown-days
                :ex-msg (fn [{:keys [flag value]}]
                          (u.report/invalid-cooldown-message flag value))}
-    :desc "Adds cooldown reporting, suggesting (and, with --upgrade, upgrading to) versions released at least <duration> ago, e.g. 7d. Applies to Maven dependencies only."}
+    :desc (str "Add cooldown reporting, suggest/upgrade releases at least <duration> old, e.g. 7d.\n"
+               " applies to Maven dependencies only.")}
 
    :usage-help-style
    {:coerce :keyword
@@ -198,44 +200,21 @@
     alias
     (str "-" (kw->str alias))))
 
-(defn- wrap-words
-  [words wrap-at]
-  (reduce (fn [acc enum]
-            (let [row-ndx (dec (count acc))
-                  enums-len (reduce + (map count (last acc)))]
-              (if (> enums-len wrap-at)
-                (conj acc [enum])
-                (update acc row-ndx conj enum))))
-          [[]]
-          words))
-
-(defn- wrapped-option-ref
-  [option ref wrap-at]
-  (let [rows (wrap-words (str/split ref #"\|") wrap-at)]
-    (str option (->> rows
-                     (mapv #(str/join "|" %))
-                     (str/join (str "\n" (apply str (repeat (inc (count option)) " ")) "|"))))))
-
 (defn- fmt-option-ref
   [long-opt ref {:keys [usage-help-style] :as opts}]
   (let [option (styled-long-opt long-opt opts)
         option (if (and ref (= :cli usage-help-style))
                  (str option "=")
-                 (str option " "))
-        wrap-at 20]
-    (if (and ref (str/includes? ref "|") (> (+ (count ref) (count option)) wrap-at))
-      (wrapped-option-ref option ref wrap-at)
-      (str option ref))))
+                 (str option " "))]
+    (str option ref)))
 
 (defn- opts->table
   "Based on bb cli opts->table but uses less screen width."
   [{:keys [spec order opts]}]
   (let [usage-help-style (:usage-help-style opts)]
     (mapv (fn [[long-opt {:keys [alias default default-desc ref desc extra-desc]}]]
-            (let [alias (if alias
-                          (str (styled-alias alias opts) ",")
-                          "")
-                  option (fmt-option-ref long-opt ref opts)
+            (let [option (cond->> (fmt-option-ref long-opt ref opts)
+                           alias (str (styled-alias alias opts) ","))
                   desc (->> [(if-let [default (or default-desc
                                                   (when (some? default) (str default)))]
                                (format "%s\n default: %s" desc default)
@@ -245,7 +224,7 @@
                             (keep identity)
                             (str/join "\n"))]
 
-              [alias option desc]))
+              [option desc]))
           (let [order (or order (keys spec))]
             (map (fn [k] [k (spec k)]) order)))))
 
@@ -309,6 +288,19 @@
                              :check-clojure-tools :check-gradle :no-changes :changes-in-table :transitive
                              :cooldown :verbose :version :help]})))
 
+(defn- help-on-help
+  "Return how to get help as string
+
+  opts:
+  - `:usage-help-style`
+    - `:cli` for -M style help
+    - `:clojure-tool` for -T and -X style help "
+  [{:keys [opts]}]
+  (str "For full usage help, specify: "
+       (case (:usage-help-style opts)
+         :cli "--help"
+         :clojure-tool ":help true")))
+
 (defn parse-args
   "Parses command line `args` and returns a map of:
   - `:warnings` - non-fatal issues, caller should display
@@ -337,17 +329,26 @@
                                                         (swap! errors conj error))
                                             :restrict true
                                             :restrict-args true})
+            ;; sometimes short plurals are more natural, let's go with that internally
+            opts (cset/rename-keys opts {:directory :dirs})
             opts (cond-> opts
+                   ;; escape special chars for error format
                    (:error-format opts)
                    (update :error-format (fn [f]
                                            (-> f
                                                (str/replace #"\\n" "\n")
                                                (str/replace #"\\t" "\t"))))
+                   ;; optional adjust auto-include of cwd in :dirs project file search path
                    :always
-                   (update :directory (fn [d]
-                                        (if (not (:exclude-cwd opts))
-                                          (into ["."] d)
-                                          d))))
+                   (update :dirs (fn [d]
+                                   (if (not (:exclude-cwd opts))
+                                     (into ["."] d)
+                                     d)))
+                   ;; nicer to deal with keywords for project type internally
+                   (:skip opts)
+                   (update :skip (fn [skips]
+                                   ;; a set is more natural for internal usage
+                                   (into #{} (mapv keyword skips)))))
             ;; for now, sort by msg, I'd rather sort by user entry order, but that's a nitpick
             errors (sort-by :msg @errors)
             warnings (sort-by :msg (deprecation-warnings opts))]
@@ -356,7 +357,10 @@
           (assoc :warnings warnings)
 
           (seq errors)
-          (assoc :errors errors :info (usage-help {:opts opts}))
+          (assoc :errors errors
+                 ;; errors can scroll out of view if we were to provide full usage help, so present
+                 ;; a brief note on how to get help instead.
+                 :info (help-on-help {:opts opts}))
 
           :always
           (assoc :opts opts))))))
