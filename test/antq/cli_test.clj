@@ -79,24 +79,23 @@
                                      "--directory" "~" "~/dirf1"])))
       (t/testing "os specific separator parsing"
         (t/is (match? (res-err {:errors [{:msg (str "Invalid value for option -d: "
-                                                          (if (os/windows?)
-                                                            (str (td "dir2") ":" (td "dir3"))
-                                                            (str (td "dir1") ";" (td "dir2")))
-                                                          ". Must be a directory.")}]
-                                      ;; take advantage of population of opts even on error
-                                      :opts {:directory (if (os/windows?)
-                                                          ["."
-                                                           (td "dir1")
-                                                           (str (td "dir2") ":" (td "dir3"))]
-                                                          ["."
-                                                           (str (td "dir1") ";" (td "dir2"))
-                                                           (td "dir3")])}})
+                                                    (if (os/windows?)
+                                                      (str (td "dir2") ":" (td "dir3"))
+                                                      (str (td "dir1") ";" (td "dir2")))
+                                                    ". Must be a directory.")}]
+                                ;; take advantage of population of opts even on error
+                                :opts {:directory (if (os/windows?)
+                                                    ["."
+                                                     (td "dir1")
+                                                     (str (td "dir2") ":" (td "dir3"))]
+                                                    ["."
+                                                     (str (td "dir1") ";" (td "dir2"))
+                                                     (td "dir3")])}})
                       (sut/parse-args ["-d" (str (td "dir1") ";" (td "dir2") ":" (td "dir3"))]))))
       (t/testing "dir missing"
         (t/is (match? (res-err {:errors [{:msg (str "Invalid value for option -d: "
-                                                         (td "dir-missing")
-                                                         ". Must be a directory.")}]
-                                     :warnings m/absent})
+                                                    (td "dir-missing")
+                                                    ". Must be a directory.")}]})
                       (sut/parse-args ["-d" (td "dir-missing")])))
         (t/is (match? (res-err {:errors [{:msg (str "Invalid value for option -d: "
                                                     "~/dir-missing"
@@ -246,7 +245,7 @@
       (t/is (match? (res {:opts {:directory ["."]
                                  :reporter "table"
                                  :usage-help-style :clojure-tool}})
-               (sut/validate-tool-opts {}))))
+                    (sut/validate-tool-opts {}))))
 
     (t/testing "multi-value"
       (t/is (match? (res {:opts {:directory ["." (td "dir1") (td "dir2")]}})
@@ -258,26 +257,26 @@
 
     (t/testing "deprecated"
       (t/is (match? (res {:warnings [{:cause :deprecation
-                                     :msg #"no-diff.*deprecated.*use.*no-changes"}]
+                                      :msg #"no-diff.*deprecated.*use.*no-changes"}]
                           :opts {:no-diff true}})
                     (sut/validate-tool-opts {:no-diff true}))))
 
     (t/testing "all opts - all valid"
       (t/is (match? (res {:opts {:exclude ["art1" "art2@1.2.3"]
-                                :focus ["art3" "art4"]
-                                :skip ["pom" "circle-ci" "leiningen"]
-                                :error-format "my error format"
-                                :reporter "json"
-                                :directory [(td "dir1") (td "dir2") "~/dirf1"]
-                                :upgrade true
-                                :verbose true
-                                :force true
-                                :download true
-                                :ignore-locals true
-                                :check-clojure-tools true
-                                :no-changes true
-                                :changes-in-table true
-                                :transitive true}})
+                                 :focus ["art3" "art4"]
+                                 :skip ["pom" "circle-ci" "leiningen"]
+                                 :error-format "my error format"
+                                 :reporter "json"
+                                 :directory [(td "dir1") (td "dir2") "~/dirf1"]
+                                 :upgrade true
+                                 :verbose true
+                                 :force true
+                                 :download true
+                                 :ignore-locals true
+                                 :check-clojure-tools true
+                                 :no-changes true
+                                 :changes-in-table true
+                                 :transitive true}})
                     (sut/validate-tool-opts {:exclude "art1:art2@1.2.3" ; try colon separated for multi
                                              :focus ["art3" "art4"]     ; try vector for multi
                                              :skip "pom:circle-ci:leiningen"

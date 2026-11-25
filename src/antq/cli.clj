@@ -233,10 +233,8 @@
   [{:keys [spec order opts]}]
   (let [usage-help-style (:usage-help-style opts)]
     (mapv (fn [[long-opt {:keys [alias default default-desc ref desc extra-desc]}]]
-            (let [alias (if alias
-                          (str (styled-alias alias opts) ",")
-                          "")
-                  option (fmt-option-ref long-opt ref opts)
+            (let [option (cond->> (fmt-option-ref long-opt ref opts)
+                           alias (str (styled-alias alias opts) ","))
                   desc (->> [(if-let [default (or default-desc
                                                   (when (some? default) (str default)))]
                                (format "%s\n default: %s" desc default)
@@ -246,7 +244,7 @@
                             (keep identity)
                             (str/join "\n"))]
 
-              [alias option desc]))
+              [option desc]))
           (let [order (or order (keys spec))]
             (map (fn [k] [k (spec k)]) order)))))
 
