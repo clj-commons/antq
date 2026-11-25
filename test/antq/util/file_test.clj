@@ -73,10 +73,10 @@
       (t/testing "dupe-filename"
         (if (os/windows?)
           ;; on Windows path path .. seems to apply first then file is resolved
-          ;; this agrees with JVM normalize behaviour, so path can be normalized
+          ;; this agrees with JVM normalize behavior, so path can be normalized
           (t/is (= (h/os-path (td "dupe-filename")) (str (sut/normalize-path (td "link/../dupe-filename")))))
           ;; but on Linux, file seems be resolved first then .. is applied, but normalize does not mimic
-          ;; this behaviour so we have a disagreement between OS and JVM so we don't normalize
+          ;; this behavior so we have a disagreement between OS and JVM so we don't normalize
           (do
             (t/is (= (h/os-path (td "link/../dupe-filename"))
                      (str (sut/normalize-path (td "link/../dupe-filename")))))
