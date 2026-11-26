@@ -47,10 +47,9 @@
    (let [{:keys [out err exit]} (gpg "--quiet" "--batch"
                                      "--decrypt" "--" (str file))]
      (if (pos? exit)
-       (do
-         (log/error (format "Could not decrypt credentials from %s" (str file)))
-         (log/error err)
-         (log/error "See `lein help gpg` for how to install gpg."))
+       (log/error (str "Could not decrypt credentials from " file "\n"
+                       (str/trim err) "\n"
+                       "See `lein help gpg` for how to install gpg."))
        (read-string out)))))
 
 (def ^:private credentials-fn (memoize credentials-fn*))

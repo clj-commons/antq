@@ -50,7 +50,7 @@
   (reify TransferListener
     (transferStarted [_ _event])
     (transferCorrupted [_ event]
-      (log/warning (str "Download corrupted:" (.. ^TransferEvent event getException getMessage))))
+      (log/debug (str "Download corrupted:" (.. ^TransferEvent event getException getMessage))))
     (transferFailed [_ _event])
     (transferInitiated [_ _event])
     (transferProgressed [_ _event])

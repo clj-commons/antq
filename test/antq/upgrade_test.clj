@@ -2,12 +2,15 @@
   (:require
    [antq.record :as r]
    [antq.report :as report]
+   [antq.test-helper :as h]
    [antq.test-report]
    [antq.upgrade :as sut]
    [antq.util.exception :as u.ex]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [clojure.test :as t]))
+   [clojure.test :as t]
+   [matcher-combinators.matchers :as m]
+   [matcher-combinators.test]))
 
 (def temp-files
   (repeatedly 3 #(io/file (str "." (gensym)))))
@@ -38,20 +41,26 @@
 (t/deftest upgrade!-test
   (let [[temp1 temp2 temp3] temp-files
         dep1 (r/map->Dependency {:project ::test
+                                 :name "dep1"
+                                 :version "1.0.0"
                                  :latest-version "LATEST"
                                  :file temp1})
         ;; should be skipped because latest-version is nil
         dep2 (r/map->Dependency {:project ::test
+                                 :name "dep2"
                                  :latest-version nil
                                  :file temp2})
         ;; should be skipped because latest-version is ex-timeout
         dep3 (r/map->Dependency {:project ::test
+                                 :name "dep3"
                                  :latest-version (u.ex/ex-timeout "test")
                                  :file temp3})]
     (t/is (every? #(= 0 (str/index-of % "before"))
                   (map slurp temp-files)))
 
-    (sut/upgrade! [dep1 dep2 dep3] {:force true})
+    (t/is (match?
+           {:logged [{:level :info :msg (format "Upgraded dep1 '1.0.0' to 'LATEST' in %s." temp1)}]}
+           (h/with-log-capture (sut/upgrade! [dep1 dep2 dep3] {:force true}))))
 
     (t/is (= "afterLATEST" (slurp temp1)))
     (t/is (= "before1" (slurp temp2)))
@@ -60,22 +69,20 @@
 (t/deftest upgrade!-cooldown-test
   (let [[temp1 temp2 temp3] temp-files
         two-days-ago (str (.minus (java.time.Instant/now) (java.time.Duration/ofDays 2)))
-        dep {:project ::test :name "foo" :version "1" :latest-version "3" :cooldown "7d"}
-        out (with-out-str
-              (sut/upgrade! [(r/map->Dependency (assoc dep :file temp1 :cooldown-version "2"
-                                                       :latest-released-at two-days-ago))
-                             (r/map->Dependency (assoc dep :file temp2 :name "bar" :cooldown-version nil))
-                             (r/map->Dependency (assoc dep :file temp3 :name "baz" :cooldown-version "3"))]
-                            {:force true}))]
+        dep {:project ::test :name "foo" :version "1" :latest-version "3" :cooldown "7d"}]
+    (t/is (match? {:logged [{:level :info :msg "Skipped foo 3 (2d old, cooldown 7d)"}
+                            {:level :info :msg "Skipped bar 3 (no release date, cooldown 7d)"}
+                            {:level :info :msg (format "Upgraded foo '1' to '2' in %s." temp1)}
+                            {:level :info :msg (format "Upgraded baz '1' to '3' in %s." temp3)}]}
+                  (h/with-log-capture
+                   (sut/upgrade! [(r/map->Dependency (assoc dep :file temp1 :cooldown-version "2"
+                                                            :latest-released-at two-days-ago))
+                                  (r/map->Dependency (assoc dep :file temp2 :name "bar" :cooldown-version nil))
+                                  (r/map->Dependency (assoc dep :file temp3 :name "baz" :cooldown-version "3"))]
+                                 {:force true}))))
     (t/is (= "after2" (slurp temp1)))
     (t/is (= "before1" (slurp temp2)))
     (t/is (= "after3" (slurp temp3)))
-    (t/is (= ["Skipped foo 3 (2d old, cooldown 7d)"
-              "Skipped bar 3 (no release date, cooldown 7d)"
-              (format "Upgraded foo '1' to '2' in %s." temp1)
-              (format "Upgraded baz '1' to '3' in %s." temp3)]
-             (filter #(re-find #"^(Skipped|Upgraded)" %) (str/split-lines out))))
-
     (t/testing "nothing is printed with the no-output reporter (antq.api)"
       (t/is (= "" (with-out-str
                     (sut/upgrade! [(r/map->Dependency (assoc dep :file temp2 :name "bar" :cooldown-version nil))]
@@ -99,22 +106,34 @@
 (t/deftest upgrade!-confirm-test
   (let [[temp1] temp-files
         dep (r/map->Dependency {:project ::test
+                                :name "somedep"
+                                :version "1.0.0"
                                 :latest-version "LATEST"
                                 :file temp1})]
     (t/is (= "before0" (slurp temp1)))
 
     (t/testing "input no"
-      (let [out-str (with-out-str
+      (t/is (match? {:ret {:out (m/via str/trim
+                                       (format "Do you want to upgrade somedep '1.0.0' to 'LATEST' in %s (y/n):"
+                                               temp1))
+                           :err m/absent}
+                     :logged []}
+                    (h/with-log-capture
+                     (h/with-output-captured
                       (with-redefs [read (constantly 'n)]
-                        (sut/upgrade! [dep] {:force false})))]
-        (t/is (not= nil (str/index-of out-str "Do you want to upgrade"))))
-
+                        (sut/upgrade! [dep] {:force false}))))))
       (t/is (= "before0" (slurp temp1))))
 
     (t/testing "input yes"
-      (let [out-str (with-out-str
+      (t/is (match? {:ret {:out (m/via str/trim
+                                       (format "Do you want to upgrade somedep '1.0.0' to 'LATEST' in %s (y/n):"
+                                               temp1))
+                           :err m/absent}
+                     :logged [{:level :info :msg (format "Upgraded somedep '1.0.0' to 'LATEST' in %s."
+                                                         temp1)}]}
+                    (h/with-log-capture
+                     (h/with-output-captured
                       (with-redefs [read (constantly 'y)]
-                        (sut/upgrade! [dep] {:force false})))]
-        (t/is (not= nil (str/index-of out-str "Do you want to upgrade"))))
+                        (sut/upgrade! [dep] {:force false}))))))
 
       (t/is (= "afterLATEST" (slurp temp1))))))

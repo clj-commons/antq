@@ -1,6 +1,7 @@
 (ns antq.ver.github-tag-test
   (:require
    [antq.record :as r]
+   [antq.test-helper :as h]
    [antq.test-report]
    [antq.util.exception :as u.ex]
    [antq.util.git :as u.git]
@@ -100,33 +101,47 @@
   (ver/latest? (dep m)))
 
 (t/deftest latest?-test
-  (t/are [expected current latest] (= expected (latest? {:version current :latest-version latest}))
-    true "3.3.4" "2.3.4"
-    true "3.3" "2.3.4"
-    true "3" "2.3.4"
+  (doseq [[expected current latest]
+          [[true "3.3.4" "2.3.4"]
+           [true "3.3" "2.3.4"]
+           [true "3" "2.3.4"]
 
-    true "2.3.4" "2.3.4"
-    true "2.3" "2.3.4"
-    true "2" "2.3.4"
+           [true "2.3.4" "2.3.4"]
+           [true "2.3" "2.3.4"]
+           [true "2" "2.3.4"]
 
-    false "1.3.4" "2.3.4"
-    false "1.3" "2.3.4"
-    false "1" "2.3.4"
+           [false "1.3.4" "2.3.4"]
+           [false "1.3" "2.3.4"]
+           [false "1" "2.3.4"]
 
-    false "2.2.4" "2.3.4"
-    false "2.2" "2.3.4"
+           [false "2.2.4" "2.3.4"]
+           [false "2.2" "2.3.4"]
 
-    false "2.3.3" "2.3.4"
+           [false "2.3.3" "2.3.4"]
 
-    false "v1" "v2"
+           [false "v1" "v2"]
 
-    ;; qualified version
-    false "1.0.0-alpha1" "1.0.0-alpha2"
-    true "1.0.0-alpha2" "1.0.0-alpha1"
+           ;; qualified version
+           [false "1.0.0-alpha1" "1.0.0-alpha2"]
+           [true "1.0.0-alpha2" "1.0.0-alpha1"]]]
+    (let [dep {:version current :latest-version latest}]
+      (t/is (match? {:ret expected
+                     :logged []}
+                    (h/with-log-capture
+                     (latest? dep)))
+            (str dep)))))
 
-    ;; if version tag is unparseable, just log an error and return true.
-    true "v2.1.0" "v.2.x"
-    true "v.2.x" "v2.1.0"))
+(t/deftest lastest?-unparseable-test
+  ;; if version tag is unparseable, just log an error and return true.
+  (t/is (match? {:ret true
+                 :logged [{:level :error :msg #"Error determining.* version .*dummy-dep.*v\.2\.x.*v2\.1\.0"}]}
+                (h/with-log-capture (latest? (dep {:version "v.2.x" :latest-version "v2.1.0" :name "dummy-dep"}))))
+        "version unparseable")
+  ;; TODO: Test strongly implied this should log an error but it does not
+  (t/is (match? {:ret true
+                 :logged []}
+                (h/with-log-capture (latest? (dep {:version "v2.1.0" :latest-version "v.2.x" :name "dummy-dep"}))))
+        "latest version unparseable"))
 
 (t/deftest latest?-timeout-test
   (t/is (false? (latest? {:version "1" :latest-version (u.ex/ex-timeout "dummy")}))))

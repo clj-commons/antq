@@ -112,12 +112,12 @@
              (u.xml/get-tags :version)
              (map (comp first :content)))
         (catch Exception ex
-          (log/warning (str "Failed to get local versions for "
-                            name
-                            " from "
-                            (.getAbsolutePath file)
-                            " because: "
-                            (.getMessage ex)))
+          (log/debug (str "Failed to get local versions for "
+                          name
+                          " from "
+                          (.getAbsolutePath file)
+                          " because: "
+                          (.getMessage ex)))
           nil)))))
 
 (def get-local-versions
@@ -182,8 +182,8 @@
               (when url
                 (last-modified (pom-url url dep-name version) repo)))
             (resolved-repositories repositories dep-name version))
-      (do (log/warning (str "Failed to get the release date of " dep-name " " version
-                            " from the repositories " (str/join ", " (keys repositories))))
+      (do (log/debug (str "Failed to get the release date of " dep-name " " version
+                          " from the repositories " (str/join ", " (keys repositories))))
           nil)))
 
 (def release-date

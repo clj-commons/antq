@@ -18,5 +18,5 @@
               (:latest-version dep))
 
       :else
-      (do (log/warning (str "Diff is not supported for " url))
+      (do (log/debug (str "Diff is not supported for " url))
           nil))))

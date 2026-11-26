@@ -100,7 +100,7 @@
                      ;; to avoid infinite loop
                      (conj updated-props prop-name))
               ;; property not found
-              (do (log/info (format "Skipped to upgrade %s because the corresponding property is not found in the same POM file. It may be defined in parent POM."
+              (do (log/info (format "Skipped upgrade of %s because the corresponding property is not found in the same POM file. It may be defined in parent POM."
                                     (:name version-checked-dep)))
                   nil))))
 
@@ -109,7 +109,7 @@
         (if-let [loc (find-version loc)]
           (recur (edit-content loc (:latest-version version-checked-dep))
                  updated-props)
-          (do (log/info (format "Failed to upgrade %s because the version tag is not found."
+          (do (log/warn (format "Failed to upgrade %s because the version tag is not found."
                                 (:name version-checked-dep)))
               nil))))))
 

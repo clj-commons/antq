@@ -71,5 +71,5 @@
                "blob/" latest-tag "/" changelog)))
 
       :else
-      (do (log/warning (str "Changelog is not supported for " url))
+      (do (log/debug (str "Changelog is not supported for " url))
           nil))))

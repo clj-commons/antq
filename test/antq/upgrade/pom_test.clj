@@ -86,8 +86,11 @@
         (.delete tmp-file)))))
 
 (t/deftest upgrade-dep-with-child-pom-test
-  (t/is (nil? (->> dummy-parent-child-java-dep
-                   (upgrade/upgrader)))))
+  (t/is (match? {:ret nil
+                 :logged [{:level :info
+                           :msg #"Skipped upgrade of org.clojure/clojure .* property is not found in .* POM file.* parent POM."}]}
+                (h/with-log-capture
+                 (upgrade/upgrader dummy-parent-child-java-dep)))))
 
 (t/deftest upgrade-dep-with-exclusion-test
   (let [tmp-file (File/createTempFile "upgrade-dep-test" "xml")]

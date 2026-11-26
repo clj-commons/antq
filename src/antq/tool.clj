@@ -44,4 +44,4 @@
 
 (defn ^:no-doc help
   [& _]
-  (log/info (cli/usage-help {:opts {:usage-help-style :clojure-tool}})))
+  (println (cli/usage-help {:opts {:usage-help-style :clojure-tool}})))
