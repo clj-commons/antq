@@ -161,6 +161,11 @@
    {:coerce boolean
     :desc "Skip progress reporting"}
 
+   :no-color
+   {:coerce boolean
+    :default false
+    :desc "Don't use ANSI colored text"}
+
    :cooldown
    {:ref "<duration>"
     :coerce :string
@@ -284,7 +289,7 @@
        (format-opts {:spec cli-options :opts opts
                      ;; match order from README, exclude deprecated and undocumented options
                      :order [:upgrade :force :exclude :directory :exclude-cwd :focus
-                             :skip :error-format :reporter :no-progress :download :ignore-locals
+                             :skip :error-format :reporter :no-progress :no-color :download :ignore-locals
                              :check-clojure-tools :check-gradle :no-changes :changes-in-table :transitive
                              :cooldown :verbose :version :help]})))
 

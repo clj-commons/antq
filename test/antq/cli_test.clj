@@ -147,6 +147,10 @@
       (t/is (match? (res {:opts {:no-progress true}})
                     (sut/parse-args ["--no-progress"]))))
 
+    (t/testing "--no-color"
+      (t/is (match? (res {:opts {:no-color true}})
+                    (sut/parse-args ["--no-color"]))))
+
     (t/testing "--upgrade"
       (t/is (match? (res {:opts {:upgrade true}})
                     (sut/parse-args ["--upgrade"]))))
@@ -164,6 +168,7 @@
                                  :error-format "my error format"
                                  :reporter "json"
                                  :no-progress true
+                                 :no-color true
                                  :dirs [(td "dir1") (td "dir2") "~/dirf1"]
                                  :exclude-cwd true
                                  :upgrade true
@@ -182,6 +187,7 @@
                                      "--error-format" "my error format"
                                      "--reporter" "json"
                                      "--no-progress"
+                                     "--no-color"
                                      "--directory" (td "dir1") "-d" (td "dir2") "~/dirf1"
                                      "--exclude-cwd"
                                      "--upgrade"
@@ -267,6 +273,7 @@
                                  :skip #{:pom :circle-ci :leiningen}
                                  :error-format "my error format"
                                  :reporter "json"
+                                 :no-color true
                                  :dirs [(td "dir1") (td "dir2") "~/dirf1"]
                                  :upgrade true
                                  :verbose true
@@ -282,6 +289,7 @@
                                              :skip "pom:circle-ci:leiningen"
                                              :error-format "my error format"
                                              :reporter "json"
+                                             :no-color true
                                              :directory [(td "dir1") (td "dir2") "~/dirf1"]
                                              :exclude-cwd true
                                              :upgrade true

@@ -43,6 +43,7 @@
    [antq.upgrade.leiningen]
    [antq.upgrade.pom]
    [antq.upgrade.shadow]
+   [antq.util.ansi :as ansi]
    [antq.util.dep :as u.dep]
    [antq.util.exception :as u.ex]
    [antq.util.file :as u.file]
@@ -357,43 +358,45 @@
 
 (defn ^:no-doc main*
   [{:keys [opts warnings errors info]}]
-  (doseq [w warnings]
-    ;; a bit weird to log/info but log/warning only shows if verbose is enabled
-    (log/warn (:msg w)))
-  (cond
-    (seq errors)
-    (do (doseq [e errors]
-          (log/error (:msg e)))
-        (.println ^PrintWriter *err* (str "\n" info)) ; usage tip
-        (system-exit 1))
+  (binding [log/*verbose* (boolean (:verbose opts))
+            ansi/*no-color* (boolean (:no-color opts))]
+    (doseq [w warnings]
+      ;; a bit weird to log/info but log/warning only shows if verbose is enabled
+      (log/warn (:msg w)))
+    (cond
+      (seq errors)
+      (do (doseq [e errors]
+            (log/error (:msg e)))
+          (.println ^PrintWriter *err* (str "\n" info)) ; usage tip
+          (system-exit 1))
 
-    ;; usage help or version
-    info
-    (do
-      (println info)
-      (system-exit 0))
+      ;; usage help or version
+      info
+      (do
+        (println info)
+        (system-exit 0))
 
-    :else
-    (do
-      (u.maven/initialize-proxy-setting!)
-      (let [opts (cond-> opts
-                   :always (update :dirs #(mapv u.file/tilde->home %))
-                   :always (update :dirs u.file/distinct-files)
-                   ;; Force "format" reporter when :error-format is specified
-                   (some? (:error-format opts)) (assoc :reporter "format"))
-            deps (fetch-deps opts)]
-        (if-not (seq deps)
-          (do (log/error "No dependencies found to analyze")
-              (system-exit 1))
-          (let [outdated (antq opts deps)]
-            (report/reporter outdated opts)
-            (cond-> outdated
-              (:upgrade opts)
-              (-> (upgrade/upgrade! opts)
-                  ;; get non-upgraded deps
-                  (get false))
-              :always
-              (exit))))))))
+      :else
+      (do
+        (u.maven/initialize-proxy-setting!)
+        (let [opts (cond-> opts
+                     :always (update :dirs #(mapv u.file/tilde->home %))
+                     :always (update :dirs u.file/distinct-files)
+                     ;; Force "format" reporter when :error-format is specified
+                     (some? (:error-format opts)) (assoc :reporter "format"))
+              deps (fetch-deps opts)]
+          (if-not (seq deps)
+            (do (log/error "No dependencies found to analyze")
+                (system-exit 1))
+            (let [outdated (antq opts deps)]
+              (report/reporter outdated opts)
+              (cond-> outdated
+                (:upgrade opts)
+                (-> (upgrade/upgrade! opts)
+                    ;; get non-upgraded deps
+                    (get false))
+                :always
+                (exit)))))))))
 
 (defn latest
   "Entrypoint for finding latest version of a library via -X cli usage.
@@ -420,5 +423,4 @@
   (if (antq.cli/completions-args? args)
     (antq.cli/completions args)
     (let [opts-res (antq.cli/parse-args args)]
-      (binding [log/*verbose* (:verbose (:opts opts-res) false)]
-        (main* opts-res)))))
+      (main* opts-res))))

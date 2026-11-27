@@ -3,8 +3,8 @@
    [antq.constant.project-file :as const.project-file]
    [antq.dep.shadow :as sut]
    [antq.record :as r]
+   [antq.test-helper :as h]
    [antq.test-report]
-   [antq.util.env :as u.env]
    [clojure.java.io :as io]
    [clojure.test :as t]
    [matcher-combinators.matchers :as m]
@@ -38,24 +38,23 @@
            (sort-by :name deps)))))
 
 (t/deftest extract-deps-with-env-tag-test
-  (with-redefs [u.env/getenv  {"ENV1" "1.0.0"
-                               "ENV2" "2.0.0"
-                               "ENV5" "5.0.0"}]
-
-    (let [deps (sut/extract-deps
-                file-path
-                (slurp (io/resource "dep/test_shadow-cljs-env.edn")))]
-      (t/is (sequential? deps))
-      (t/is (every? #(instance? antq.record.Dependency %) deps))
-      (t/is (match?
-             (m/nested-equals
-              (->> [(dependency {:name "foo1" :version "1.0.0"})
-                    (dependency {:name "foo2" :version "2.0.0"})
-                    (dependency {:name "foo3" :version "default3"})
-                    (dependency {:name "foo4" :version "default4"})
-                    (dependency {:name "foo5" :version "5.0.0"})]
-                   (sort-by :name)))
-             (sort-by :name deps))))))
+  (h/with-env {"ENV1" "1.0.0"
+               "ENV2" "2.0.0"
+               "ENV5" "5.0.0"}
+              (let [deps (sut/extract-deps
+                          file-path
+                          (slurp (io/resource "dep/test_shadow-cljs-env.edn")))]
+                (t/is (sequential? deps))
+                (t/is (every? #(instance? antq.record.Dependency %) deps))
+                (t/is (match?
+                       (m/nested-equals
+                        (->> [(dependency {:name "foo1" :version "1.0.0"})
+                              (dependency {:name "foo2" :version "2.0.0"})
+                              (dependency {:name "foo3" :version "default3"})
+                              (dependency {:name "foo4" :version "default4"})
+                              (dependency {:name "foo5" :version "5.0.0"})]
+                             (sort-by :name)))
+                       (sort-by :name deps))))))
 
 (t/deftest load-deps-test
   (with-redefs [const.project-file/shadow-cljs "test_shadow-cljs.edn"]
