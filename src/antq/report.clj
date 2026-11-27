@@ -10,7 +10,7 @@
 
 (defmethod reporter :default
   [_ options]
-  (log/error (str "Unknown reporter: " (:reporter options))))
+  (throw (ex-info  (str "Unknown reporter: " (:reporter options)) {})))
 
 (defmethod reporter no-output-reporter
   [_ _]

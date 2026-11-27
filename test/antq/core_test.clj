@@ -2,7 +2,6 @@
   (:require
    [antq.changelog :as changelog]
    [antq.core :as sut]
-   [antq.log :as log]
    [antq.record :as r]
    [antq.test-helper :as h]
    [antq.test-report]
@@ -284,31 +283,44 @@
   (:latest-version dep))
 
 (t/deftest main*-cooldown-test
-  (let [file (str (fs/create-temp-file))
-        dep (r/map->Dependency {:type :java :project ::cooldown :file file :version "1.0.0"})
+  (let [test-dir (fs/file "target" "test" "core-test" "main-cooldown")
+        _ (fs/create-dirs test-dir)
+        dep-file (str (fs/file test-dir "dummy-dep"))
+        dep (r/map->Dependency {:type :java :project ::cooldown :file dep-file :version "1.0.0"})
         deps [(assoc dep :name "main/picked") (assoc dep :name "main/held")]
         versions {"main/picked" ["3.0.0" "2.0.0" "1.0.0"] "main/held" ["3.0.0" "1.0.0"]}
         dates {"3.0.0" (days-ago 1) "2.0.0" (days-ago 30)}
         run (fn [opts]
-              (spit file "")
-              (let [exit-code (atom nil)]
-                (with-redefs [u.maven/initialize-proxy-setting! (constantly nil)
-                              sut/fetch-deps (constantly deps)
-                              ver/get-sorted-versions (fn [d _] (versions (:name d)))
-                              u.maven/release-date (fn [_ _ v] (get dates v))
-                              sut/system-exit identity]
-                  (with-out-str
-                    (reset! exit-code (sut/main* {:opts (assoc opts :no-changes true :reporter "edn")}))))
-                [@exit-code (slurp file)]))]
-    (try
-      (t/testing "report only: the picked dep is outdated"
-        (t/is (match? [1 ""] (run {:cooldown "7d"}))))
-      (t/testing "upgrade writes the cooldown version; a held dep gives exit code 0"
-        (t/is (match? [0 "2.0.0"] (run {:cooldown "7d" :upgrade true :force true}))))
-      (t/testing "without cooldown both deps go to the latest version"
-        (t/is (match? [0 "3.0.0"] (run {:upgrade true :force true}))))
-      (finally
-        (fs/delete-if-exists file)))))
+              (spit dep-file "")
+              (with-redefs [u.maven/initialize-proxy-setting! (constantly nil)
+                            sut/fetch-deps (constantly deps)
+                            ver/get-sorted-versions (fn [d _] (versions (:name d)))
+                            u.maven/release-date (fn [_ _ v] (get dates v))
+                            sut/system-exit identity]
+                (assoc (h/with-log-capture
+                        (:ret ; exit code
+                         ;; swallow stdout/stderr
+                         (h/with-output-captured
+                          (sut/main* {:opts (assoc opts :no-changes true :reporter "edn")}))))
+                       :file-after (slurp dep-file))))]
+    (t/testing "report only: the picked dep is outdated"
+      (t/is (match? {:ret 1
+                     :file-after ""
+                     :logged []}
+                    (run {:cooldown "7d"}))))
+    (t/testing "upgrade writes the cooldown version; a held dep gives exit code 0"
+      (t/is (match? {:ret 0
+                     :file-after "2.0.0"
+                     :logged [{:level :info :msg "Skipped main/picked 3.0.0 (1d old, cooldown 7d)"}
+                              {:level :info :msg "Skipped main/held 3.0.0 (1d old, cooldown 7d)"}
+                              {:level :info :msg (str "Upgraded main/picked '1.0.0' to '2.0.0' in " dep-file ".")}]}
+                    (run {:cooldown "7d" :upgrade true :force true}))))
+    (t/testing "without cooldown both deps go to the latest version"
+      (t/is (match? {:ret 0
+                     :file-after "3.0.0"
+                     :logged [{:level :info :msg (str "Upgraded main/picked '1.0.0' to '3.0.0' in " dep-file ".")}
+                              {:level :info :msg (str "Upgraded main/held '1.0.0' to '3.0.0' in " dep-file ".")}]}
+                    (run {:upgrade true :force true}))))))
 
 (defmethod ver/get-sorted-versions :test-pre-release
   [dep _]
@@ -423,7 +435,8 @@
 (t/deftest fetch-deps-test
   (let [project-dir "target/test/fetch-deps-test"
         all-files (setup-deps-scenario project-dir)
-        dep-files #(dep-files project-dir %)]
+        dep-files #(dep-files project-dir %)
+        skip-gradle-log [{:level :warn :msg #"Skipping Gradle"}]]
 
     (t/testing "antq project deps"
       (t/is (match? (m/embeds ["bb.edn"
@@ -435,45 +448,22 @@
                          (mapv :file)
                          distinct))))
 
-    (t/testing "default"
-      (t/is (match? (disj all-files "build.gradle")
-                    (dep-files (sut/fetch-deps {:dirs [project-dir]})))))
-
     (t/testing "skip"
-      (t/testing "boot"
-        (t/is (match? (disj all-files "build.gradle" "build.boot")
-                      (dep-files (sut/fetch-deps {:dirs [project-dir]
-                                                  :skip #{:boot}})))))
-
-      (t/testing "clojure-cli"
-        (t/is (match? (disj all-files "build.gradle" "deps.edn")
-                      (dep-files (sut/fetch-deps {:dirs [project-dir]
-                                                  :skip #{:clojure-cli}})))))
-
-      (t/testing "github-action"
-        (t/is (match? (disj all-files "build.gradle"
-                            (h/os-path ".github/workflows/test.yml"))
-                      (dep-files (sut/fetch-deps {:dirs [project-dir]
-                                                  :skip #{:github-action}})))))
-
-      (t/testing "pom"
-        (t/is (match? (disj all-files "build.gradle" "pom.xml")
-                      (dep-files (sut/fetch-deps {:dirs [project-dir]
-                                                  :skip #{:pom}})))))
-
-      (t/testing "shadow-cljs"
-        (t/is (match? (disj all-files "build.gradle" "shadow-cljs.edn")
-                      (dep-files (sut/fetch-deps {:dirs [project-dir]
-                                                  :skip #{:shadow-cljs}})))))
-
-      (t/testing "leiningen"
-        (t/is (match? (disj all-files "build.gradle" "project.clj")
-                      (dep-files (sut/fetch-deps {:dirs [project-dir]
-                                                  :skip #{:leiningen}})))))
-      (t/testing "babashka"
-        (t/is (match? (disj all-files "build.gradle" "bb.edn")
-                      (dep-files (sut/fetch-deps {:dirs [project-dir]
-                                                  :skip #{:babashka}}))))))))
+      (doseq [[skips expected-excluded-files]
+              [[#{}               ["build.gradle"]]
+               [#{:boot}          ["build.gradle" "build.boot"]]
+               [#{:clojure-cli}   ["build.gradle" "deps.edn"]]
+               [#{:github-action} ["build.gradle" (h/os-path ".github/workflows/test.yml")]]
+               [#{:pom}           ["build.gradle" "pom.xml"]]
+               [#{:shadow-cljs}   ["build.gradle" "shadow-cljs.edn"]]
+               [#{:leiningen}     ["build.gradle" "project.clj"]]
+               [#{:babashka}      ["build.gradle" "bb.edn"]]]]
+        (t/testing (str "skip " skips)
+          (t/is (match? {:ret (m/via dep-files (apply disj all-files expected-excluded-files))
+                         :logged skip-gradle-log}
+                        (h/with-log-capture
+                         (sut/fetch-deps {:dirs [project-dir]
+                                          :skip skips})))))))))
 
 (t/deftest ^:gradle fetch-deps-gradle-test
   ;; gradle does not run on the entire broader set of of supported antq JDKs, hence this tagged
@@ -482,45 +472,42 @@
         all-files (setup-deps-scenario project-dir)
         dep-files #(dep-files project-dir %)]
     (t/testing "hint is logged when not checking gradle"
-      (let [log-error (atom [])]
-        (with-redefs [log/error (fn [s] (swap! log-error conj s) nil)]
-          (t/is (match? (disj all-files "build.gradle")
-                        (dep-files (sut/fetch-deps {:dirs [project-dir]}))))
-          (t/is (match? [(str "Skipping Gradle project discovered via "
-                              (h/os-path "target/test/fetch-deps-gradle-test/build.gradle")
-                              ", use:\n"
-                              " --check-gradle to check it\n"
-                              " --skip=gradle to suppress this message")] @log-error)))))
+      (t/is (match? {:ret (m/via dep-files (disj all-files "build.gradle"))
+                     :logged [{:level :warn
+                               :msg (str "Skipping Gradle project discovered via "
+                                         (h/os-path (fs/file project-dir "build.gradle"))
+                                         ", use:\n"
+                                         " --check-gradle to check it\n"
+                                         " --skip=gradle to suppress this message")}]}
+                    (h/with-log-capture
+                     (sut/fetch-deps {:dirs [project-dir]})))))
     (t/testing "hint is suppressed with --skip=gradle"
-      (let [log-error (atom [])]
-        (with-redefs [log/error (fn [s] (swap! log-error conj s) nil)]
-          (t/is (match? (disj all-files "build.gradle")
-                        (dep-files (sut/fetch-deps {:dirs [project-dir]
-                                                    :skip #{:gradle}}))))
-          (t/is (match? [] @log-error)))))
+      (t/is (match? {:ret (m/via dep-files (disj all-files "build.gradle"))
+                     :logged []}
+                    (h/with-log-capture
+                     (sut/fetch-deps {:dirs [project-dir]
+                                      :skip #{:gradle}})))))
     (t/testing "--skip=gradle takes precedence over --check-gradle"
-      (let [log-error (atom [])]
-        (with-redefs [log/error (fn [s] (swap! log-error conj s) nil)]
-          (t/is (match? (disj all-files "build.gradle")
-                        (dep-files (sut/fetch-deps {:dirs [project-dir]
-                                                    :skip #{:gradle}
-                                                    :check-gradle true}))))
-          (t/is (match? [] @log-error)))))
+      (t/is (match? {:ret (m/via dep-files (disj all-files "build.gradle"))
+                     :logged []}
+                    (h/with-log-capture
+                     (sut/fetch-deps {:dirs [project-dir]
+                                      :skip #{:gradle}
+                                      :check-gradle true})))))
     (t/testing "check all"
-      (let [log-error (atom [])]
-        (with-redefs [log/error (fn [s] (swap! log-error conj s))]
-          (t/is (match? all-files
-                        (dep-files (sut/fetch-deps {:dirs [project-dir]
-                                                    :check-gradle true}))))
-          (t/is (match? [] @log-error)))))
+      (t/is (match? {:ret (m/via dep-files all-files)
+                     :logged []}
+                    (h/with-log-capture
+                     (sut/fetch-deps {:dirs [project-dir]
+                                      :check-gradle true})))))
     (t/testing "hint is not presented if no gradle project detected"
       ;; NB: altering test scenario
       (fs/delete (fs/path project-dir "build.gradle"))
-      (let [log-error (atom [])]
-        (with-redefs [log/error (fn [s] (swap! log-error conj s))]
-          (t/is (match? (disj all-files "build.gradle")
-                        (dep-files (sut/fetch-deps {:dirs [project-dir]}))))
-          (t/is (match? [] @log-error)))))))
+      (t/testing "check all"
+        (t/is (match? {:ret (m/via dep-files (disj all-files "build.gradle"))
+                       :logged []}
+                      (h/with-log-capture
+                       (sut/fetch-deps {:dirs [project-dir]}))))))))
 
 (t/deftest no-deps-found-test
   (let [test-dir "target/test/no-deps-found-test"]
@@ -531,13 +518,12 @@
     (doseq [test ["dir-empty"
                   "no-deps"]]
       (t/testing test
-        (let [exit (atom nil)
-              logs (atom [])]
-          (with-redefs [sut/system-exit (fn [x] (reset! exit x))
-                        antq.log/info (fn [x] (swap! logs conj x))]
-            (sut/main* {:opts {:dirs [(str (fs/path test-dir test))]}}))
-          (t/is (= 1 @exit))
-          (t/is (match? [#"No dependencies found"] @logs)))))))
+        (let [exit (atom nil)]
+          (t/is (match? {:logged [{:level :error :msg #"No dependencies found"}]}
+                        (h/with-log-capture
+                         (with-redefs [sut/system-exit (fn [x] (reset! exit x))]
+                           (sut/main* {:opts {:dirs [(str (fs/path test-dir test))]}})))))
+          (t/is (= 1 @exit)))))))
 
 (t/deftest directory-expansion-&-dedupe-test
   (let [test-dir "target/test/directory-expansion-dedupe-test"
@@ -550,13 +536,16 @@
                   sut/fetch-deps (fn [opts]
                                    (swap! fetch-deps-opts conj opts)
                                    [])]
-      (sut/main* {:opts {:dirs ["~"
-                                "~/"
-                                "~/dirfa"
-                                "~/dirfa/dirfb/../dirfb/./dirfc/../.."
-                                (str (fs/path test-dir "dira" "dirb"))
-                                (str (fs/absolutize (fs/path test-dir "dira" "dirb")))
-                                (str (fs/path test-dir "./dira/./dirb/dirc/.."))]}})
+      (t/is (match?
+             {:logged [{:level :error :msg #"No dependencies found"}]}
+             (h/with-log-capture
+              (sut/main* {:opts {:dirs ["~"
+                                        "~/"
+                                        "~/dirfa"
+                                        "~/dirfa/dirfb/../dirfb/./dirfc/../.."
+                                        (str (fs/path test-dir "dira" "dirb"))
+                                        (str (fs/absolutize (fs/path test-dir "dira" "dirb")))
+                                        (str (fs/path test-dir "./dira/./dirb/dirc/.."))]}}))))
       (t/is (match? [{:dirs [(m/via h/os-path (str (fs/path test-dir "fake-home")))
                              (m/via h/os-path (str (fs/path test-dir "fake-home" "dirfa")))
                              (m/via h/os-path (str (fs/path test-dir "dira" "dirb")))]}]

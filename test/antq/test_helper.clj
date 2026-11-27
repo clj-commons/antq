@@ -1,5 +1,6 @@
 (ns antq.test-helper
   (:require
+   [antq.log :as log]
    [antq.record :as r]
    [antq.upgrade.clojure]
    [antq.util.os :as os]
@@ -145,3 +146,22 @@
        ~@body
        (finally
          (set-user-agent-property! old-value#)))))
+
+(defmacro with-output-captured
+  [& body]
+  `(let [out# (new java.io.StringWriter)
+         err# (new java.io.StringWriter)]
+     (binding [*out* out#
+               *err* err#]
+       (let [ret# ~@body]
+         (cond-> {:ret ret#}
+           (not= (str out#) "") (assoc :out (str out#))
+           (not= (str err#) "") (assoc :err (str err#)))))))
+
+(defmacro with-log-capture
+  [& body]
+  `(let [logged# (atom [])]
+     (with-redefs [log/log (fn [e#] (swap! logged# conj e#) nil)]
+       (let [ret# ~@body]
+         {:ret ret#
+          :logged @logged#}))))

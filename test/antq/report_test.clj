@@ -5,4 +5,5 @@
    [clojure.test :as t]))
 
 (t/deftest unknown-reporter-test
-  (t/is (nil? (sut/reporter {} {:reporter :unknown-reporter}))))
+  (t/is (thrown-with-msg? clojure.lang.ExceptionInfo #"Unknown reporter"
+          (sut/reporter {} {:reporter :unknown-reporter}))))

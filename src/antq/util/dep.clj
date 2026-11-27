@@ -62,8 +62,8 @@
       (try
         (ext/coord-deps lib coord :mvn config)
         (catch Exception ex
-          (log/warning (str "Failed to read the POM of " lib " " version ": "
-                            (->> ex (iterate ex-cause) (take-while some?) last ex-message))))))
+          (log/debug (str "Failed to read the POM of " lib " " version ": "
+                          (->> ex (iterate ex-cause) (take-while some?) last ex-message))))))
     (when (fs/exists? file)
       file)))
 

@@ -157,12 +157,16 @@
         (t/is (empty? @calls)))
 
       (t/testing "no repository has a date: a warning, shown with --verbose"
-        (let [err (fn [verbose? dep-name]
-                    (let [sw (java.io.StringWriter.)]
-                      (binding [log/*verbose* verbose?
-                                *err* sw]
-                        (t/is (nil? (sut/release-date (dissoc repos "second") dep-name "1.0"))))
-                      (str/trim (str sw))))]
-          (t/is (= "" (err false "release-date/test2")))
-          (t/is (= "Failed to get the release date of release-date/test3 1.0 from the repositories first, no-url"
-                   (err true "release-date/test3"))))))))
+        (t/is (match? {:ret nil
+                       :logged []}
+                      (h/with-log-capture
+                       (binding [log/*verbose* false]
+                         (sut/release-date (dissoc repos "second") "release-date/test2" "1.0")))))
+
+        (t/is (match?
+               {:ret nil
+                :logged [{:level :debug
+                          :msg "Failed to get the release date of release-date/test3 1.0 from the repositories first, no-url"}]}
+               (h/with-log-capture
+                (binding [log/*verbose* true]
+                  (sut/release-date (dissoc repos "second") "release-date/test3" "1.0")))))))))

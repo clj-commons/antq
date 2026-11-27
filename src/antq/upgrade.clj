@@ -83,7 +83,8 @@
                                   (map normalize-version))]
     (when (and (seq version-checked-deps)
                (not force?))
-      (log/info ""))
+      ;; print a blank line before prompting user
+      (println ""))
 
     (let [upgrade-result (group-by
                           (fn [dep]

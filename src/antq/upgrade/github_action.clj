@@ -56,8 +56,8 @@
 
 (defmethod upgrade-dep :default
   [_ version-checked-dep]
-  (log/error (format "%s: Not supported."
-                     (dep.gh-action/get-type version-checked-dep))))
+  (throw (ex-info (format "%s: Not supported for GitHub action upgrade."
+                          (:name version-checked-dep)) {})))
 
 (defmethod upgrade-dep "uses"
   [loc version-checked-dep]
@@ -85,7 +85,7 @@
                     const.gh-action/setup-zprint-name #"zprint\s*:"
                     nil)]
     (if-not target-re
-      (log/error (format "%s: Unexpected name for setup-clojure"
+      (log/error (format "%s: Unexpected name for setup-clojure GitHub action"
                          (:name version-checked-dep)))
       (loop [loc loc]
         (if-let [loc (ri.zip/find-next-string loc #(re-seq target-re %))]

@@ -88,7 +88,9 @@ https://github.com/clj-commons/antq/issues/416[#416]: Docs and docstrings review
 (https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/446[#446]: Remove malli schemas from the handful of fns that have them.
 (https://github.com/lread[@lread])
-
+* https://github.com/clj-commons/antq/issues/450[#450]: Review, cleanup `antq` logging, highlights:
+** ``antq``'s own logging now always output to stderr to avoid conflicts with report output.
+** Colorized log level DEBUG/INFO/WARN/ERROR now included as log line prefix.
 
 === New for Command Line
 * https://github.com/clj-commons/antq/issues/280[#280],

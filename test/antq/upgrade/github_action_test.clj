@@ -101,7 +101,8 @@
                (h/diff-deps from-deps to-deps))))))
 
   (t/testing "not supported"
-    (t/is (nil? (upgrade/upgrader dummy-not-supported-dep)))))
+    (t/is (thrown-with-msg? clojure.lang.ExceptionInfo #"bar/baz: Not supported .*upgrade"
+            (upgrade/upgrader dummy-not-supported-dep)))))
 
 (t/deftest upgrade-third-party-dep-test
   (t/testing "clj-kondo"

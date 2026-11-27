@@ -21,11 +21,11 @@
                   (u.url/ensure-tail-slash url)
                   current
                   latest)
-          (do (log/warning (str "The tag for current version is not found: " url))
+          (do (log/debug (str "The tag for current version is not found: " url))
               ;; not diff, but URL is useful for finding the differences.
               nil)))
 
       :else
-      (do (log/warning (str "Diff is not supported for " url))
+      (do (log/debug (str "Diff is not supported for " url))
           ;; not diff, but URL is useful for finding the differences.
           nil))))

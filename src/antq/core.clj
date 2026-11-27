@@ -59,6 +59,8 @@
    [version-clj.core :as version])
   (:import
    clojure.lang.ExceptionInfo
+   (java.io
+    PrintWriter)
    (java.time
     Duration
     Instant)))
@@ -305,10 +307,10 @@
                 (if (:check-gradle options)
                   (dep.gradle/load-deps %)
                   (when-let [file (dep.gradle/discover-project %)]
-                    (log/error (format (str "Skipping Gradle project discovered via %s, use:\n"
-                                            " --check-gradle to check it\n"
-                                            " --skip=gradle to suppress this message")
-                                       file)))))
+                    (log/warn (format (str "Skipping Gradle project discovered via %s, use:\n"
+                                           " --check-gradle to check it\n"
+                                           " --skip=gradle to suppress this message")
+                                      file)))))
               (when (:check-clojure-tools options) (dep.clj.tool/load-deps)))
             (distinct (:dirs options)))))
 
@@ -353,31 +355,22 @@
       :always
       (unmark-only-newest-version-flag))))
 
-(defn- error-text
-  [text]
-  (str "\u001B[41;30mERROR:\u001B[0m\u001B[31m " text "\u001B[0m"))
-
-(defn- warning-text
-  [text]
-  (str "\u001B[43;30mWARNING:\u001B[0m\u001B[33m " text "\u001B[0m"))
-
 (defn ^:no-doc main*
   [{:keys [opts warnings errors info]}]
   (doseq [w warnings]
     ;; a bit weird to log/info but log/warning only shows if verbose is enabled
-    (log/info (warning-text (:msg w))))
+    (log/warn (:msg w)))
   (cond
     (seq errors)
     (do (doseq [e errors]
-          (log/error (error-text (:msg e))))
-        (log/info "")
-        (log/info info) ; usage help
+          (log/error (:msg e)))
+        (.println ^PrintWriter *err* (str "\n" info)) ; usage tip
         (system-exit 1))
 
     ;; usage help or version
     info
     (do
-      (log/info info)
+      (println info)
       (system-exit 0))
 
     :else
@@ -390,7 +383,7 @@
                    (some? (:error-format opts)) (assoc :reporter "format"))
             deps (fetch-deps opts)]
         (if-not (seq deps)
-          (do (log/info "No dependencies found to analyze")
+          (do (log/error "No dependencies found to analyze")
               (system-exit 1))
           (let [outdated (antq opts deps)]
             (report/reporter outdated opts)
@@ -417,7 +410,7 @@
           :name dep-name})
         (ver/get-sorted-versions {})
         (first)
-        (log/info))))
+        (println))))
 
 (defn -main
   "Entrypoint for clojure -M cli usage.
