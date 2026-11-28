@@ -1,5 +1,13 @@
 name: test
-on: [push, pull_request, workflow_call]
+on:
+  # allow this workflow to be called from other workflows, namely: publish
+  workflow_call:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
 
 jobs:
   test:

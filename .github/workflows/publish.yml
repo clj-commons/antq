@@ -9,10 +9,13 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
 
+  lint:
+    uses: ./.github/workflows/lint.yml
+
   publish:
     environment: publish
     runs-on: ubuntu-latest
-    needs: [test]
+    needs: [test, lint]
     permissions:
       contents: write # to allow creation of release
 
