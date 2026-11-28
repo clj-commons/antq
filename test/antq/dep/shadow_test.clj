@@ -41,20 +41,20 @@
   (h/with-env {"ENV1" "1.0.0"
                "ENV2" "2.0.0"
                "ENV5" "5.0.0"}
-              (let [deps (sut/extract-deps
-                          file-path
-                          (slurp (io/resource "dep/test_shadow-cljs-env.edn")))]
-                (t/is (sequential? deps))
-                (t/is (every? #(instance? antq.record.Dependency %) deps))
-                (t/is (match?
-                       (m/nested-equals
-                        (->> [(dependency {:name "foo1" :version "1.0.0"})
-                              (dependency {:name "foo2" :version "2.0.0"})
-                              (dependency {:name "foo3" :version "default3"})
-                              (dependency {:name "foo4" :version "default4"})
-                              (dependency {:name "foo5" :version "5.0.0"})]
-                             (sort-by :name)))
-                       (sort-by :name deps))))))
+    (let [deps (sut/extract-deps
+                file-path
+                (slurp (io/resource "dep/test_shadow-cljs-env.edn")))]
+      (t/is (sequential? deps))
+      (t/is (every? #(instance? antq.record.Dependency %) deps))
+      (t/is (match?
+             (m/nested-equals
+              (->> [(dependency {:name "foo1" :version "1.0.0"})
+                    (dependency {:name "foo2" :version "2.0.0"})
+                    (dependency {:name "foo3" :version "default3"})
+                    (dependency {:name "foo4" :version "default4"})
+                    (dependency {:name "foo5" :version "5.0.0"})]
+                   (sort-by :name)))
+             (sort-by :name deps))))))
 
 (t/deftest load-deps-test
   (with-redefs [const.project-file/shadow-cljs "test_shadow-cljs.edn"]

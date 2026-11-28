@@ -19,22 +19,18 @@
 
 (t/deftest antq-user-agent-is-delivered-to-maven-repo-test
   (let [lib (cache-busting-dummy-lib)]
-    (h/with-server
-     server-routes
-     (fn [{:keys [base-url requests-atom]}]
-       (h/with-user-agent-property
-        nil
-        (sut/get-sorted-versions-by-name* lib {:repositories {"test" {:url base-url}}} {}))
-       (t/is (match? (m/seq-of {:user-agent #"antq/\d.* tools.deps/\d.*"})
-                     @requests-atom))))))
+    (h/with-server server-routes
+      (fn [{:keys [base-url requests-atom]}]
+        (h/with-user-agent-property nil
+          (sut/get-sorted-versions-by-name* lib {:repositories {"test" {:url base-url}}} {}))
+        (t/is (match? (m/seq-of {:user-agent #"antq/\d.* tools.deps/\d.*"})
+                      @requests-atom))))))
 
 (t/deftest predefined-user-agent-is-delivered-to-maven-repo-test
   (let [lib (cache-busting-dummy-lib)]
-    (h/with-server
-     server-routes
-     (fn [{:keys [base-url requests-atom]}]
-       (h/with-user-agent-property
-        "user-override-agent"
-        (sut/get-sorted-versions-by-name* lib {:repositories {"test" {:url base-url}}} {}))
-       (t/is (match? (m/seq-of {:user-agent "user-override-agent"})
-                     @requests-atom))))))
+    (h/with-server server-routes
+      (fn [{:keys [base-url requests-atom]}]
+        (h/with-user-agent-property "user-override-agent"
+          (sut/get-sorted-versions-by-name* lib {:repositories {"test" {:url base-url}}} {}))
+        (t/is (match? (m/seq-of {:user-agent "user-override-agent"})
+                      @requests-atom))))))

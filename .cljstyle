@@ -1,7 +1,10 @@
 ; -*- mode: edn; -*-
 {:rules {:indentation {:list-indent 1
                        :indents {with-temp-dir [[:block 1]]
-                                 with-repository-credentials [[:block 1]]}}
+                                 with-repository-credentials [[:block 1]]
+                                 with-env [[:block 1]]
+                                 with-server [[:block 1]]
+                                 with-user-agent-property [[:block 1]]}}
          :blank-lines {:insert-padding? false}
          :types {:enabled? false}
          :namespaces {:indent-size 1}}

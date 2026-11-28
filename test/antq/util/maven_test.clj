@@ -77,16 +77,16 @@
 
 (t/deftest credentials-test
   (h/with-env dummy-env
-              (with-redefs [u.lein/get-credential (constantly {:username "gpg-user"
-                                                               :password "gpg-pass"})]
-                (t/is (match?
-                       (m/nested-equals
-                        {"serv3" {:url "https://three.example.com" :username "three-user" :password "three-pass"}
-                         "serv4" {:url "https://four.example.com" :username "lein-pass" :password "env-four"}
-                         "serv5" {:url "https://five.example.com" :username "gpg-user" :password "gpg-pass"}
-                         "serv6" {:url "https://six.example.com" :username "six-user" :password "six-pass"}
-                         "serv7" {:url "https://seven.example.com" :username "fallback" :password "six-pass"}})
-                       (sut/credentials dummy-repos))))))
+    (with-redefs [u.lein/get-credential (constantly {:username "gpg-user"
+                                                     :password "gpg-pass"})]
+      (t/is (match?
+             (m/nested-equals
+              {"serv3" {:url "https://three.example.com" :username "three-user" :password "three-pass"}
+               "serv4" {:url "https://four.example.com" :username "lein-pass" :password "env-four"}
+               "serv5" {:url "https://five.example.com" :username "gpg-user" :password "gpg-pass"}
+               "serv6" {:url "https://six.example.com" :username "six-user" :password "six-pass"}
+               "serv7" {:url "https://seven.example.com" :username "fallback" :password "six-pass"}})
+             (sut/credentials dummy-repos))))))
 
 (t/deftest read-pom-test
   (t/is (match?

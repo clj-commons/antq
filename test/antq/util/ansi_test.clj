@@ -7,10 +7,10 @@
 
 (t/deftest ansi-enabled-test
   (h/with-env {"NO_COLOR" nil} ; just in case a dev has NO_COLOR in their env
-              (t/is (= [(char 27) \[ \3 \6 \; \2 \; \4 \1 \m] (seq (sut/ctrl :fg-cyan :dim :bg-red))))))
+    (t/is (= [(char 27) \[ \3 \6 \; \2 \; \4 \1 \m] (seq (sut/ctrl :fg-cyan :dim :bg-red))))))
 
 (t/deftest ansi-disabled-test
   (binding [sut/*no-color* true]
     (t/is (= "" (sut/ctrl :fg-cyan :dim :bg-red))))
   (h/with-env {"NO_COLOR" "TRUE"}
-              (t/is (= "" (sut/ctrl :fg-cyan :dim :bg-red)))))
+    (t/is (= "" (sut/ctrl :fg-cyan :dim :bg-red)))))
