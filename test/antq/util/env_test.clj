@@ -7,10 +7,10 @@
 
 (t/deftest getlong-test
   (h/with-env {"FOO" "100"}
-              (t/is (= 100 (sut/getlong "FOO" 200))))
+    (t/is (= 100 (sut/getlong "FOO" 200))))
 
   (h/with-env {"FOO" nil}
-              (t/is (= 200 (sut/getlong "FOO" 200))))
+    (t/is (= 200 (sut/getlong "FOO" 200))))
 
   (h/with-env {"FOO" "INVALID"}
-              (t/is (= 200 (sut/getlong "FOO" 200)))))
+    (t/is (= 200 (sut/getlong "FOO" 200)))))
