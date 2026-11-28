@@ -7,6 +7,7 @@
    [clojure.string :as str]
    [clojure.test :refer [deftest is use-fixtures]]
    [flatland.ordered.map :as omap]
+   [matcher-combinators.matchers :as m]
    [matcher-combinators.test]))
 
 (def ^:private test-work-dir "target/test/lein-plugin")
@@ -51,14 +52,6 @@
                                      opts)))
                ")"))))
 
-
-(defn- parse-out
-  "Returns interesting output as line"
-  [out]
-  (->> out
-       str/split-lines
-       (remove (fn [l] (re-find #"^(SLF4J:|Reflection|Retrieving|Downloading|\[|\| file |\|-| *$)" l)))))
-
 (defn- lein-run
   []
   (let [{:keys [exit out]} (p/shell {:dir test-work-dir
@@ -67,29 +60,28 @@
                                      :continue true}
                                     "lein with-profile -user antq")]
     {:exit exit
-     :out (parse-out out)}))
+     :out (str/split-lines out)}))
 
 (defn- lein-scenario
   [opts]
   (lein-project opts)
   (lein-run))
 
-
 (deftest ^:integration detects-outdated-deps-test
   ;; test assumes clojure will always be at 1.x. probably a safe assumption!
   (is (match? {:exit 1
-               :out [#"\| project\.clj +\| org\.clojure/clojure +\| 1\.10\.2 +\| [^|]+\| 1"
-                     "Available changes:"
-                     #"- https://github.com/clojure/clojure/blob/clojure-1.*/changes\.md"]}
+               :out (m/embeds [#"\| project\.clj +\| org\.clojure/clojure +\| 1\.10\.2 +\| [^|]+\| 1"
+                               "Available changes:"
+                               #"- https://github.com/clojure/clojure/blob/clojure-1.*/changes\.md"])}
               (lein-scenario [:plugins [antq-coords]
                               :dependencies '[[org.clojure/clojure "1.10.2"]]]))))
 
 (deftest ^:integration detects-outdated-managed-deps-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
   (is (match? {:exit 1
-               :out [#"\| project\.clj +\| com\.stuartsierra/mapgraph +\| 0\.1\.0 +\| [^|]+\| 0\.2\.1"
-                     "Available changes:"
-                     "- https://github.com/stuartsierra/mapgraph/blob/0.2.1/CHANGES.md"]}
+               :out (m/embeds [#"\| project\.clj +\| com\.stuartsierra/mapgraph +\| 0\.1\.0 +\| [^|]+\| 0\.2\.1"
+                               "Available changes:"
+                               "- https://github.com/stuartsierra/mapgraph/blob/0.2.1/CHANGES.md"])}
               (lein-scenario [:plugins [antq-coords]
                               :managed-dependencies '[[com.stuartsierra/mapgraph "0.1.0"]]
                               :dependencies '[[com.stuartsierra/mapgraph]]]))))
@@ -97,14 +89,14 @@
 (deftest ^:integration detects-outdated-plugins-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
   (is (match? {:exit 1
-               :out [#"\| project\.clj +\| lein-swank/lein-swank +\| 1\.4\.1 +\| [^|]+\| 1\.4\.5"]}
+               :out (m/embeds [#"\| project\.clj +\| lein-swank/lein-swank +\| 1\.4\.1 +\| [^|]+\| 1\.4\.5"])}
               (lein-scenario [:plugins [['lein-swank "1.4.1"]
                                         antq-coords]]))))
 
 (deftest ^:integration no-updates-test
   ;; test assumes no further releases of libs, adjust accordingly if reality changes
   (is (match? {:exit 0
-               :out ["All dependencies are up-to-date."]}
+               :out (m/embeds ["All dependencies are up-to-date."])}
               (lein-scenario [:managed-dependencies '[[com.stuartsierra/mapgraph "0.2.1"]]
                               :dependencies '[[me.raynes/fs "1.4.6"]
                                               [com.stuartsierra/mapgraph]]
@@ -114,7 +106,7 @@
 (deftest ^:integration meta-exclude-test
   ;; test assumes no further releases of this lib, adjust accordingly
   (is (match? {:exit 1
-               :out [#"\| project\.clj +\| me.raynes/fs +\| 1\.4\.1 +\| [^|]+\| 1\.4\.4 +\|"]}
+               :out (m/embeds [#"\| project\.clj +\| me.raynes/fs +\| 1\.4\.1 +\| [^|]+\| 1\.4\.4 +\|"])}
               (lein-scenario [:plugins [antq-coords]
                               :dependencies [^{:antq/exclude ["1.4.6" "1.4.5"]} ['me.raynes/fs "1.4.1"]]]))))
 
