@@ -163,7 +163,6 @@
 
    :no-color
    {:coerce boolean
-    :default false
     :desc "Don't use ANSI colored text"}
 
    :cooldown
