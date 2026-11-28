@@ -133,8 +133,7 @@
   (let [res (if-let [forced-version (:forced-version dep)]
               (assoc dep :_versions [forced-version])
               (assoc dep :_versions (ver/get-sorted-versions dep options)))]
-    (when-not (:no-progress options)
-      (report/run-progress dep options))
+    (report/run-progress dep options)
     res))
 
 (defn- old-enough?

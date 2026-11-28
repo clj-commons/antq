@@ -134,18 +134,21 @@
             total-count)))
 
 (defmethod report/init-progress "table"
-  [deps _options]
-  (reset! progress {:total-count (count deps)
-                    :count-atom (atom 0)}))
+  [deps {:keys [no-progress]}]
+  (when-not no-progress
+    (reset! progress {:total-count (count deps)
+                      :count-atom (atom 0)})))
 
 (defmethod report/run-progress "table"
-  [_dep _options]
-  (when-let [{:keys [total-count count-atom]} @progress]
-    (when (< @count-atom total-count)
-      (swap! count-atom inc)
-      (log/async-print
-       (progress-text {:total-count total-count :current-count @count-atom})))))
+  [_dep {:keys [no-progress]}]
+  (when-not no-progress
+    (when-let [{:keys [total-count count-atom]} @progress]
+      (when (< @count-atom total-count)
+        (swap! count-atom inc)
+        (log/async-print
+         (progress-text {:total-count total-count :current-count @count-atom}))))))
 
 (defmethod report/deinit-progress "table"
-  [_ _]
-  (println ""))
+  [_ {:keys [no-progress]}]
+  (when-not no-progress
+    (log/async-print "\n")))
