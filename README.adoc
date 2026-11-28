@@ -568,6 +568,18 @@ Clojars artifacts released before February 2020 show a release date in February 
 * link:./doc/developer-guide.adoc[Developer Guide]
 * link:./doc/maintainer-guide.adoc[Maintainer Guide]
 
+== People
+A huge thank you to all the people who have contributed to `antq`!
+
+=== Founder
+
+* https://github.com/liquidz[Masashi Iizuka]
+
+=== Current Active Maintainers
+
+* https://github.com/lread[Lee Read]
+* https://github.com/borkdude[Michiel Borkent]
+
 == License
 
 Copyright © 2020-2025 https://scrapbox.io/uochan/uochan[Masashi Iizuka]
