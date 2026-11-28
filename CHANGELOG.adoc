@@ -102,6 +102,9 @@ The table also shows the age of the current and latest versions of Maven depende
 (thanks, https://github.com/aadrian[@aadrian]!)
 * https://github.com/clj-commons/antq/pull/289[#289]: New `--no-progress` option to suppress progress indicator while analyzing deps
 (thanks, https://github.com/kirked[@kirked]!)
+* https://github.com/clj-commons/antq/issues/384[#451]: New `--no-color` option to output only plain text.
+`NO_COLOR` environment variable is also respected.
+(https://github.com/lread[@lread])
 * https://github.com/clj-commons/antq/issues/419[#419]: New `--version` option prints `antq` version and exits.
 Version is now also printed with CLI usage help.
 (https://github.com/lread[@lread])

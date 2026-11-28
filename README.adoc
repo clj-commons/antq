@@ -465,6 +465,15 @@ You can also upgrade them with the <<opt-upgrade>> option.
 Skip progress reporting.
 Progress reporting is enabled by default.
 
+
+[[opt-no-color]]
+=== --no-color
+
+By default `antq` will use ANSI colored text in some of its output.
+Specify this option to only output plain text.
+
+TIP: `antq` also respects the `NO_COLOR` environment variable.
+
 [[opt-no-changes]]
 === --no-changes
 

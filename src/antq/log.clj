@@ -1,30 +1,9 @@
 (ns ^:no-doc antq.log
   (:require
+   [antq.util.ansi :as ansi]
    [clojure.string :as str]))
 
 (def ^:dynamic *verbose* false)
-
-(def ^:private ansi-codes
-  {:fg-black 30
-   :fg-white 37
-   :fg-cyan 36
-   :fg-yellow 33
-   :bg-white 47
-   :bg-cyan 46
-   :bg-yellow 43
-   :bg-red 41
-   :fg-red 31
-   :dim 2
-   :off 0})
-
-(defn- ansi
-  [& codes]
-  (str "\u001b["
-       (str/join ";"
-                 (mapv #(or (get ansi-codes %)
-                            (throw (ex-info (str "invalid code: " %) {})))
-                       codes))
-       "m"))
 
 (defn- log
   "Use with-redefs on this fn to capture log events"
@@ -32,10 +11,27 @@
   (let [msg (->> (str/split-lines msg) (str/join "\n  "))]
     (binding [*out* *err*]
       (println (str (case level
-                      :debug (str (ansi :bg-white :fg-black :dim) " DEBUG " (ansi :off) " " msg)
-                      :info  (str (ansi :bg-cyan :fg-white) " INFO " (ansi :off) " " msg)
-                      :warn  (str (ansi :bg-yellow :fg-black) " WARN " (ansi :off) " " msg)
-                      :error (str (ansi :bg-red :fg-white) " ERROR " (ansi :off) " " msg)))))))
+                      :debug (str
+                              (ansi/ctrl :bg-white :fg-white :dim) "["
+                              (ansi/ctrl :fg-black :dim) "DEBUG"
+                              (ansi/ctrl :fg-white :dim) "]"
+                              (ansi/ctrl :off) " " msg)
+                      :info  (str
+                              (ansi/ctrl :bg-cyan :fg-cyan) "["
+                              (ansi/ctrl :fg-white) "INFO"
+                              (ansi/ctrl :fg-cyan) "]"
+                              (ansi/ctrl :off) " " msg)
+                      :warn  (str
+                              (ansi/ctrl :bg-yellow :fg-yellow) "["
+                              (ansi/ctrl :fg-black) "WARN"
+                              (ansi/ctrl :fg-yellow) "]"
+                              (ansi/ctrl :off) " " msg)
+                      :error (str
+                              (ansi/ctrl :bg-red :fg-red) "["
+                              (ansi/ctrl :fg-white)
+                              "ERROR"
+                              (ansi/ctrl :fg-red) "]"
+                              (ansi/ctrl :off) " " msg)))))))
 
 (defn debug
   [s]

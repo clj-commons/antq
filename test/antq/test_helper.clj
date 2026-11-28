@@ -3,6 +3,7 @@
    [antq.log :as log]
    [antq.record :as r]
    [antq.upgrade.clojure]
+   [antq.util.env :as u.env]
    [antq.util.os :as os]
    [babashka.fs :as fs]
    [clojure.string :as str]
@@ -165,3 +166,10 @@
        (let [ret# ~@body]
          {:ret ret#
           :logged @logged#}))))
+
+(defmacro with-env
+  "Override env with `env-map`, fall back to actual env"
+  [env-map & body]
+  `(let [orig-getenv# u.env/getenv]
+     (with-redefs [u.env/getenv (fn [var#] (get ~env-map var# (orig-getenv# var#)))]
+       ~@body)))

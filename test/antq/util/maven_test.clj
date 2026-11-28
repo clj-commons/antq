@@ -3,7 +3,6 @@
    [antq.log :as log]
    [antq.test-helper :as h]
    [antq.test-report]
-   [antq.util.env :as u.env]
    [antq.util.leiningen :as u.lein]
    [antq.util.maven :as sut]
    [clojure.data.xml :as xml]
@@ -76,19 +75,18 @@
     true "foo-SNAPSHOT"
     true "2.5-20240101.120000-1"))
 
-
 (t/deftest credentials-test
-  (with-redefs [u.env/getenv #(get dummy-env %)
-                u.lein/get-credential (constantly {:username "gpg-user"
-                                                   :password "gpg-pass"})]
-    (t/is (match?
-           (m/nested-equals
-            {"serv3" {:url "https://three.example.com" :username "three-user" :password "three-pass"}
-             "serv4" {:url "https://four.example.com" :username "lein-pass" :password "env-four"}
-             "serv5" {:url "https://five.example.com" :username "gpg-user" :password "gpg-pass"}
-             "serv6" {:url "https://six.example.com" :username "six-user" :password "six-pass"}
-             "serv7" {:url "https://seven.example.com" :username "fallback" :password "six-pass"}})
-           (sut/credentials dummy-repos)))))
+  (h/with-env dummy-env
+              (with-redefs [u.lein/get-credential (constantly {:username "gpg-user"
+                                                               :password "gpg-pass"})]
+                (t/is (match?
+                       (m/nested-equals
+                        {"serv3" {:url "https://three.example.com" :username "three-user" :password "three-pass"}
+                         "serv4" {:url "https://four.example.com" :username "lein-pass" :password "env-four"}
+                         "serv5" {:url "https://five.example.com" :username "gpg-user" :password "gpg-pass"}
+                         "serv6" {:url "https://six.example.com" :username "six-user" :password "six-pass"}
+                         "serv7" {:url "https://seven.example.com" :username "fallback" :password "six-pass"}})
+                       (sut/credentials dummy-repos))))))
 
 (t/deftest read-pom-test
   (t/is (match?
